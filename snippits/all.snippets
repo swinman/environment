@@ -1,0 +1,72 @@
+global !p
+import string, vim
+
+# Maps a filetype to comment, automatically filled during usage
+_commentDict = { }
+
+def _parse_comments_single(s):
+    """ Parses vim's comments option to extract single line comment
+    """
+    for i in s.split(","):
+	flags, text = i.split(":", 1)
+	if len(flags) == 0:
+	    return text
+
+def _get_comment_format():
+    """ Returns a 4-element tuple representing the comment format for
+    the current file. """
+
+    ft = vim.eval("&filetype")
+    try:
+	return _commentDict[ft]
+    except KeyError:
+	commentformat = vim.eval("GetCChar()")
+	_commentDict[ft] = commentformat
+	return commentformat
+
+def foldmarker():
+    "Return a tuple of (open fold marker, close fold marker)"
+    return vim.eval("&foldmarker").split(",")
+
+endglobal
+
+snippet ifold "improved folding" !b
+`!p snip.rv = _get_comment_format()` `!p
+try:
+    level = int(t[2])
+except:
+    level = 0
+if level == 1:
+    key = "="
+elif level == 2:
+    key = "-"
+elif level == 3:
+    key = '.'
+else:
+    key = ' '
+# previously had ${3:=} as one of the delim values
+#try:
+#    key = t[3][-1]
+#except IndexError:
+#    key = " "
+snip.rv = key*max(0,
+	27 - int(len(t[1])//2) - len(_get_comment_format()) )
+` ${1:Section} `!p
+snip.rv = key*max(0, 35 - int((1 + len(t[1]))//2))
+`         `!p
+snip.rv = foldmarker()[0]
+`${2:1}
+${VISUAL:
+}`!p
+snip.rv = _get_comment_format()
+` END: `!p
+snip.rv = key*max(0,
+	27 - int(len(t[1])//2) - len(_get_comment_format()) - len("END: ") )
+` $1 `!p
+snip.rv = key*max(0, 35 - int((1 + len(t[1]))//2))
+`         ${2/(\d+).*/$1/}`!p
+snip.rv = foldmarker()[1]`
+
+endsnippet
+
+# vim:ft=snippets:

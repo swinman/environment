@@ -1,0 +1,95 @@
+# ICE50:
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2101", MODE="0660", GROUP="plugdev"
+
+# JTAGICE mkII:
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2103", MODE="0660", GROUP="plugdev"
+
+# AVRISP mkII:
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2104", MODE="0660", GROUP="plugdev"
+
+# AVRONE:
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2105", MODE="0660", GROUP="plugdev"
+
+# STK600:
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2106", MODE="0660", GROUP="plugdev"
+
+# AVR Dragon:
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2107", MODE="0660", GROUP="plugdev"
+
+# RzUsbStick:
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="210a", MODE="0660", GROUP="plugdev"
+
+# QT600:
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2114", MODE="0660", GROUP="plugdev"
+
+# QT600P:
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2116", MODE="0660", GROUP="plugdev"
+
+# Atmel CDC device product ID (for at32uc3b at least)
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2404", MODE="0660", GROUP="plugdev",
+RUN+="/sbin/modprobe usbserial vendor=0x03eb product=0x2404"
+
+# Atmel CDC device product ID (for at32uc3b at least)
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2425", MODE="0660", GROUP="plugdev",
+RUN+="/sbin/modprobe usbserial vendor=0x03eb product=0x2425"
+
+# Atmel CDC device product ID for EDBG
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2111", MODE="0660", GROUP="plugdev",
+
+# Atmel CDC device product ID for AT91SAM(4) SAM-BA
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="6124", MODE="0660", GROUP="plugdev",
+
+# bootloader product ID for AT32UC3A3
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ff1", MODE="0660", GROUP="plugdev"
+
+# bootloader product ID for ATmega16U4
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ff3", MODE="0660", GROUP="plugdev"
+
+# bootloader product ID for ATmega32U4
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ff4", MODE="0660", GROUP="plugdev"
+
+# bootloader product ID for AT32UC3B0/1
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ff6", MODE="0660", GROUP="plugdev"
+
+# bootloader product ID for AT90USB82
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ff7", MODE="0660", GROUP="plugdev"
+
+# bootloader product ID for AT32UC3A0/1
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ff8", MODE="0660", GROUP="plugdev"
+
+# bootloader product ID for AT90USB646/7
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ff9", MODE="0660", GROUP="plugdev"
+
+# bootloader product ID for AT90USB162
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ffa", MODE="0660", GROUP="plugdev"
+
+# bootloader product ID for AT90USB1286/7
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ffb", MODE="0660", GROUP="plugdev"
+
+# bootloader product ID for AT89C5131A
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2ffd", MODE="0660", GROUP="plugdev"
+
+# vim:ft=udevrules

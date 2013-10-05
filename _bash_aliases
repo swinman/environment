@@ -1,0 +1,40 @@
+# add more aliases to .bashrc
+# also add history ignore parameter
+#
+## depending on os:
+#alias softwaredir=~/software
+#alias softwaredir=~/Documents/software
+#
+#if [ -f $softwaredir/environment/_bash_aliases ]; then
+#    . $softwaredir/environment/_bash_aliases
+#fi ... put this in .bashrc
+#
+
+export HISTIGNORE="&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi:gvim:ipy:history"
+
+alias cd..='cd ..'
+
+# various programs
+alias ipy='ipython -i --no-banner'
+alias chrom='chromium-browser'
+alias py3='ipython3 -i --no-banner'
+
+# Git
+alias gco='git checkout '
+alias gci='git commit '
+alias gis='git status '
+alias gba='git branch -a '
+alias gsh='git show '
+alias gdf='git diff '
+alias gdw='git diff --word-diff'
+alias gad='git add '
+alias gpu='git push '
+function g1c() { git diff $@~ $@ ;}
+
+# DFU-Programmer
+alias dfu='dfu-programmer at32uc3b1512'
+alias dflash='dfu flash --suppress-bootloader-mem'
+alias derase='dfu erase'
+alias dreset='dfu reset'
+
+# vim:ft=sh
