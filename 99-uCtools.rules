@@ -92,4 +92,9 @@ ATTRS{idProduct}=="2ffb", MODE="0660", GROUP="plugdev"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2ffd", MODE="0660", GROUP="plugdev"
 
+# ST CDC device product ID
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
+ATTRS{idProduct}=="5740", MODE="0660", GROUP="plugdev",
+RUN+="/sbin/modprobe usbserial vendor=0x0483 product=0x5740"
+
 # vim:ft=udevrules
