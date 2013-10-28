@@ -53,6 +53,10 @@ get_python2_packages() {
         sudo apt-get install python-serial
         sudo apt-get install python-qt4
         sudo apt-get install python-setuptools
+        # python usb (pyusb)
+        sudo apt-get install python-usb
+        sudo apt-get install python-pip
+        sudo pip install --upgrade pyusb
         # needed to build qrc
         sudo apt-get install pyqt4-dev-tools
         # needed to build application
