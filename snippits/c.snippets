@@ -15,16 +15,18 @@ snippet c_template "Template for New C File" !b
 // __ Private functions _____________________________________________
 // __ Public function _______________________________________________
 
+// vim:shiftwidth=2
 endsnippet
 
 snippet func "Function Dec and Function" !b
- /* $1
-  * ${4:short description}
-  */
 ${2:void} ${1:function_name} (${3:void});
+  /* @brief ${4:short description}
+  * @param  ${5:None}
+  * @retval ${6:None}
+  */
 
 $2 $1 ($3) {
-    ${5:// function code}
+    ${7:// function code}
 }
 
 endsnippet
