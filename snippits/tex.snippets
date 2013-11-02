@@ -45,6 +45,12 @@ if not snip.c:
 `
 endsnippet
 
+snippet hils "Add A Highlights Enum List" !b
+\begin{highlights}{}
+\item ${1}
+\end{highlights}
+endsnippet
+
 snippet showif "Show line if value exists" !b
 \ifthenelse{\equal{\\${1:macroname}}{}}
     {}{${2:DESCRIP}  & \\$1 \\\\}
