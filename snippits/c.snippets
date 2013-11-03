@@ -1,11 +1,13 @@
-snippet c_template "Template for New C File" !b
-/** file:       ${1:main}.c
-  * modified:   ${2:DATE}
-  * author:     ${3:AUTHOR}
+snippet cstart "Template for New C File" !b
+/** file:       ${1:`!p snip.rv = snip.fn`}
+  * modified:   ${2:`!p import time
+snip.rv = time.strftime("%Y-%m-%d %H:%M:%S")
+  `}
+  * author:     ${3:<<AUTHOR>>}
   */
 
 // __ Includes ______________________________________________________
-#include "$1.h"
+#include "${4:`!p snip.rv = snip.fn.rsplit('.',1)[0] + ".h"`}"
 
 // __ Private typedef _______________________________________________
 // __ Private define ________________________________________________
@@ -14,6 +16,8 @@ snippet c_template "Template for New C File" !b
 // __ Private function prototypes ___________________________________
 // __ Private functions _____________________________________________
 // __ Public function _______________________________________________
+
+${0}
 
 // vim:shiftwidth=2
 endsnippet
