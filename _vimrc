@@ -526,7 +526,8 @@ let g:TagHighlightSettings['TagFileName'] = 'tags'
 
 " ---------------------- NERDTree -------------------------------         {{{2
 let NERDTreeIgnore = ['\.((jpe?g)|(png)|(PNG)|o|atsuo|docx?|xlsx?|pyc|pdf)$',
-            \'\~$', '\cscope.out$', '\.pyc$', '\.pdf$', '\.o$', '__pycache__']
+            \'\~$', '^cscope.files$', '^cscope.out$', '^tags$', '\.taghl$',
+            \'\.pyc$', '\.pdf$', '\.o$', '__pycache__']
 " END: ----------------- NERDTree -------------------------------         2}}}
 
 " ---------------------- UltiSnips ------------------------------         {{{2
