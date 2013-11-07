@@ -13,6 +13,7 @@
 
 *tags
 *cscope.out
+*cscope.files
 .ropeproject*
 .spyderproject*
 
