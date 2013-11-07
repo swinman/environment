@@ -11,9 +11,9 @@
 # avr studio
 *.atsuo
 
-*tags
-*cscope.out
-*cscope.files
+tags
+cscope.out
+cscope.files
 .ropeproject*
 .spyderproject*
 
