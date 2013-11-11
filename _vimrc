@@ -365,6 +365,7 @@ endif
 set nocompatible  " not compatible with vi "
 set mouse=a       " enable mouse "g
 set printoptions+=paper:letter
+set printfont=:h9 " sets the font to 9 pts
 set confirm       " turns on visual confirm instead of command failed "g
 set backup        " turns on backup (saves prev. file as fn.ext~)
 "set backupdir=~\vimfiles\backups
