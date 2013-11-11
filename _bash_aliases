@@ -10,9 +10,12 @@
 #fi ... put this in .bashrc
 #
 
-export HISTIGNORE="&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi:gvim:ipy:history"
+export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi[q ]*:gvim:ipy:history *:'
 
 alias cd..='cd ..'
+
+# start and quit vi to change the terminal size
+alias viq='vi -c q'
 
 # various programs
 alias ipy='ipython -i --no-banner'
