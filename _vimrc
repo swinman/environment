@@ -237,6 +237,14 @@ function! ToggleLineNo()
 endfunction
 " END: --------------- ToggleLineNo -----------------------------         2}}}
 
+" --------------------- CleanupCode -----------------------------         {{{2
+function! CleanupCode()
+    silent! exec '%s/ *\([;,]\)/\1/g'
+    silent! exec '%s/\([;,]\)\(\S\)/\1 \2/g'
+    silent! exec '%s/^\/\*\* *\_.  \?\*/\/\*\*/g'
+endfunction
+" END: ---------------- CleanupCode -----------------------------         2}}}
+
 " --------------------- ToggleWidth -----------------------------         {{{2
 function! ToggleWidth()
     if &columns < 120
