@@ -10,7 +10,7 @@
 #fi ... put this in .bashrc
 #
 
-export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi[q ]*:gvim:ipy:history *:'
+export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi?(q)?( ):gvim:ipy:history?( ):'
 
 alias cd..='cd ..'
 
