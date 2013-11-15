@@ -3,12 +3,12 @@
 get_vim_packages() {
     echo "Getting required vim packages"
     if [ "${OS}" = "linux" ]; then
-        sudo apt-get install vim-gnome
-        sudo apt-get install vim-doc
-        sudo apt-get install ttf-dejavu
-        sudo apt-get install exuberant-ctags
-        sudo apt-get install cscope
-        sudo apt-get install curl
+        sudo apt-get install vim-gnome -y
+        sudo apt-get install vim-doc -y
+        sudo apt-get install ttf-dejavu -y
+        sudo apt-get install exuberant-ctags -y
+        sudo apt-get install cscope -y
+        sudo apt-get install curl -y
     fi
 }
 

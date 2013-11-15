@@ -9,8 +9,8 @@
 get_git_packages() {
     echo "Getting required git packages"
     if [ "${OS}" = "linux" ]; then
-        sudo apt-get install git
-        sudo apt-get install xclip
+        sudo apt-get install git -y
+        sudo apt-get install xclip -y
     elif [ $OS = windows ]; then
         echo "Download git and install using 'simple context menu' with bash"
         echo "Download from http://git-scm.com/download/win"

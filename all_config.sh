@@ -22,7 +22,7 @@ config_environment_directory() {
 config_chromium() {
     read -p "Add chromium as the default browser? ([n]/y)" no
     if [ $no = y ]; then
-        sudo apt-get install chromium-browser
+        sudo apt-get install chromium-browser -y
         echo BROWSER=chromium-browser >> ~/.pam_environment
     fi
 }
@@ -45,3 +45,5 @@ update_default_programs() {
 ./config_latex.sh
 ./config_arm.sh
 #./config_avr.sh
+#update_default_programs;
+#config_chromium;

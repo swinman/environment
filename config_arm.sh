@@ -54,14 +54,14 @@ install_tools() {
 
 get_packages() {
     if [ $OS = "linux" ]; then
-        sudo apt-get install libusb-0.1-4:i386
-        sudo apt-get install lpc21isp
-        sudo apt-get install openocd
+        sudo apt-get install libusb-0.1-4:i386 -y
+        sudo apt-get install lpc21isp -y
+        sudo apt-get install openocd -y
         if [ "$(ls /etc/apt/sources.list.d/ | grep "gcc-arm-embedded")" = "" ]; then
             sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded
             sudo apt-get update
         fi
-        sudo apt-get install gcc-arm-none-eabi
+        sudo apt-get install gcc-arm-none-eabi -y
     fi
 }
 

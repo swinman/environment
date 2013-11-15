@@ -10,9 +10,9 @@
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 get_avr_tools() {
-    sudo apt-get install gdb-avr
+    sudo apt-get install gdb-avr -y
     # try avr-gdb and avr-run ... doesn't seem like there is much here..
-    sudo apt-get install gdb-doc
+    sudo apt-get install gdb-doc -y
 }
 
 
@@ -73,7 +73,7 @@ config_avr() {
     read -p "Would you like to get the gtkterm terminal ([n]/y): " done
     if [ $OS = "linux" -a "${done}" = "y" ]; then
         echo "installing 'gtkterm'"
-        sudo apt-get install gtkterm
+        sudo apt-get install gtkterm -y
     fi
     if [ $OS = "linux" ]; then
         echo "Adding atmel device usb ids to plugdev rules (logout necessary)"
@@ -97,7 +97,7 @@ config_dfu() {
         echo "getting dfu-programmer set up"
         get_git_proj dfu-programmer;
         echo "gathering required packages"
-        sudo apt-get install autoconf libusb-1.0-0-dev
+        sudo apt-get install autoconf libusb-1.0-0-dev -y
         echo "configure dfu-programmer"
         $softwaredir/dfu-programmer/bootstrap.sh
         $softwaredir/dfu-programmer/configure

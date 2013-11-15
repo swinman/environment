@@ -8,23 +8,23 @@
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 config_latex() {
     if [ "$OS" = "linux" ]; then
-        sudo apt-get install dvipng
-        sudo apt-get install xpdf
-        sudo apt-get install rubber         # compile latex to pdf
-        sudo apt-get install latexmk        # similar to rubber
-        sudo apt-get install texlive-latex-base
-        sudo apt-get install texlive-latex-extra
-        sudo apt-get install texlive-latex-recommended
-        sudo apt-get install texlive-plain-extra
-        sudo apt-get install texlive-generic-extra
-        sudo apt-get install texlive-science
+        sudo apt-get install dvipng -y
+        sudo apt-get install xpdf -y
+        sudo apt-get install rubber -y      # compile latex to pdf
+        sudo apt-get install latexmk -y     # similar to rubber
+        sudo apt-get install texlive-latex-base -y
+        sudo apt-get install texlive-latex-extra -y
+        sudo apt-get install texlive-latex-recommended -y
+        sudo apt-get install texlive-plain-extra -y
+        sudo apt-get install texlive-generic-extra -y
+        sudo apt-get install texlive-science -y
     fi
 }
 
 config_drawing() {
     if [ "$OS" = "linux" ]; then
-        sudo apt-get install gimp
-        sudo apt-get install inkscape
+        sudo apt-get install gimp -y
+        sudo apt-get install inkscape -y
     fi
 }
 
@@ -33,12 +33,12 @@ get_fonts() {
     config_adobe;
     get_adobe_open_fonts;
     if [ "$OS" = "linux" ]; then
-        sudo apt-get install lcdf-typetools
-        sudo apt-get install ttf-mscorefonts-installer
-        sudo apt-get install ttf-oxygen-font-family
-        sudo apt-get install texlive-fonts-recommended
-        sudo apt-get install texlive-fonts-extra
-        sudo apt-get install texlive-font-utils
+        sudo apt-get install lcdf-typetools -y
+        sudo apt-get install ttf-mscorefonts-installer -y
+        sudo apt-get install ttf-oxygen-font-family -y
+        sudo apt-get install texlive-fonts-recommended -y
+        sudo apt-get install texlive-fonts-extra -y
+        sudo apt-get install texlive-font-utils -y
     fi
 }
 
@@ -48,7 +48,7 @@ config_adobe() {
         echo "codename is $CODENAME"
         sudo add-apt-repository "deb http://archive.canonical.com/ $CODENAME partner"
         sudo apt-get update
-        sudo apt-get install acroread
+        sudo apt-get install acroread -y
         if [ $? -eq 0 ]; then
             cp /opt/Adobe/Reader9/Resource/Font/*.otf ~/.fonts
         fi
