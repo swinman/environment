@@ -30,6 +30,9 @@ install_tools() {
     echo "Download atmel software framework to $DFLD"
     echo "http://www.atmel.com/tools/AVRSOFTWAREFRAMEWORK.aspx"
     echo
+    echo "Download saleae software to $DFLD"
+    echo "http://www.saleae.com/downloads"
+    echo
     read -p "[ ENTER ] when software has been downloaded." jlink_dwn
     if [ -f $DFLD/JLink_Linux*.tgz ]; then
         FOLDERNAME=$(ls $DFLD | grep JLink_Linux | sed 's/\(.*\)\.tgz/\1/')
@@ -49,6 +52,22 @@ install_tools() {
         echo "Extracting and moving asf to $softwaredir"
         unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
         mv $DFLD/asf-* $softwaredir
+    fi
+    if [ -f $DFLD/Logic*.zip ]; then
+        FOLDERNAME=$(ls $DFLD | grep Logic | sed 's/\(.*\)\.zip/\1/')
+        echo "Extracting and moving $FOLDERNAME to $toolsdir"
+        (cd $DFLD && unp Logic* && rm "$FOLDERNAME.zip")
+#        (cd $DFLD/$FOLDERNAME && sudo cp libjlinkarm.so.* /usr/lib)
+#        (cd $DFLD/$FOLDERNAME && sudo cp 45-jlink.rules /etc/udev/rules.d/)
+        NEWFOLDERNAME=$(echo $FOLDERNAME | sed "s/ /_/g" | sed "s/[()]//g")
+        mv $DFLD/"$FOLDERNAME" $toolsdir/$NEWFOLDERNAME
+        if [ "$(grep $NEWFOLDERNAME ~/.pam_environment)" = "" ]; then
+            echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$NEWFOLDERNAME \
+                >> ~/.pam_environment
+        fi
+        sudo cp $toolsdir/$NEWFOLDERNAME/Drivers/99-SaleaeLogic.rules \
+            /etc/udev/rules.d/
+        echo "It will now be necessary to restart the system"
     fi
 }
 
