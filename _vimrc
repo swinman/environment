@@ -241,7 +241,13 @@ endfunction
 function! CleanupCode()
     silent! exec '%s/ *\([;,]\)/\1/g'
     silent! exec '%s/\([;,]\)\(\S\)/\1 \2/g'
+    silent! exec '%s/^\/\*\*\_.  \* @}\_.  \*\/\_.//g'
+    silent! exec '%s/^  \* @{\_.//g'
+    silent! exec '%s/^\/\*\* @defgroup \(.*\)\_.  \*\//\/\* \1 \*\//g'
     silent! exec '%s/^\/\*\* *\_.  \?\*/\/\*\*/g'
+    silent! exec '%s/if\([^{]*\)\_.\s*{$/if\1 {/g'
+    silent! exec '%s/}\_.\s*else\_.\s*{$/} else {/g'
+    silent! exec '%s/\_.{$/ {/g'
 endfunction
 " END: ---------------- CleanupCode -----------------------------         2}}}
 
