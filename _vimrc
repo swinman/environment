@@ -252,6 +252,7 @@ function! CleanupCode()
     silent! exec '%s/^  \* @attention\_.  \*\_.//g'
     silent! exec '%s/<h2><center>&copy;/                 /g'
     silent! exec '%s/<\/center><\/h2>//g'
+    silent! exec '%s/\*\/\_.$/\*\//gc'
 endfunction
 " END: ---------------- CleanupCode -----------------------------         2}}}
 
