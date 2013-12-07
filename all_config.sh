@@ -10,7 +10,7 @@
 config_environment_directory() {
     echo "Checking that environment directory exists"
     if ! [ -d $softwaredir/environment ]; then
-        git clone git://github.com:swinman/environment.git $softwaredir/environment
+        git clone git@github.com:swinman/environment.git $softwaredir/environment
     else
         echo "  fetching most recent changes"
         git --git-dir=$softwaredir/environment/.git \
@@ -40,9 +40,9 @@ update_default_programs() {
 }
 
 # --------------------- SETUP SCRIPT --------------------- #
-config_environment_directory;
-./config_bash.sh
+source ./config_bash.sh
 ./config_git.sh
+config_environment_directory;
 ./config_vim.sh
 ./config_python.sh
 ./config_latex.sh

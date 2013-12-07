@@ -35,8 +35,11 @@ config_git() {
         echo "Setting git user.email to $emailaddr"
         git config --global user.email "$emailaddr"
     fi
+    gitver=$(git --version | sed "s/^.* \([^.]*\)\.\([^.]*\)\..*/\1/")
     git config --global color.ui true
-    git config --global push.default simple
+    if [ $gitver -ge "2" ]; then
+        git config --global push.default simple
+    fi
     git config --global core.excludesfile "$softwaredir/environment/_gitignore"
 
     read -p "Generate a new ssh key? ([n]/y) " generate

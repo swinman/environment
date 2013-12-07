@@ -80,17 +80,19 @@ add_bash_alias() {
     fi
 
     aliases='$softwaredir/environment/_bash_aliases'
-    startline="# Below lines were added by environment/config script"
-    endline="# End of lines added by environment/config script"
-    donotedit="#####  DO NOT EDIT BETWEEN THESE BRACKETS  #####"
+    startline="##### START DO NOT EDIT BETWEEN THESE BRACKETS #####"
+    infoline="# Below lines were added by environment/config script"
+    endline="##### END DO NOT EDIT BETWEEN THESE BRACKETS #####"
 
     sno=$(grep "$startline" -n $BRC | sed "s/:.*//")
     eno=$(grep "$endline" -n $BRC | sed "s/:.*//")
 
     # if both start and end numbers are found, remove lines in between
-    if [ -n $sno ] && [ -n $eno ] && [ $sno -ge 0 ] && [ $eno -gt $sno ]; then
-        echo "Removing lines $sno to $eno from $BRC"
-        sed -i -e "$sno,$eno d" $BRC
+    if [ -n "$sno" ] && [ -n "$eno" ]; then
+	if [ $sno -ge 0 ] && [ $eno -gt $sno ]; then
+            echo "Removing lines $sno to $eno from $BRC"
+	    sed -i -e "$sno,$eno d" $BRC
+	fi
     fi
 
 
@@ -101,7 +103,7 @@ add_bash_alias() {
     fi
 
     echo $startline >> $BRC
-    echo $donotedit >> $BRC
+    echo $infoline >> $BRC
     echo "Adding \$OS variable"
     echo "export OS=$OS" >> $BRC
     echo "Adding \$softwaredir and \$toolsdir variables"
@@ -119,7 +121,6 @@ add_bash_alias() {
         echo "    source $HOME/git-completion.bash" >> $BRC
         echo "fi" >> $BRC
     fi
-    echo $donotedit >> $BRC
     echo $endline >> $BRC
 }
 
