@@ -77,6 +77,7 @@ get_packages() {
         sudo apt-get install lpc21isp -y
         sudo apt-get install openocd -y
         sudo apt-get install gtkterm -y
+        sudo apt-get install unp -y
         if [ "$(ls /etc/apt/sources.list.d/ | grep "gcc-arm-embedded")" = "" ]; then
             sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded
             sudo apt-get update
