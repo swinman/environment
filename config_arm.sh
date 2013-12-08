@@ -5,7 +5,7 @@
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 config_rules() {
     if [ $OS = "linux" ]; then
-        echo "Config atmel device plugdev rules"
+        echo "Config arm device plugdev rules"
         sudo cp $softwaredir/environment/99-uCtools.rules /etc/udev/rules.d/
         echo "Ensuring correct permissions are set"
         for GROUP in plugdev dialout; do
@@ -74,7 +74,7 @@ install_tools() {
 get_packages() {
     if [ $OS = "linux" ]; then
         sudo apt-get install libusb-0.1-4:i386 -y
-        sudo apt-get install lpc21isp -y
+        # sudo apt-get install lpc21isp -y
         sudo apt-get install openocd -y
         sudo apt-get install gtkterm -y
         sudo apt-get install unp -y

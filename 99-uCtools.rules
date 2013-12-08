@@ -97,4 +97,8 @@ SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
 ATTRS{idProduct}=="5740", MODE="0660", GROUP="plugdev",
 RUN+="/sbin/modprobe usbserial vendor=0x0483 product=0x5740"
 
+# ST LINK V2
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
+ATTRS{idProduct}=="3748", MODE="0660", GROUP="plugdev",
+
 # vim:ft=udevrules
