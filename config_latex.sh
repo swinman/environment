@@ -89,4 +89,4 @@ echo "==================== config_latex.sh ==================="
 config_latex;
 config_drawing;
 get_fonts;
-echo "========================================================"
+echo "=============== END: config_latex.sh ==================="

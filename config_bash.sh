@@ -148,4 +148,4 @@ set_common_dir;
 init_software_dir;
 add_bash_alias;
 ensure_req_globals;
-echo "========================================================"
+echo "================= END: config_bash.sh =================="

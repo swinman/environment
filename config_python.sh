@@ -107,4 +107,4 @@ echo "=================== config_python.sh ==================="
 get_python2_packages;
 get_python3_packages;
 config_python;
-echo "========================================================"
+echo "============== END: config_python.sh ==================="
