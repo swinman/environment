@@ -248,6 +248,7 @@ function! CleanupCode()
     silent! exec '%s/if\([^{]*\)\n\s*{$/if\1 {/g'
     silent! exec '%s/}\s*\n\s*else\n\s*{$/} else {/g'
     silent! exec '%s/\n{$/ {/g'
+    silent! exec '%s/<h2><center>&copy;\([^<]*\)<\/center><\/h2>/                  \1/'
 endfunction
 " END: ---------------- CleanupCode -----------------------------         2}}}
 
