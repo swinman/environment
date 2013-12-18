@@ -270,6 +270,12 @@ function! ToggleWidth()
 endfunction
 " END: ---------------- ToggleWidth -----------------------------         2}}}
 
+" -------------------- GetScreenSize ----------------------------         {{{2
+function! GetScreenSize()
+    !xrandr | grep "*" | sed "s/\s*\([^x]*\)x\(\S*\).*/\1x\2/"
+endfunction
+" END: --------------- GetScreenSize ----------------------------         2}}}
+
 if has("eval")
 " ---------------- GitKeepAbove / Below -------------------------         {{{2
 function! GitKeepAbove()
@@ -480,6 +486,13 @@ if has("gui_running")
 "    set listchars=tab:?\ ,eol:¬         " Invisibles using the Textmate style
     if has("gui_win32")
         set guifont=Consolas:h10:cANSI
+    else
+        "silent redir => ScreenRes
+        "silent call GetScreenSize()
+        "silent system('xrandr | grep "*" | sed "s/\s*\([^x]*\)x\(\S*\).*/\1 \2/"')
+        "redir END
+        "echo ScreenRes
+        set guifont=Monospace\ 9
     endif
 endif
 " END: ---------------- GUI Options -----------------------------         2}}}
