@@ -245,10 +245,14 @@ function! CleanupCode()
     silent! exec '%s/^  \* @{\_.//g'
     silent! exec '%s/^\/\*\* @defgroup \(.*\)\_.  \*\//\/\* \1 \*\//g'
     silent! exec '%s/^\/\*\* *\_.  \?\*/\/\*\*/g'
-    silent! exec '%s/if\([^{]*\)\n\s*{$/if\1 {/g'
+    silent! exec '%s/if\([^{]*\)\_.\s*{$/if\1 {/g'
     silent! exec '%s/}\s*\n\s*else\n\s*{$/} else {/g'
-    silent! exec '%s/\n{$/ {/g'
-    silent! exec '%s/<h2><center>&copy;\([^<]*\)<\/center><\/h2>/                  \1/'
+    silent! exec '%s/\s*\n{$/ {/g'
+    silent! exec '%s/<h2><center>&copy;/                 /g'
+    silent! exec '%s/<\/center><\/h2>//g'
+    silent! exec '%s/do\_.\s*{$/do {/g'
+    silent! exec '%s/^  \* @attention\_.  \*\_.//g'
+    silent! exec '%s/\*\/\_.$/\*\//gc'
 endfunction
 " END: ---------------- CleanupCode -----------------------------         2}}}
 
@@ -265,6 +269,12 @@ function! ToggleWidth()
     endif
 endfunction
 " END: ---------------- ToggleWidth -----------------------------         2}}}
+
+" -------------------- GetScreenSize ----------------------------         {{{2
+function! GetScreenSize()
+    !xrandr | grep "*" | sed "s/\s*\([^x]*\)x\(\S*\).*/\1x\2/"
+endfunction
+" END: --------------- GetScreenSize ----------------------------         2}}}
 
 if has("eval")
 " ---------------- GitKeepAbove / Below -------------------------         {{{2
@@ -476,6 +486,13 @@ if has("gui_running")
 "    set listchars=tab:?\ ,eol:¬         " Invisibles using the Textmate style
     if has("gui_win32")
         set guifont=Consolas:h10:cANSI
+    else
+        "silent redir => ScreenRes
+        "silent call GetScreenSize()
+        "silent system('xrandr | grep "*" | sed "s/\s*\([^x]*\)x\(\S*\).*/\1 \2/"')
+        "redir END
+        "echo ScreenRes
+        set guifont=Monospace\ 9
     endif
 endif
 " END: ---------------- GUI Options -----------------------------         2}}}

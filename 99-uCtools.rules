@@ -101,4 +101,8 @@ RUN+="/sbin/modprobe usbserial vendor=0x0483 product=0x5740"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
 ATTRS{idProduct}=="3748", MODE="0660", GROUP="plugdev",
 
+# STM32F4 DFU device
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
+ATTRS{idProduct}=="df11", MODE="0660", GROUP="plugdev",
+
 # vim:ft=udevrules
