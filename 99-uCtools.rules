@@ -1,3 +1,33 @@
+############## CDC ACM DEVICES ###################
+# Atmel CDC device product ID (for at32uc3b at least)
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2404", MODE="0660", GROUP="plugdev",
+ENV{ID_MM_DEVICE_IGNORE}="1"
+#RUN+="/sbin/modprobe usbserial vendor=0x03eb product=0x2404"
+
+# Atmel CDC device product ID
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2425", MODE="0660", GROUP="plugdev",
+ENV{ID_MM_DEVICE_IGNORE}="1"
+#RUN+="/sbin/modprobe usbserial vendor=0x03eb product=0x2425"
+
+# Atmel CDC device product ID for EDBG
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2111", MODE="0660", GROUP="plugdev",
+ENV{ID_MM_DEVICE_IGNORE}="1"
+
+# Atmel CDC device product ID for AT91SAM(4) SAM-BA
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="6124", MODE="0660", GROUP="plugdev",
+ENV{ID_MM_DEVICE_IGNORE}="1"
+
+# ST CDC device product ID
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
+ATTRS{idProduct}=="5740", MODE="0660", GROUP="plugdev",
+ENV{ID_MM_DEVICE_IGNORE}="1"
+#RUN+="/sbin/modprobe usbserial vendor=0x0483 product=0x5740"
+
+############## PROGRAMMERS #######################
 # ICE50:
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2101", MODE="0660", GROUP="plugdev"
@@ -34,24 +64,11 @@ ATTRS{idProduct}=="2114", MODE="0660", GROUP="plugdev"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2116", MODE="0660", GROUP="plugdev"
 
-# Atmel CDC device product ID (for at32uc3b at least)
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
-ATTRS{idProduct}=="2404", MODE="0660", GROUP="plugdev",
-RUN+="/sbin/modprobe usbserial vendor=0x03eb product=0x2404"
+# ST LINK V2
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
+ATTRS{idProduct}=="3748", MODE="0660", GROUP="plugdev",
 
-# Atmel CDC device product ID (for at32uc3b at least)
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
-ATTRS{idProduct}=="2425", MODE="0660", GROUP="plugdev",
-RUN+="/sbin/modprobe usbserial vendor=0x03eb product=0x2425"
-
-# Atmel CDC device product ID for EDBG
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
-ATTRS{idProduct}=="2111", MODE="0660", GROUP="plugdev",
-
-# Atmel CDC device product ID for AT91SAM(4) SAM-BA
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
-ATTRS{idProduct}=="6124", MODE="0660", GROUP="plugdev",
-
+############## DFU DEVICES #######################
 # bootloader product ID for AT32UC3A3
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2ff1", MODE="0660", GROUP="plugdev"
@@ -91,15 +108,6 @@ ATTRS{idProduct}=="2ffb", MODE="0660", GROUP="plugdev"
 # bootloader product ID for AT89C5131A
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2ffd", MODE="0660", GROUP="plugdev"
-
-# ST CDC device product ID
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
-ATTRS{idProduct}=="5740", MODE="0660", GROUP="plugdev",
-RUN+="/sbin/modprobe usbserial vendor=0x0483 product=0x5740"
-
-# ST LINK V2
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
-ATTRS{idProduct}=="3748", MODE="0660", GROUP="plugdev",
 
 # STM32F4 DFU device
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
