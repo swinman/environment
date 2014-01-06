@@ -4,7 +4,7 @@
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 config_rules() {
-    if [ $OS = "linux" ]; then
+    if [ $OS = linux ]; then
         echo "Config arm device plugdev rules"
         sudo cp $softwaredir/environment/99-uCtools.rules /etc/udev/rules.d/
         echo "Ensuring correct permissions are set"
@@ -72,7 +72,7 @@ install_tools() {
 }
 
 get_packages() {
-    if [ $OS = "linux" ]; then
+    if [ $OS = linux ]; then
         sudo apt-get install libusb-0.1-4:i386 -y
         # sudo apt-get install lpc21isp -y
         sudo apt-get install gtkterm -y
@@ -87,14 +87,18 @@ get_packages() {
 
 get_openocd() {
     # sudo apt-get install openocd -y
-    if [ $OS = "linux" ]; then
+    if [ $OS = linux ]; then
         sudo apt-get install libtool -y
         sudo apt-get install autoconf -y
         sudo apt-get install automake -y
         sudo apt-get install texinfo -y
         sudo apt-get install libusb-1.0-0-dev -y
     fi
-    (cd $toolsdir && git clone git://git.code.sf.net/p/openocd/code openocd)
+    if [ -d $toolsdir/openocd ]; then
+        (cd $toolsdir/openocd && git pull)
+    else
+        (cd $toolsdir && git clone git://git.code.sf.net/p/openocd/code openocd)
+    fi
     (cd $toolsdir/openocd && ./bootstrap)
     (cd $toolsdir/openocd && ./configure --enable-stlink --enable-jlink)
     (cd $toolsdir/openocd && make)
