@@ -46,7 +46,7 @@ check_os() {
 }
 
 set_common_dir() {
-    if [ $OS = "windows" ]; then
+    if [ $OS = windows ]; then
         SOFTWAREDIR=$USERPROFILE\\Documents\\software
         TOOLSDIR=$USERPROFILE\\tools
     else

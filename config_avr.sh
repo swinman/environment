@@ -17,7 +17,7 @@ get_avr_tools() {
 
 
 config_avr() {
-    if [ $OS = "windows" ]; then
+    if [ $OS = windows ]; then
         TOOLURL="http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORWINDOWS.aspx"
     else
         TOOLURL="http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORLINUX.aspx"
@@ -38,32 +38,32 @@ config_avr() {
     read -p "Have avr32 tools been downloaded? ([n]/y): " avr32_dwn
     read -p "Have atmel headers been downloaded? ([n]/y): " ahead_wdwn
     read -p "Has avr32 studio been downloaded? ([n]/y): " as4_dwn
-    if [ $OS = "linux" -a "${asf_dwn}" = "y" ]; then
+    if [ $OS = linux -a "${asf_dwn}" = "y" ]; then
         echo "Extracting and moving asf to $softwaredir"
         unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
         mv $DFLD/asf-* $softwaredir
     fi
-    if [ $OS = "linux" -a "${avr8_dwn}" = "y" ]; then
+    if [ $OS = linux -a "${avr8_dwn}" = "y" ]; then
         echo "Extracting and moving avr8-tools to $TOOLSDIR"
         tar -zxvf $DFLD/avr8-gnu-toolchain* && rm $DFLD/avr8-gnu-tool*.tar.gz
         mv avr8-gnu-toolchain* $TOOLSDIR/avr8-tools
         echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR/avr8-tools/bin \
             >> ~/.pam_environment
     fi
-    if [ $OS = "linux" -a "${avr32_dwn}" = "y" ]; then
+    if [ $OS = linux -a "${avr32_dwn}" = "y" ]; then
         echo "Extracting and moving avr32-tools to $TOOLSDIR"
         tar -zxvf $DFLD/avr32-gnu-toolchain* && rm $DFLD/avr32-gnu-tool*.tar.gz
         mv avr32-gnu-toolchain* $TOOLSDIR/avr32-tools
         echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR/avr32-tools/bin \
             >> ~/.pam_environment
     fi
-    if [ $OS = "linux" -a "${ahead_wdwn}" = "y" ]; then
+    if [ $OS = linux -a "${ahead_wdwn}" = "y" ]; then
         echo "Extracting and moving avr32-headers to $TOOLSDIR"
         unzip -d $DFLD $DFLD/atmel-headers* && rm $DFLD/atmel-header*.zip
         mv $DFLD/atmel-headers*/avr32 $TOOLSDIR/avr32-tools/avr32/include && \
             rm -r $DFLD/atmel-headers*
     fi
-    if [ $OS = "linux" -a "${as4_dwn}" = "y" ]; then
+    if [ $OS = linux -a "${as4_dwn}" = "y" ]; then
         echo "Extracting and moving avr32-prog tools to $TOOLSDIR"
         unzip -d $DFLD $DFLD/avr32studio-ide* && rm $DFLD/avr32studio-ide*
         mv $DFLD/as4e-ide $TOOLSDIR
@@ -71,11 +71,11 @@ config_avr() {
             >> ~/.pam_environment
     fi
     read -p "Would you like to get the gtkterm terminal ([n]/y): " done
-    if [ $OS = "linux" -a "${done}" = "y" ]; then
+    if [ $OS = linux -a "${done}" = "y" ]; then
         echo "installing 'gtkterm'"
         sudo apt-get install gtkterm -y
     fi
-    if [ $OS = "linux" ]; then
+    if [ $OS = linux ]; then
         echo "Adding atmel device usb ids to plugdev rules (logout necessary)"
         sudo cp $softwaredir/environment/99-uCtools.rules /etc/udev/rules.d/
         echo "If user does not appear below, add user to plugdev group"
@@ -93,7 +93,7 @@ config_avr() {
 }
 
 config_dfu() {
-    if [ $OS = "linux" ]; then
+    if [ $OS = linux ]; then
         echo "getting dfu-programmer set up"
         get_git_proj dfu-programmer;
         echo "gathering required packages"
