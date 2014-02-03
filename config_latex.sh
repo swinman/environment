@@ -70,23 +70,25 @@ get_adobe_open_fonts () {
   FN2="SourceSansPro"
   URL2="http://sourceforge.net/projects/sourcesans.adobe/files/latest/download?source=files"
 
-  mkdir -p /tmp/adodefont
-  cd /tmp/adodefont
-  NEW=false
-  if [ $(ls ~/.fonts | grep $FONT_NAME | wc -l) -eq 0 ]; then
-    wget ${URL} -O ${FONT_NAME}.zip
-    unzip -o -j ${FONT_NAME}.zip
-    mv *.otf ~/.fonts
-    NEW=true
-  fi
-  if [ $(ls ~/.fonts | grep $FN2 | wc -l) -eq 0 ]; then
-    wget ${URL2} -O ${FN2}.zip
-    unzip -o -j ${FN2}.zip
-    mv *.otf ~/.fonts
-    NEW=true
-  fi
-  if [ $NEW = true ]; then
-    fc-cache -f -v
+  if [ "$OS" = "linux" ]; then
+    mkdir -p /tmp/adodefont
+    cd /tmp/adodefont
+    NEW=false
+    if [ $(ls ~/.fonts | grep $FONT_NAME | wc -l) -eq 0 ]; then
+      wget ${URL} -O ${FONT_NAME}.zip
+      unzip -o -j ${FONT_NAME}.zip
+      mv *.otf ~/.fonts
+      NEW=true
+    fi
+    if [ $(ls ~/.fonts | grep $FN2 | wc -l) -eq 0 ]; then
+      wget ${URL2} -O ${FN2}.zip
+      unzip -o -j ${FN2}.zip
+      mv *.otf ~/.fonts
+      NEW=true
+    fi
+    if [ $NEW = true ]; then
+      fc-cache -f -v
+    fi
   fi
 }
 

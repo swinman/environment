@@ -20,23 +20,27 @@ config_environment_directory() {
 }
 
 config_chromium() {
-    read -p "Add chromium as the default browser? ([n]/y)" no
-    if [ "$no" = "y" ]; then
-        sudo apt-get install chromium-browser -y
-        if [ -z $(grep "BROWSER=chromium-browser" ~/.pam_environment | wc -l) ]; then
-            echo BROWSER=chromium-browser >> ~/.pam_environment
+    if [ "$OS" = "linux" ]; then
+        read -p "Add chromium as the default browser? ([n]/y)" no
+        if [ "$no" = "y" ]; then
+            sudo apt-get install chromium-browser -y
+            if [ -z $(grep "BROWSER=chromium-browser" ~/.pam_environment | wc -l) ]; then
+                echo BROWSER=chromium-browser >> ~/.pam_environment
+            fi
         fi
     fi
 }
 
 ######### also for opening text files or html file defaults
 update_default_programs() {
-    sudo sed -i -E "s/^(text\/html=)[^.]*/\1chromium/" /etc/gnome/defaults.list
-    sudo sed -i -E "s/^(text\/xml=)[^.]*/\1chromium/" /etc/gnome/defaults.list
-    sudo sed -i -E "s/^(text\/plain=)[^.]*/\1gvim/" /etc/gnome/defaults.list
-    sudo sed -i -E "s/^(text\/x-java=)[^.]*/\1gvim/" /etc/gnome/defaults.list
-    sudo sed -i -E "s/^(text\/x-python=)[^.]*/\1gvim/" /etc/gnome/defaults.list
-    sudo sed -i -E "s/^(text\/x-sql=)[^.]*/\1gvim/" /etc/gnome/defaults.list
+    if [ "$OS" = "linux" ]; then
+        sudo sed -i -E "s/^(text\/html=)[^.]*/\1chromium/" /etc/gnome/defaults.list
+        sudo sed -i -E "s/^(text\/xml=)[^.]*/\1chromium/" /etc/gnome/defaults.list
+        sudo sed -i -E "s/^(text\/plain=)[^.]*/\1gvim/" /etc/gnome/defaults.list
+        sudo sed -i -E "s/^(text\/x-java=)[^.]*/\1gvim/" /etc/gnome/defaults.list
+        sudo sed -i -E "s/^(text\/x-python=)[^.]*/\1gvim/" /etc/gnome/defaults.list
+        sudo sed -i -E "s/^(text\/x-sql=)[^.]*/\1gvim/" /etc/gnome/defaults.list
+    fi
 }
 
 # --------------------- SETUP SCRIPT --------------------- #
@@ -48,6 +52,8 @@ config_environment_directory;
 ./config_latex.sh
 ./config_arm.sh
 #./config_avr.sh
-sudo apt-get install sc -y
+if [ "$OS" = "linux" ]; then
+    sudo apt-get install sc -y
+fi
 update_default_programs;
 config_chromium;

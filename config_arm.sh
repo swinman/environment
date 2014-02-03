@@ -34,45 +34,47 @@ install_tools() {
     echo "http://www.saleae.com/downloads"
     echo
     read -p "[ ENTER ] when software has been downloaded." jlink_dwn
-    if [ -f $DFLD/JLink_Linux*.tgz ]; then
-        FOLDERNAME=$(ls $DFLD | grep JLink_Linux | sed 's/\(.*\)\.tgz/\1/')
-        echo "Extracting and moving $FOLDERNAME to $toolsdir"
-        (cd $DFLD && unp JLink_Linux* && rm $FOLDERNAME.tgz)
-        (cd $DFLD/$FOLDERNAME && sudo cp libjlinkarm.so.* /usr/lib)
-        (cd $DFLD/$FOLDERNAME && sudo cp 45-jlink.rules /etc/udev/rules.d/)
-        mv $DFLD/$FOLDERNAME $toolsdir
-        sudo ldconfig
-        if [ "$(grep $FOLDERNAME ~/.pam_environment)" = "" ]; then
-            echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$FOLDERNAME \
-                >> ~/.pam_environment
+    if [ "$OS" = "linux" ]; then
+        if [ -f $DFLD/JLink_Linux*.tgz ]; then
+            FOLDERNAME=$(ls $DFLD | grep JLink_Linux | sed 's/\(.*\)\.tgz/\1/')
+            echo "Extracting and moving $FOLDERNAME to $toolsdir"
+            (cd $DFLD && unp JLink_Linux* && rm $FOLDERNAME.tgz)
+            (cd $DFLD/$FOLDERNAME && sudo cp libjlinkarm.so.* /usr/lib)
+            (cd $DFLD/$FOLDERNAME && sudo cp 45-jlink.rules /etc/udev/rules.d/)
+            mv $DFLD/$FOLDERNAME $toolsdir
+            sudo ldconfig
+            if [ "$(grep $FOLDERNAME ~/.pam_environment)" = "" ]; then
+                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$FOLDERNAME \
+                    >> ~/.pam_environment
+            fi
+            echo "It will now be necessary to restart the system"
         fi
-        echo "It will now be necessary to restart the system"
-    fi
-    if [ -f $DFLD/asf-standalone*.zip ]; then
-        echo "Extracting and moving asf to $softwaredir"
-        unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
-        mv $DFLD/asf-* $softwaredir
-    fi
-    if [ -f $DFLD/Logic*.zip ]; then
-        FOLDERNAME=$(ls $DFLD | grep Logic | sed 's/\(.*\)\.zip/\1/')
-        echo "Extracting and moving $FOLDERNAME to $toolsdir"
-        (cd $DFLD && unp Logic* && rm "$FOLDERNAME.zip")
-#        (cd $DFLD/$FOLDERNAME && sudo cp libjlinkarm.so.* /usr/lib)
-#        (cd $DFLD/$FOLDERNAME && sudo cp 45-jlink.rules /etc/udev/rules.d/)
-        NEWFOLDERNAME=$(echo $FOLDERNAME | sed "s/ /_/g" | sed "s/[()]//g")
-        mv $DFLD/"$FOLDERNAME" $toolsdir/$NEWFOLDERNAME
-        if [ "$(grep $NEWFOLDERNAME ~/.pam_environment)" = "" ]; then
-            echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$NEWFOLDERNAME \
-                >> ~/.pam_environment
+        if [ -f $DFLD/asf-standalone*.zip ]; then
+            echo "Extracting and moving asf to $softwaredir"
+            unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
+            mv $DFLD/asf-* $softwaredir
         fi
-        sudo cp $toolsdir/$NEWFOLDERNAME/Drivers/99-SaleaeLogic.rules \
-            /etc/udev/rules.d/
-        echo "It will now be necessary to restart the system"
+        if [ -f $DFLD/Logic*.zip ]; then
+            FOLDERNAME=$(ls $DFLD | grep Logic | sed 's/\(.*\)\.zip/\1/')
+            echo "Extracting and moving $FOLDERNAME to $toolsdir"
+            (cd $DFLD && unp Logic* && rm "$FOLDERNAME.zip")
+    #        (cd $DFLD/$FOLDERNAME && sudo cp libjlinkarm.so.* /usr/lib)
+    #        (cd $DFLD/$FOLDERNAME && sudo cp 45-jlink.rules /etc/udev/rules.d/)
+            NEWFOLDERNAME=$(echo $FOLDERNAME | sed "s/ /_/g" | sed "s/[()]//g")
+            mv $DFLD/"$FOLDERNAME" $toolsdir/$NEWFOLDERNAME
+            if [ "$(grep $NEWFOLDERNAME ~/.pam_environment)" = "" ]; then
+                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$NEWFOLDERNAME \
+                    >> ~/.pam_environment
+            fi
+            sudo cp $toolsdir/$NEWFOLDERNAME/Drivers/99-SaleaeLogic.rules \
+                /etc/udev/rules.d/
+            echo "It will now be necessary to restart the system"
+        fi
     fi
 }
 
 get_packages() {
-    if [ $OS = linux ]; then
+    if [ "$OS" = "linux" ]; then
         sudo apt-get install libusb-0.1-4:i386 -y
         # sudo apt-get install lpc21isp -y
         sudo apt-get install gtkterm -y
@@ -87,7 +89,7 @@ get_packages() {
 
 get_openocd() {
     # sudo apt-get install openocd -y
-    if [ $OS = linux ]; then
+    if [ "$OS" = "linux" ]; then
         sudo apt-get install libtool -y
         sudo apt-get install autoconf -y
         sudo apt-get install automake -y
@@ -99,10 +101,12 @@ get_openocd() {
     else
         (cd $toolsdir && git clone git://git.code.sf.net/p/openocd/code openocd)
     fi
-    (cd $toolsdir/openocd && ./bootstrap)
-    (cd $toolsdir/openocd && ./configure --enable-stlink --enable-jlink)
-    (cd $toolsdir/openocd && make)
-    (cd $toolsdir/openocd && sudo make install)
+    if [ "$OS" = "linux" ]; then
+        (cd $toolsdir/openocd && ./bootstrap)
+        (cd $toolsdir/openocd && ./configure --enable-stlink --enable-jlink)
+        (cd $toolsdir/openocd && make)
+        (cd $toolsdir/openocd && sudo make install)
+    fi
 }
 
 

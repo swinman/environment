@@ -1,8 +1,8 @@
 #!/bin/sh
 
 get_vim_packages() {
-    echo "Getting required vim packages"
     if [ "${OS}" = "linux" ]; then
+        echo "Getting required vim packages"
         sudo apt-get install vim-gnome -y
         sudo apt-get install vim-doc -y
         sudo apt-get install ttf-dejavu -y
@@ -22,7 +22,9 @@ config_vim() {
         target=~/.vimrc
     fi
     echo "Checking if $target has \"$text\""
-    has=$(grep "$text" $target | wc -l)
+    # change \ to . for grep to avoid matching the slash
+    text2=$(echo "$text" | sed 's|\\|.|g')
+    has=$(grep "$text2" $target | wc -l)
     if [ $has = 0 ]; then
         echo "adding \"$text\" to $target"
         echo "$text" >> $target
