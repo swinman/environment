@@ -121,6 +121,11 @@ add_bash_alias() {
         echo "    source $HOME/git-completion.bash" >> $BRC
         echo "fi" >> $BRC
     fi
+    if [ "$OS" = "windows" ]; then
+        echo "adding cd to softwaredir for windows"
+        echo 'cd $softwaredir' >> $BRC
+        echo "" >> $BRC
+    fi
     echo $endline >> $BRC
 }
 
