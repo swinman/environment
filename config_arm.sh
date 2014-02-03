@@ -27,9 +27,6 @@ install_tools() {
     echo "Download j-link software to $DFLD"
     echo "http://www.segger.com/jlink-software.html"
     echo
-    echo "Download atmel software framework to $DFLD"
-    echo "http://www.atmel.com/tools/AVRSOFTWAREFRAMEWORK.aspx"
-    echo
     echo "Download saleae software to $DFLD"
     echo "http://www.saleae.com/downloads"
     echo
@@ -84,6 +81,9 @@ get_packages() {
             sudo apt-get update
         fi
         sudo apt-get install gcc-arm-none-eabi -y
+    else
+        echo "Download and install arm-none-eabi-gcc"
+        echo "https://launchpad.net/gcc-arm-embedded/+download"
     fi
 }
 
