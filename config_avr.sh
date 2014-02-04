@@ -33,16 +33,16 @@ config_avr() {
     echo "Download avr32 studio for the programmer tools:"
     echo "http://www.atmel.com/tools/AVR32STUDIO2_6.aspx"
     echo
-    read -p "Has atmel software framework been downloaded? ([n]/y): " asf_dwn
-    read -p "Have avr8 tools been downloaded? ([n]/y): " avr8_dwn
-    read -p "Have avr32 tools been downloaded? ([n]/y): " avr32_dwn
-    read -p "Have atmel headers been downloaded? ([n]/y): " ahead_wdwn
-    read -p "Has avr32 studio been downloaded? ([n]/y): " as4_dwn
-    if [ $OS = linux -a "${asf_dwn}" = "y" ]; then
+    read -p "[ ENTER ] when software has been downloaded." jlink_dwn
+    if [ "$OS" = "linux" -a -f $DFLD/asf-standalone*.zip ]; then
         echo "Extracting and moving asf to $softwaredir"
         unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
         mv $DFLD/asf-* $softwaredir
     fi
+    read -p "Have avr8 tools been downloaded? ([n]/y): " avr8_dwn
+    read -p "Have avr32 tools been downloaded? ([n]/y): " avr32_dwn
+    read -p "Have atmel headers been downloaded? ([n]/y): " ahead_wdwn
+    read -p "Has avr32 studio been downloaded? ([n]/y): " as4_dwn
     if [ $OS = linux -a "${avr8_dwn}" = "y" ]; then
         echo "Extracting and moving avr8-tools to $TOOLSDIR"
         tar -zxvf $DFLD/avr8-gnu-toolchain* && rm $DFLD/avr8-gnu-tool*.tar.gz

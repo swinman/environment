@@ -46,11 +46,6 @@ install_tools() {
             fi
             echo "It will now be necessary to restart the system"
         fi
-        if [ -f $DFLD/asf-standalone*.zip ]; then
-            echo "Extracting and moving asf to $softwaredir"
-            unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
-            mv $DFLD/asf-* $softwaredir
-        fi
         if [ -f $DFLD/Logic*.zip ]; then
             FOLDERNAME=$(ls $DFLD | grep Logic | sed 's/\(.*\)\.zip/\1/')
             echo "Extracting and moving $FOLDERNAME to $toolsdir"
@@ -82,26 +77,32 @@ get_packages() {
         fi
         sudo apt-get install gcc-arm-none-eabi -y
     else
+        echo
         echo "Download and install arm-none-eabi-gcc"
         echo "https://launchpad.net/gcc-arm-embedded/+download"
+        echo
+        echo "Download openocd, add bin to path, rename as openocd.exe"
+        echo "http://www.freddiechopin.info/en/download/category/4-openocd"
+        echo "You need 7z to extract: http://www.7-zip.org/"
+        echo
+        echo "Install the stm32 vlink driver"
+        echo "http://www.st.com/web/en/catalog/tools/PF258167"
     fi
 }
 
 get_openocd() {
-    # sudo apt-get install openocd -y
     if [ "$OS" = "linux" ]; then
+        # sudo apt-get install openocd -y
         sudo apt-get install libtool -y
         sudo apt-get install autoconf -y
         sudo apt-get install automake -y
         sudo apt-get install texinfo -y
         sudo apt-get install libusb-1.0-0-dev -y
-    fi
-    if [ -d $toolsdir/openocd ]; then
-        (cd $toolsdir/openocd && git pull)
-    else
-        (cd $toolsdir && git clone git://git.code.sf.net/p/openocd/code openocd)
-    fi
-    if [ "$OS" = "linux" ]; then
+        if [ -d $toolsdir/openocd ]; then
+            (cd $toolsdir/openocd && git pull)
+        else
+            (cd $toolsdir && git clone git://git.code.sf.net/p/openocd/code openocd)
+        fi
         (cd $toolsdir/openocd && ./bootstrap)
         (cd $toolsdir/openocd && ./configure --enable-stlink --enable-jlink)
         (cd $toolsdir/openocd && make)
