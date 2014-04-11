@@ -51,7 +51,7 @@ config_environment_directory;
 ./config_python.sh
 ./config_latex.sh
 ./config_arm.sh
-#./config_avr.sh
+./config_avr.sh
 if [ "$OS" = "linux" ]; then
     sudo apt-get install sc -y
 fi

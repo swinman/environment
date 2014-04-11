@@ -15,9 +15,8 @@ get_avr_tools() {
     sudo apt-get install gdb-doc -y
 }
 
-
 config_avr() {
-    if [ $OS = windows ]; then
+    if [ "$OS" = "windows" ]; then
         TOOLURL="http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORWINDOWS.aspx"
     else
         TOOLURL="http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORLINUX.aspx"
@@ -30,52 +29,38 @@ config_avr() {
     echo "Download 'avr8', 'avr32' and 'headers' to $DFLD:"
     echo $TOOLURL
     echo
-    echo "Download avr32 studio for the programmer tools:"
-    echo "http://www.atmel.com/tools/AVR32STUDIO2_6.aspx"
-    echo
     read -p "[ ENTER ] when software has been downloaded." jlink_dwn
-    if [ "$OS" = "linux" -a -f $DFLD/asf-standalone*.zip ]; then
-        echo "Extracting and moving asf to $softwaredir"
-        unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
-        mv $DFLD/asf-* $softwaredir
-    fi
-    read -p "Have avr8 tools been downloaded? ([n]/y): " avr8_dwn
-    read -p "Have avr32 tools been downloaded? ([n]/y): " avr32_dwn
-    read -p "Have atmel headers been downloaded? ([n]/y): " ahead_wdwn
-    read -p "Has avr32 studio been downloaded? ([n]/y): " as4_dwn
-    if [ $OS = linux -a "${avr8_dwn}" = "y" ]; then
-        echo "Extracting and moving avr8-tools to $TOOLSDIR"
-        tar -zxvf $DFLD/avr8-gnu-toolchain* && rm $DFLD/avr8-gnu-tool*.tar.gz
-        mv avr8-gnu-toolchain* $TOOLSDIR/avr8-tools
-        echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR/avr8-tools/bin \
-            >> ~/.pam_environment
-    fi
-    if [ $OS = linux -a "${avr32_dwn}" = "y" ]; then
-        echo "Extracting and moving avr32-tools to $TOOLSDIR"
-        tar -zxvf $DFLD/avr32-gnu-toolchain* && rm $DFLD/avr32-gnu-tool*.tar.gz
-        mv avr32-gnu-toolchain* $TOOLSDIR/avr32-tools
-        echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR/avr32-tools/bin \
-            >> ~/.pam_environment
-    fi
-    if [ $OS = linux -a "${ahead_wdwn}" = "y" ]; then
-        echo "Extracting and moving avr32-headers to $TOOLSDIR"
-        unzip -d $DFLD $DFLD/atmel-headers* && rm $DFLD/atmel-header*.zip
-        mv $DFLD/atmel-headers*/avr32 $TOOLSDIR/avr32-tools/avr32/include && \
-            rm -r $DFLD/atmel-headers*
-    fi
-    if [ $OS = linux -a "${as4_dwn}" = "y" ]; then
-        echo "Extracting and moving avr32-prog tools to $TOOLSDIR"
-        unzip -d $DFLD $DFLD/avr32studio-ide* && rm $DFLD/avr32studio-ide*
-        mv $DFLD/as4e-ide $TOOLSDIR
-        echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR/as4e-ide/plugins/com.atmel.avr.utilities.linux.x86_64_3.0.0.201009140848/os/linux/x86_64/bin \
-            >> ~/.pam_environment
-    fi
-    read -p "Would you like to get the gtkterm terminal ([n]/y): " done
-    if [ $OS = linux -a "${done}" = "y" ]; then
-        echo "installing 'gtkterm'"
-        sudo apt-get install gtkterm -y
-    fi
-    if [ $OS = linux ]; then
+    if [ "$OS" = "linux" ]; then
+        if [ -f $DFLD/asf-standalone*.zip ]; then
+            echo "Extracting and moving asf to $softwaredir"
+            unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
+            mv $DFLD/asf-* $softwaredir
+        fi
+        if [ -f $DFLD/avr8-gnu-tool*.tar.gz ]; then
+            echo "Extracting and moving avr8-tools to $TOOLSDIR"
+            tar -zxvf $DFLD/avr8-gnu-toolchain* && rm $DFLD/avr8-gnu-tool*.tar.gz
+            mv avr8-gnu-toolchain* $TOOLSDIR/avr8-tools
+            echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR/avr8-tools/bin \
+                >> ~/.pam_environment
+        fi
+        if [ -f $DFLD/avr32-gnu-tool*.tar.gz ]; then
+            echo "Extracting and moving avr32-tools to $TOOLSDIR"
+            tar -zxvf $DFLD/avr32-gnu-toolchain* && rm $DFLD/avr32-gnu-tool*.tar.gz
+            mv avr32-gnu-toolchain* $TOOLSDIR/avr32-tools
+            echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR/avr32-tools/bin \
+                >> ~/.pam_environment
+        fi
+        if [ -f $DFLD/atmel-header*.zip ]; then
+            echo "Extracting and moving avr32-headers to $TOOLSDIR"
+            unzip -d $DFLD $DFLD/atmel-headers* && rm $DFLD/atmel-header*.zip
+            mv $DFLD/atmel-headers*/avr32 $TOOLSDIR/avr32-tools/avr32/include && \
+                rm -r $DFLD/atmel-headers*
+        fi
+        read -p "Would you like to get the gtkterm terminal ([n]/y): " done
+        if [ "${done}" = "y" ]; then
+            echo "installing 'gtkterm'"
+            sudo apt-get install gtkterm -y
+        fi
         echo "Adding atmel device usb ids to plugdev rules (logout necessary)"
         sudo cp $softwaredir/environment/99-uCtools.rules /etc/udev/rules.d/
         echo "If user does not appear below, add user to plugdev group"
@@ -93,7 +78,7 @@ config_avr() {
 }
 
 config_dfu() {
-    if [ $OS = linux ]; then
+    if [ "$OS" = linux ]; then
         echo "getting dfu-programmer set up"
         get_git_proj dfu-programmer;
         echo "gathering required packages"
@@ -109,30 +94,12 @@ config_dfu() {
     fi
 }
 
-run_full_script() {
-    # on linux, get git & xclip
-    # get dfuprogrammer project and install dfu-programmer
-    config_dfu;
-
-    # add plugdev rules for accessing atmel devices
-    config_avr;
-}
 
 # --------------------- SETUP SCRIPT --------------------- #
 ########## RUN WHATEVER YOU WANT DOWN HERE ############
 
-run_full_script;
-#
-
-#config_avr;
-#update_default_programs;
-#config_avr;
+# get dfuprogrammer project and install dfu-programmer
 #config_dfu;
-#get_avr32prog_tools;
 
-#add_bash_alias;
-#get_python_packages;
-#config_python;
-
-#additional_software;
-#get_vim_addons;
+# add plugdev rules for accessing atmel devices
+config_avr;
