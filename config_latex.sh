@@ -34,6 +34,9 @@ config_drawing() {
   if [ "$OS" = "linux" ]; then
     sudo apt-get install gimp -y
     sudo apt-get install inkscape -y
+  elif [ $OS = windows ]; then
+    echo "http://www.inkscape.org/en/download/"
+    echo "http://www.gimp.org/downloads/"
   fi
 }
 
