@@ -47,13 +47,14 @@ update_default_programs() {
 source ./config_bash.sh
 ./config_git.sh
 config_environment_directory;
+if [ "$OS" = "linux" ]; then
+    sudo apt-get install sc -y
+    sudo apt-get install unp -y
+fi
 ./config_vim.sh
 ./config_python.sh
 ./config_latex.sh
 ./config_arm.sh
 ./config_avr.sh
-if [ "$OS" = "linux" ]; then
-    sudo apt-get install sc -y
-fi
 update_default_programs;
 config_chromium;

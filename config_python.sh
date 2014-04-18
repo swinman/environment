@@ -91,13 +91,13 @@ get_python2_packages() {
 config_python() {
     echo "Add the software directory to python path"
     echo $softwaredir > 0addedpath.pth
-    if [ $OS = linux ]; then
+    if [ "$OS" = "linux" ]; then
         sudo cp 0addedpath.pth /usr/local/lib/python2.7/dist-packages
-        sudo mv 0addedpath.pth /usr/local/lib/python3.3/dist-packages
-    elif [ $OS = windows ]; then
+        sudo mv 0addedpath.pth /usr/local/lib/python3.*/dist-packages
+    elif [ "$OS" = "windows" ]; then
         cp 0addedpath.pth 'C:\Python27\Lib\site-packages'
         mv 0addedpath.pth 'C:\Python33\Lib\site-packages'
-    elif [ $OS = mac ]; then
+    elif [ "$OS" = "mac" ]; then
         mv 0addedpath.pth ~/Library/Python/2.7/lib/python/site-packages
     fi
 }

@@ -37,23 +37,23 @@ config_avr() {
             mv $DFLD/asf-* $softwaredir
         fi
         if [ -f $DFLD/avr8-gnu-tool*.tar.gz ]; then
-            echo "Extracting and moving avr8-tools to $TOOLSDIR"
+            echo "Extracting and moving avr8-tools to $toolsdir"
             tar -zxvf $DFLD/avr8-gnu-toolchain* && rm $DFLD/avr8-gnu-tool*.tar.gz
-            mv avr8-gnu-toolchain* $TOOLSDIR/avr8-tools
-            echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR/avr8-tools/bin \
+            mv avr8-gnu-toolchain* $toolsdir/avr8-tools
+            echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr8-tools/bin \
                 >> ~/.pam_environment
         fi
         if [ -f $DFLD/avr32-gnu-tool*.tar.gz ]; then
-            echo "Extracting and moving avr32-tools to $TOOLSDIR"
+            echo "Extracting and moving avr32-tools to $toolsdir"
             tar -zxvf $DFLD/avr32-gnu-toolchain* && rm $DFLD/avr32-gnu-tool*.tar.gz
-            mv avr32-gnu-toolchain* $TOOLSDIR/avr32-tools
-            echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR/avr32-tools/bin \
+            mv avr32-gnu-toolchain* $toolsdir/avr32-tools
+            echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr32-tools/bin \
                 >> ~/.pam_environment
         fi
         if [ -f $DFLD/atmel-header*.zip ]; then
-            echo "Extracting and moving avr32-headers to $TOOLSDIR"
+            echo "Extracting and moving avr32-headers to $toolsdir"
             unzip -d $DFLD $DFLD/atmel-headers* && rm $DFLD/atmel-header*.zip
-            mv $DFLD/atmel-headers*/avr32 $TOOLSDIR/avr32-tools/avr32/include && \
+            mv $DFLD/atmel-headers*/avr32 $toolsdir/avr32-tools/avr32/include && \
                 rm -r $DFLD/atmel-headers*
         fi
         read -p "Would you like to get the gtkterm terminal ([n]/y): " done
@@ -66,8 +66,8 @@ config_avr() {
         echo "If user does not appear below, add user to plugdev group"
         less /etc/group | grep plugdev
     else
-        echo "Unzip tools folders, move tools to $TOOLSDIR"
-        echo "from $TOOLSDIR add to path: avr32-tools/bin, avr8-tools/bin, av"
+        echo "Unzip tools folders, move tools to $toolsdir"
+        echo "from $toolsdir add to path: avr32-tools/bin, avr8-tools/bin, av"
         echo "      avr32-tools/bin"
         echo "      avr8-tools/bin"
         echo "      avr32-prog"
