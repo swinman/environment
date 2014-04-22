@@ -46,3 +46,11 @@ ${VISUAL:
 #endif	/* $1 */
 
 endsnippet
+
+snippet ifdevice "If the _DEVICE type is x" !b
+#if ( _DEVICE == ${1:_STM32F4} )
+${VISUAL:
+}
+#endif	/* _DEVICE */
+
+endsnippet
