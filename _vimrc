@@ -590,7 +590,8 @@ call DarkColorscheme()
 " ==================== KEY MAPPINGS =============================         {{{1
 " ---------------------- Favorites ------------------------------         {{{2
 " use B to get buffer list
-nnoremap B :ls<CR>:b
+nnoremap B :ls<CR>:b 
+" NOTE : autocmd runs at write, to disable use :noautocmd w
 nnoremap Y y$
 
 " map s to insert a space
