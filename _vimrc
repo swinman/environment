@@ -55,6 +55,10 @@ syntax enable
 filetype on
 filetype plugin indent on
 " END: ------------- PATHOGEN SETTINGS --------------------------         2}}}
+
+" NOTE: to output python command to the buffer use
+" :.!py -c "import uuid; print uuid.uuid1()"
+
 " END: =================== SETUP ================================         1}}}
 
 " ====================== FUNCTIONS ==============================         {{{1
@@ -188,6 +192,8 @@ function! GetCChar()
         let CChar = ':'
     elseif &ft == 'tex' || &ft == 'bib'
         let CChar = '%'
+    elseif &ft == 'inf'
+        let CChar = ';'
     else
         let CChar = '"'
     endif
