@@ -1,5 +1,6 @@
 global !p
 import string, vim
+import uuid
 
 # Maps a filetype to comment, automatically filled during usage
 _commentDict = { }
@@ -67,6 +68,20 @@ snip.rv = key*max(0,
 snip.rv = key*max(0, 35 - int((1 + len(t[1]))//2))
 `         ${2/(\d+).*/$1/}`!p
 snip.rv = foldmarker()[1]`
+endsnippet
+
+snippet uuid_nd "Print a uuid (no dashes)" !b
+`!p
+import uuid
+if not snip.c:
+    snip.rv = uuid.uuid4().hex`
+endsnippet
+
+snippet uuid "Print a uuid" !b
+`!p
+import uuid
+if not snip.c:
+    snip.rv = uuid.uuid1()`
 endsnippet
 
 # vim:ft=snippets:

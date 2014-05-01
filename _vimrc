@@ -192,7 +192,7 @@ function! GetCChar()
         let CChar = ':'
     elseif &ft == 'tex' || &ft == 'bib'
         let CChar = '%'
-    elseif &ft == 'inf'
+    elseif &ft == 'inform'
         let CChar = ';'
     else
         let CChar = '"'
