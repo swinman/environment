@@ -109,6 +109,7 @@ add_bash_alias() {
     echo "Adding \$softwaredir and \$toolsdir variables"
     echo "export softwaredir=\"$SOFTWAREDIR\"" >> $BRC
     echo "export toolsdir=\"$TOOLSDIR\"" >> $BRC
+    echo "export PYTHONPATH=$PYTHONPATH:$SOFTWAREDIR" >> $BRC
     echo "" >> $BRC
     echo "Sourcing aliases from $aliases"
     echo "if [ -f $aliases ]; then" >> $BRC
