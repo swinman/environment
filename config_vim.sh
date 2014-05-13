@@ -58,6 +58,7 @@ get_vim_addons() {
     get_git_repo $GHURL/klen/rope-vim.git $VBUND/rope-vim
     get_git_repo $GHURL/tpope/vim-sensible.git $VBUND/vim-sensible
     get_git_repo $GHURL/tpope/vim-fugitive.git $VBUND/vim-fugitive
+    get_git_repo $GHURL/tpope/vim-surround.git $VBUND/vim-surround
     get_git_repo $GHURL/SirVer/ultisnips.git $VBUND/ultisnips
 
     echo "Attempting to access private repo: "

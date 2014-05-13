@@ -22,6 +22,8 @@ alias ipy='ipython -i --no-banner'
 alias chrom='chromium-browser'
 alias py3='ipython3 -i --no-banner'
 
+alias pygrep='grep --include=*.py'
+
 # Git
 alias gco='git checkout '
 alias gci='git commit '
