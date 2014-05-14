@@ -34,6 +34,7 @@ alias gdf='git diff '
 alias gdw='git diff --word-diff'
 alias gad='git add '
 alias gpu='git push '
+alias glb='git log --graph --oneline'
 function g1c() { git diff $@~ $@ ;}
 
 # DFU-Programmer
