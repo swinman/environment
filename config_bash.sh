@@ -79,6 +79,8 @@ add_bash_alias() {
         BRC=~/.bashrc
     fi
 
+    sed -i 's/#\(force_color_prompt=yes\)/\1/' $BRC
+
     aliases='$softwaredir/environment/_bash_aliases'
     startline="##### START DO NOT EDIT BETWEEN THESE BRACKETS #####"
     infoline="# Below lines were added by environment/config script"
@@ -149,7 +151,6 @@ mac=mac
 linux=linux
 
 echo "==================== config_bash.sh ===================="
-sed -i 's/#\(force_color_prompt=yes\)/\1/' ~/.bashrc
 check_os;
 set_common_dir;
 init_software_dir;
