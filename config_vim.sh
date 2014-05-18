@@ -49,7 +49,7 @@ get_vim_addons() {
         mkdir -p $VBUND
     fi
     if ! [ -e $VIMDIR/autoload/pathogen.vim ]; then
-        curl -Sso $VIMDIR/autoload/pathogen.vim \
+        curl -LSso $VIMDIR/autoload/pathogen.vim \
             https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
     fi
     get_git_repo $GHURL/jiangmiao/auto-pairs.git $VBUND/auto-pairs
