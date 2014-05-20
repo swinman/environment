@@ -17,6 +17,7 @@ get_python3_packages() {
         sudo apt-get install python3-serial -y
         sudo apt-get install python3-pyqt4 -y
         sudo apt-get install python3-urllib3 -y
+        sudo apt-get install python3-jedi -y
         # needed to buil qrc
         sudo apt-get install pyqt4-dev-tools -y
         sudo apt-get install cx-freeze -y
@@ -56,6 +57,7 @@ get_python2_packages() {
         # python usb (pyusb)
         sudo apt-get install python-usb -y
         sudo apt-get install python-pip -y
+        sudo apt-get install python-jedi -y
         # sudo pip install --upgrade pyusb
         # needed to build qrc
         sudo apt-get install pyqt4-dev-tools -y

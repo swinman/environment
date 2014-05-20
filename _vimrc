@@ -586,7 +586,9 @@ let g:UltiSnipsSnippetDirectories = ["snippits","UltiSnips"]
 let g:syntastic_python_checkers = ['flake8']
 
 " Ropevim settings
-let g:ropevim_autoimport_modules = ["os"]
+"let g:ropevim_autoimport_modules = ["os.*", "PyQt4.*"]
+"let g:ropevim_enable_autoimport = 1
+"let g:ropevim_guess_project=1
 
 " ----------------- Personal Functions --------------------------         {{{2
 au BufWritePre * call DelWhiteSpace()
@@ -598,7 +600,7 @@ call DarkColorscheme()
 " ==================== KEY MAPPINGS =============================         {{{1
 " ---------------------- Favorites ------------------------------         {{{2
 " use B to get buffer list
-nnoremap B :ls<CR>:b 
+nnoremap B :ls<CR>:b
 " NOTE : autocmd runs at write, to disable use :noautocmd w
 nnoremap Y y$
 

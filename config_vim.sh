@@ -55,11 +55,11 @@ get_vim_addons() {
     get_git_repo $GHURL/jiangmiao/auto-pairs.git $VBUND/auto-pairs
     get_git_repo $GHURL/scrooloose/nerdtree.git $VBUND/nerdtree
     get_git_repo $GHURL/scrooloose/syntastic.git $VBUND/syntastic
-    get_git_repo $GHURL/klen/rope-vim.git $VBUND/rope-vim
     get_git_repo $GHURL/tpope/vim-sensible.git $VBUND/vim-sensible
     get_git_repo $GHURL/tpope/vim-fugitive.git $VBUND/vim-fugitive
     get_git_repo $GHURL/tpope/vim-surround.git $VBUND/vim-surround
     get_git_repo $GHURL/SirVer/ultisnips.git $VBUND/ultisnips
+    get_git_repo $GHURL/davidhalter/jedi-vim.git $VBUND/jedi-vim
 
     echo "Attempting to access private repo: "
     get_git_repo git@github.com:swinman/taghighlight.git $VBUND/taghighlight
