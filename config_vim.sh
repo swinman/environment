@@ -59,7 +59,7 @@ get_vim_addons() {
     get_git_repo $GHURL/tpope/vim-fugitive.git $VBUND/vim-fugitive
     get_git_repo $GHURL/tpope/vim-surround.git $VBUND/vim-surround
     get_git_repo $GHURL/SirVer/ultisnips.git $VBUND/ultisnips
-    get_git_repo $GHURL/davidhalter/jedi-vim.git $VBUND/jedi-vim
+    get_git_repo $GHURL/davidhalter/jedi-vim.git $VBUND/jedi-vim 1
 
     echo "Attempting to access private repo: "
     get_git_repo git@github.com:swinman/taghighlight.git $VBUND/taghighlight
@@ -82,9 +82,14 @@ get_vim_addons() {
 get_git_repo() {
     local repourl=$1
     local folder=$2
+    local recursive=$3
     if ! [ -d $folder ]; then
-        echo "Clone $repourl to $folder"
-        git clone $repourl $folder
+        echo "Clone $repourl to $folder with recursive=$recursive"
+        if [ -n "$recursive" ]; then
+            git clone --recursive $repourl $folder
+        else
+            git clone $repourl $folder
+        fi
     else
         echo "Synch $folder"
         git --git-dir=$folder/.git --work-tree=$folder/ pull
