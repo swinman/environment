@@ -15,7 +15,7 @@ config_environment_directory() {
         echo "  fetching most recent changes"
         git --git-dir=$softwaredir/environment/.git \
             --work-tree=$softwaredir/environment/ \
-            fetch origin
+            pull origin
     fi
 }
 
