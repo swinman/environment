@@ -52,6 +52,14 @@ get_vim_addons() {
         curl -LSso $VIMDIR/autoload/pathogen.vim \
             https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
     fi
+
+    # set windows driver vim filetype to dosini
+    VIMFT=$VIMDIR/filetype.vim
+    echo "if exists('did_load_filetypes')\n    finish\nendif" > $VIMFT
+    echo "augroup filetypedetect" >> $VIMFT
+    echo "autocmd BufNewFile,BufRead *.inf setf dosini" >> $VIMFT
+    echo "augroup END" >> $VIMFT
+
     get_git_repo $GHURL/jiangmiao/auto-pairs.git $VBUND/auto-pairs
     get_git_repo $GHURL/scrooloose/nerdtree.git $VBUND/nerdtree
     get_git_repo $GHURL/scrooloose/syntastic.git $VBUND/syntastic
