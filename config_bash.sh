@@ -79,6 +79,10 @@ add_bash_alias() {
         BRC=~/.bashrc
     fi
 
+    if ! [ -a $BRC ]; then
+        touch $BRC
+    fi
+
     sed -i 's/#\(force_color_prompt=yes\)/\1/' $BRC
 
     aliases='$softwaredir/environment/_bash_aliases'
