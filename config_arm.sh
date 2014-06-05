@@ -114,7 +114,7 @@ get_openocd() {
 # --------------------- SETUP SCRIPT --------------------- #
 echo "==================== config_arm.sh ====================="
 install_tools;
+config_rules;
 get_packages;
 get_openocd;
-config_rules;
 echo "================= END: config_arm.sh ==================="
