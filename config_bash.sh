@@ -79,7 +79,7 @@ add_bash_alias() {
         BRC=~/.bashrc
     fi
 
-    if ! [ -a $BRC ]; then
+    if ! [ -e $BRC ]; then
         touch $BRC
     fi
 
