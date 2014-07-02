@@ -10,7 +10,12 @@
 config_environment_directory() {
     echo "Checking that environment directory exists"
     if ! [ -d $softwaredir/environment ]; then
+        echo "Attempting to access private repo: "
         git clone git@github.com:swinman/environment.git $softwaredir/environment
+        if ! [ $? = 0 ]; then
+            echo "Access failed, attempting as public user: "
+            git clone git://github.com/swinman/environment.git $softwaredir/environment
+        fi
     else
         echo "  fetching most recent changes"
         git --git-dir=$softwaredir/environment/.git \
