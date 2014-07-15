@@ -194,6 +194,8 @@ function! GetCChar()
         let CChar = '%'
     elseif &ft == 'inform'
         let CChar = ';'
+    elseif &ft == 'vhdl'
+        let CChar = '--'
     else
         let CChar = '"'
     endif

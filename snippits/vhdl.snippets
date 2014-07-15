@@ -1,0 +1,31 @@
+snippet --- "add -- line" !b
+-------------------------------------------------------------------------------
+endsnippet
+
+snippet GEN "GENERATE statement" !b
+${1:<label>}: FOR ${2:<identifier>} IN ${3:<range>} GENERATE
+${4:  [<declarative_part>
+BEGIN]
+}  ${5:<concurent_statements_part>}
+END GENERATE $1;
+endsnippet
+
+snippet PROCESS "PROCESS statement" !b
+${1:<label>}: PROCESS ${2:<sensitivity list>} IS
+  ${3:<declarative_part>}
+BEGIN
+  ${4:<sequential_statements_part>}
+END PROCESS $1;
+endsnippet
+
+snippet IF "IF statement" !b
+${1:<label>}: IF ${2:<conditions>} THEN
+  ${3:<assignments>}
+END IF;
+endsnippet
+
+snippet SIGNAL "SIGNAL declaration" !b
+SIGNAL ${1:<signal_name>}: ${2:<signal_type>} ${3:[range]} ${4:[:= default_value]}
+endsnippet
+
+# vim: shiftwidth=2
