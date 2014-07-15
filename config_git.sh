@@ -15,7 +15,6 @@ get_git_packages() {
         echo "Download git and install using 'simple context menu' with bash"
         echo "Download from http://git-scm.com/download/win"
         echo "Install with the following options:"
-        echo "simple context menu -> use bash instead of cheetah"
         echo "run git from the windows command prompt -> add git to path"
         echo "checkout windows style, commit unix style"
     elif [ $OS = mac ]; then
@@ -24,7 +23,8 @@ get_git_packages() {
 }
 
 config_git() {
-    echo "\nConfiguring git"
+    echo
+    echo "Configuring git"
     read -p "Full user name (default is no change): " username
     if [ -n "$username" ]; then
         echo "Setting git user.name to $username"

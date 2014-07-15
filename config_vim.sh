@@ -13,7 +13,6 @@ get_vim_packages() {
 }
 
 config_vim() {
-    echo $OS
     if [ $OS = windows ]; then
         text="source $softwaredir\\environment\\_vimrc"
         target=~/_vimrc
@@ -55,7 +54,9 @@ get_vim_addons() {
 
     # set windows driver vim filetype to dosini
     VIMFT=$VIMDIR/filetype.vim
-    echo "if exists('did_load_filetypes')\n    finish\nendif" > $VIMFT
+    echo "if exists('did_load_filetypes')" > $VIMFT
+    echo "    finish" >> $VIMFT
+    echo "endif" >> $VIMFT
     echo "augroup filetypedetect" >> $VIMFT
     echo "autocmd BufNewFile,BufRead *.inf setf dosini" >> $VIMFT
     echo "augroup END" >> $VIMFT
