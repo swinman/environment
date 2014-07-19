@@ -286,6 +286,26 @@ function! GetScreenSize()
 endfunction
 " END: --------------- GetScreenSize ----------------------------         2}}}
 
+" -------------------- iHexChecksum -----------------------------         {{{2
+function IHexChecksum()
+  let l:data = getline(".")
+  let l:dlen = strlen(data)
+
+  if (empty(matchstr(l:data, "^:\\(\\x\\x\\)\\{5,}$")))
+    echoerr("Input is not a valid Intel HEX line!")
+    return
+  endif
+
+  let l:byte = 0
+  for l:bytepos in range(1, l:dlen-4, 2)
+    let l:byte += str2nr(strpart(l:data, l:bytepos, 2), 16)
+  endfor
+
+  let l:byte = (256-(l:byte%256))%256
+  call setline(".", strpart(l:data, 0, l:dlen-2).printf("%02x", l:byte))
+endfunction
+" END: --------------- iHexChecksum -----------------------------         2}}}
+
 if has("eval")
 " ---------------- GitKeepAbove / Below -------------------------         {{{2
 function! GitKeepAbove()
