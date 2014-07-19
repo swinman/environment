@@ -24,6 +24,8 @@ alias py3='ipython3 -i --no-banner'
 
 alias pygrep='grep --include=*.py'
 
+alias vsim='$toolsdir/altera/*/modelsim_ase/linux/vsim'
+
 # Git
 alias gco='git checkout '
 alias gci='git commit '
