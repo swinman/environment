@@ -24,4 +24,5 @@
 echo "==================== config_fpga.sh ===================="
 # add plugdev rules for accessing atmel devices
 #get_avr_tools;
+sudo apt-get install libelf1:i386
 echo "=============== END: config_fpga.sh ===================="

@@ -113,4 +113,14 @@ ATTRS{idProduct}=="2ffd", MODE="0660", GROUP="plugdev"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
 ATTRS{idProduct}=="df11", MODE="0660", GROUP="plugdev",
 
+
+############## FTDI PROGRAMMER ###################
+# bootloader product ID for AT32UC3A3
+
+# FPGA ICE CUBE
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0403",
+ATTRS{idProduct}=="6010", MODE="0660", GROUP="plugdev",
+#RUN+="/sbin/rmmod ftdi_sio vendor=0x0403 product=0x2404"
+#ENV{ID_MM_DEVICE_IGNORE}="1"
+
 # vim:ft=udevrules
