@@ -60,7 +60,7 @@ config_git() {
         elif [ $OS = mac ]; then
             pbcopy < ~/.ssh/id_rsa.pub
         fi
-        read -p "Enter when ssh key is posted to github & bitbucket?" answer
+        read -p "Enter when ssh key is posted to github?" answer
     fi
 }
 
