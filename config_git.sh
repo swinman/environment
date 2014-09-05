@@ -24,7 +24,16 @@ get_git_packages() {
 
 config_git() {
     echo
-    echo "Configuring git"
+    gitver=$(git --version | sed "s/^.* \([^.]*\)\.\([^.]*\)\..*/\1\2/")
+    echo "git version $gitver, configuring:"
+    echo "   color ui to true"
+    git config --global color.ui true
+    if [ $gitver -ge "19" ]; then
+        echo "   push default to simple"
+        git config --global push.default simple
+    fi
+    echo "   linking core excludes file"
+    git config --global core.excludesfile "$softwaredir/environment/_gitignore"
     read -p "Full user name (default is no change): " username
     if [ -n "$username" ]; then
         echo "Setting git user.name to $username"
@@ -35,12 +44,6 @@ config_git() {
         echo "Setting git user.email to $emailaddr"
         git config --global user.email "$emailaddr"
     fi
-    gitver=$(git --version | sed "s/^.* \([^.]*\)\.\([^.]*\)\..*/\1/")
-    git config --global color.ui true
-    if [ $gitver -ge "2" ]; then
-        git config --global push.default simple
-    fi
-    git config --global core.excludesfile "$softwaredir/environment/_gitignore"
 
     read -p "Generate a new ssh key? ([n]/y) " generate
     if [ "$generate" = "y" ]; then
