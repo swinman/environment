@@ -182,6 +182,8 @@ function! GetCChar()
         let CChar = "#"
     elseif &ft == 'udevrules'
         let CChar = '#'
+    elseif &ft == 'tcl'
+        let CChar = '#'
     elseif &ft == 'c' || &ft == 'cpp'
         let CChar = "//"
     elseif &ft == 'vim'
