@@ -25,14 +25,9 @@ config_environment_directory() {
 }
 
 config_chromium() {
-    if [ "$OS" = "linux" ]; then
-        read -p "Add chromium as the default browser? ([n]/y)" no
-        if [ "$no" = "y" ]; then
-            sudo apt-get install chromium-browser -y
-            if [ -z $(grep "BROWSER=chromium-browser" ~/.pam_environment | wc -l) ]; then
-                echo BROWSER=chromium-browser >> ~/.pam_environment
-            fi
-        fi
+    sudo apt-get install chromium-browser -y
+    if [ -z $(grep "BROWSER=chromium-browser" ~/.pam_environment | wc -l) ]; then
+        echo BROWSER=chromium-browser >> ~/.pam_environment
     fi
 }
 
@@ -49,6 +44,10 @@ update_default_programs() {
 }
 
 # --------------------- SETUP SCRIPT --------------------- #
+read -p "Would you like to set up latex? [y/N]" add_latex
+if [ "$OS" = "linux" ]; then
+    read -p "Add chromium as the default browser? [N/y]" add_chromium
+fi
 source ./config_bash.sh
 time ./config_git.sh
 config_environment_directory;
@@ -58,8 +57,12 @@ if [ "$OS" = "linux" ]; then
 fi
 time ./config_vim.sh
 time ./config_python.sh
-time ./config_latex.sh
+if [ "$add_latex" = "y" ]; then
+    time ./config_latex.sh
+fi
 time ./config_arm.sh
 time ./config_avr.sh
 update_default_programs;
-config_chromium;
+if [ "$add_chromium" = "y" ]; then
+    config_chromium;
+fi
