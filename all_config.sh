@@ -44,11 +44,11 @@ update_default_programs() {
 }
 
 # --------------------- SETUP SCRIPT --------------------- #
+source ./config_bash.sh
 read -p "Would you like to set up latex? [y/N]" add_latex
 if [ "$OS" = "linux" ]; then
     read -p "Add chromium as the default browser? [N/y]" add_chromium
 fi
-source ./config_bash.sh
 time ./config_git.sh
 config_environment_directory;
 if [ "$OS" = "linux" ]; then
