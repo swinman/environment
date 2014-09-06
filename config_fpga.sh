@@ -53,7 +53,7 @@ config_icecube2() {
 }
 
 tejainece_git_script() {
-    ALTERA_PATH=$toolsdir/altera/*/
+    ALTERA_PATH=$toolsdir/altera/14.0/
 
     sudo dpkg --add-architecture i386
     sudo apt-get update
@@ -72,7 +72,7 @@ tejainece_git_script() {
     make -j8
 
     mkdir ${ALTERA_PATH}modelsim_ase/lib32
-    sudo cp objs/.libs/libfreetype.so* $ALTERA_PATH/modelsim_ase/lib32
+    sudo cp objs/.libs/libfreetype.so* ${ALTERA_PATH}modelsim_ase/lib32
 
     #this file is usually read-only, make it writeable
     chmod 755 ${ALTERA_PATH}modelsim_ase/vco
