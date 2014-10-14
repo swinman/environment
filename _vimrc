@@ -482,7 +482,7 @@ set columns=85
 set lines=50
 set foldmethod=indent
 set foldlevel=1
-"set formatoptions=qrn1
+set formatoptions-=t        " DONT auto-wrap lines
 set title         " set window title
 set visualbell    " turns off bell, turns on flash
 " END: ------------------ Display -------------------------------         2}}}
