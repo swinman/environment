@@ -16,6 +16,7 @@ alias cd..='cd ..'
 
 # start and quit vi to change the terminal size
 alias viq='vi -c q'
+alias vidq='vi -c call\ ToggleWidth\(\) -c qa'
 
 # various programs
 alias ipy='ipython -i --no-banner'
