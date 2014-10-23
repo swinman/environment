@@ -44,6 +44,11 @@
 
 "TODO : make a shortcut for :r!locate somefile <CR>0i:e <ESC>"edd@e
 " see http://stackoverflow.com/questions/1218390/what-is-your-most-productive-shortcut-with-vim
+
+"TODO : add print to pdf function
+" use :ha >tempfile.ps
+" from a terminal use ps2pdf tempfile.ps
+"
 " END: ------------------- TODO ---------------------------------         2}}}
 
 " ------------------ PATHOGEN SETTINGS --------------------------         {{{2
