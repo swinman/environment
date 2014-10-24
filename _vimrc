@@ -44,6 +44,11 @@
 
 "TODO : make a shortcut for :r!locate somefile <CR>0i:e <ESC>"edd@e
 " see http://stackoverflow.com/questions/1218390/what-is-your-most-productive-shortcut-with-vim
+
+"TODO : add print to pdf function
+" use :ha >tempfile.ps
+" from a terminal use ps2pdf tempfile.ps
+"
 " END: ------------------- TODO ---------------------------------         2}}}
 
 " ------------------ PATHOGEN SETTINGS --------------------------         {{{2
@@ -181,6 +186,8 @@ function! GetCChar()
     elseif &ft == 'snippets'
         let CChar = "#"
     elseif &ft == 'udevrules'
+        let CChar = '#'
+    elseif &ft == 'tcl'
         let CChar = '#'
     elseif &ft == 'c' || &ft == 'cpp'
         let CChar = "//"
@@ -480,7 +487,7 @@ set columns=85
 set lines=50
 set foldmethod=indent
 set foldlevel=1
-"set formatoptions=qrn1
+set formatoptions-=t        " DONT auto-wrap lines
 set title         " set window title
 set visualbell    " turns off bell, turns on flash
 " END: ------------------ Display -------------------------------         2}}}

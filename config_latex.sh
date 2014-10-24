@@ -13,19 +13,19 @@ config_latex() {
     sudo apt-get install rubber -y    # compile latex to pdf
     sudo apt-get install latexmk -y   # similar to rubber
     sudo apt-get install texlive-latex-base -y
-#    sudo apt-get install texlive-latex-extra -y
+    sudo apt-get install texlive-latex-extra -y
     sudo apt-get install texlive-latex-recommended -y
-#    sudo apt-get install texlive-plain-extra -y
-#    sudo apt-get install texlive-generic-extra -y
-#    sudo apt-get install texlive-science -y
+    sudo apt-get install texlive-science -y
+    sudo apt-get install texlive-plain-extra -y
+    sudo apt-get install texlive-generic-extra -y
     if [ "$(lsb_release -r | sed "s/.*\s\+\(.*\)/\1/")" = "12.04" ]; then
       echo "Version is 12.04, installing texlive backport"
       sudo apt-add-repository http://ppa.launchpad.net/texlive-backports/ppa/ubuntu
       sudo apt-get update
       sudo apt-get install texlive-base -y
       sudo apt-get install texlive-xcolor -y
-#      sudo apt-get install texlive-latex-extra -y
-#      sudo apt-get install texlive-science -y
+      sudo apt-get install texlive-latex-extra -y
+      sudo apt-get install texlive-science -y
     fi
   fi
 }
@@ -49,8 +49,8 @@ get_fonts() {
     sudo apt-get install ttf-mscorefonts-installer -y
     sudo apt-get install ttf-oxygen-font-family -y
     sudo apt-get install texlive-fonts-recommended -y
-#    sudo apt-get install texlive-fonts-extra -y
-#    sudo apt-get install texlive-font-utils -y
+    sudo apt-get install texlive-fonts-extra -y
+    sudo apt-get install texlive-font-utils -y
   fi
 }
 
