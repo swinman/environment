@@ -61,8 +61,10 @@ config_avr() {
             echo "installing 'gtkterm'"
             sudo apt-get install gtkterm -y
         fi
-        echo "Adding atmel device usb ids to plugdev rules (logout necessary)"
+        echo "Adding atmel device usb ids to plugdev rules"
         sudo cp $softwaredir/environment/99-uCtools.rules /etc/udev/rules.d/
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger
         echo "If user does not appear below, add user to plugdev group"
         less /etc/group | grep plugdev
     else
@@ -74,7 +76,6 @@ config_avr() {
         echo "Unzip asf folder, move asf-version to $softwaredir"
         echo "Acquire the appropriate atmel cdc and dfu drivers"
     fi
-    echo "You may need to logout for changes to function"
 }
 
 config_dfu() {
