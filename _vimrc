@@ -588,7 +588,7 @@ if has("win32")
     let g:TagHighlightSettings['CtagsExecutable'] =
                 \ "C:\\Program Files (x86)\\ctags58\\ctags.exe"
 else
-    let g:TagHighlightSettings['CtagsExecutable'] = "/usr/bin/ctags-exuberant"
+    let g:TagHighlightSettings['CtagsExecutable'] = "ctags"
 end
 
 let g:TagHighlightSettings['TagFileName'] = 'tags'
