@@ -40,6 +40,10 @@ ATTRS{idProduct}=="2103", MODE="0660", GROUP="plugdev"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2104", MODE="0660", GROUP="plugdev"
 
+# ATMEL ICE
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2141", MODE="0660", GROUP="plugdev"
+
 # AVRONE:
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2105", MODE="0660", GROUP="plugdev"
@@ -81,10 +85,6 @@ ATTRS{idProduct}=="2ff3", MODE="0660", GROUP="plugdev"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2ff4", MODE="0660", GROUP="plugdev"
 
-# bootloader product ID for ATXMEGA32A4U
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
-ATTRS{idProduct}=="2fe4", MODE="0660", GROUP="plugdev"
-
 # bootloader product ID for AT32UC3B0/1
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2ff6", MODE="0660", GROUP="plugdev"
@@ -117,6 +117,9 @@ ATTRS{idProduct}=="2ffd", MODE="0660", GROUP="plugdev"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0483",
 ATTRS{idProduct}=="df11", MODE="0660", GROUP="plugdev",
 
+# bootloader product ID for ATXMEGA32A4U
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
+ATTRS{idProduct}=="2fe4", MODE="0660", GROUP="plugdev"
 
 
 
