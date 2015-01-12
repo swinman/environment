@@ -588,7 +588,7 @@ if has("win32")
     let g:TagHighlightSettings['CtagsExecutable'] =
                 \ "C:\\Program Files (x86)\\ctags58\\ctags.exe"
 else
-    let g:TagHighlightSettings['CtagsExecutable'] = "/usr/bin/ctags-exuberant"
+    let g:TagHighlightSettings['CtagsExecutable'] = "ctags"
 end
 
 let g:TagHighlightSettings['TagFileName'] = 'tags'
@@ -601,6 +601,8 @@ let NERDTreeIgnore = ['\.((jpe?g)|(png)|(PNG)|o|atsuo|docx?|xlsx?|pyc|pdf)$',
 " END: ----------------- NERDTree -------------------------------         2}}}
 
 " ---------------------- UltiSnips ------------------------------         {{{2
+"  set header files to filetype c for correct snips
+au BufRead,BufNewFile *.h set filetype=c
 if has("win32")
     let g:UltiSnipsSnippetsDir = g:softwaredir . "\\environment\\snippits"
     let &runtimepath.=','.g:softwaredir . "\\environment"
@@ -610,7 +612,6 @@ else
 endif
 let g:UltiSnipsSnippetDirectories = ["snippits","UltiSnips"]
 " END: ----------------- UltiSnips ------------------------------         2}}}
-
 " Syntastic settings
 let g:syntastic_python_checkers = ['flake8']
 
