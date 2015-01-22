@@ -52,3 +52,11 @@ snippet ifdevice "If the _DEVICE type is x" !b
 ${VISUAL: }
 #endif	/* _DEVICE */
 endsnippet
+
+snippet rmwarn "If the _DEVICE type is x" !b
+#if 0
+${VISUAL: }
+#else
+#warning "FIXME ${1: error}"
+#endif
+endsnippet
