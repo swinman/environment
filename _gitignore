@@ -6,6 +6,7 @@
 # vim
 *~
 *.swp
+*.swo
 *.taghl
 
 # avr studio
