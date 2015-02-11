@@ -59,6 +59,7 @@ get_python2_packages() {
         sudo apt-get install python-pip -y
         sudo apt-get install python-jedi -y
         sudo pip install --upgrade pyusb
+        # note : if this doesn't work it can always be installed through github
         # needed to build qrc
         sudo apt-get install pyqt4-dev-tools -y
         # needed to build application
