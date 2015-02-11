@@ -72,10 +72,18 @@ get_packages() {
         sudo apt-get install gtkterm -y
         sudo apt-get install unp -y
         if [ "$(ls /etc/apt/sources.list.d/ | grep "gcc-arm-embedded")" = "" ]; then
+            if [ "$(lsb_release -r | sed "s/.*\s\+\(.*\)/\1/")" = "14.04" ]; then
+                sudo apt-get remove binutils-arm-none-eabi gcc-arm-none-eabi -y
+            fi
             sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded
             sudo apt-get update
         fi
-        sudo apt-get install gcc-arm-none-eabi -y
+        GCCARMNONE=gcc-arm-none-eabi
+        if [ "$(lsb_release -r | sed "s/.*\s\+\(.*\)/\1/")" = "14.04" ]; then
+            GCCARMNONE=gcc-arm-none-eabi=4.9.3.2014q4-0trusty12
+        fi
+        echo ">>>>>>>>>>> using $GCCARMNONE >>>>>>>>>>>"
+        sudo apt-get install $GCCARMNONE -y
     else
         echo
         echo "Download and install arm-none-eabi-gcc"
