@@ -576,6 +576,12 @@ if has("cscope") && !has("win32") && 0
     set csverb
 endif
 " END: -------------- CTags / CScope ----------------------------         2}}}
+
+" ----------------- File Type Specific --------------------------         {{{2
+autocmd FileType tex setlocal formatoptions+=t spell
+autocmd FileType gitcommit setlocal formatoptions+=t spell tw=72
+
+" END: ------------ File Type Specific --------------------------         2}}}
 " END: =============== VIM SETTINGS =============================         1}}}
 
 " =================== PLUGIN SETTINGS ===========================         {{{1
