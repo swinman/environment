@@ -13,6 +13,7 @@ get_python3_packages() {
         sudo apt-get install python3 -y
         sudo apt-get install ipython3 -y
         sudo apt-get install python3-numpy -y
+        sudo apt-get install python3-scipy -y
         sudo apt-get install python3-matplotlib -y
         sudo apt-get install python3-serial -y
         sudo apt-get install python3-pyqt4 -y
@@ -50,6 +51,7 @@ get_python2_packages() {
         sudo apt-get install python2.7 -y
         sudo apt-get install ipython -y
         sudo apt-get install python-numpy -y
+        sudo apt-get install python-scipy -y
         sudo apt-get install python-matplotlib -y
         sudo apt-get install python-serial -y
         sudo apt-get install python-qt4 -y
