@@ -110,9 +110,9 @@ get_openocd() {
             (cd $toolsdir/openocd && git pull)
         else
             (cd $toolsdir && git clone git://git.code.sf.net/p/openocd/code openocd)
+            (cd $toolsdir/openocd && ./bootstrap)
+            (cd $toolsdir/openocd && ./configure --enable-stlink --enable-jlink)
         fi
-        (cd $toolsdir/openocd && ./bootstrap)
-        (cd $toolsdir/openocd && ./configure --enable-stlink --enable-jlink)
         (cd $toolsdir/openocd && make)
         (cd $toolsdir/openocd && sudo make install)
     fi
