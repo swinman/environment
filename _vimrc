@@ -243,10 +243,13 @@ endfunction
 " -------------------- ToggleLineNo -----------------------------         {{{2
 function! ToggleLineNo()
     if &relativenumber
+        set norelativenumber
         set number
     elseif &number
         set nonumber
+        set norelativenumber
     else
+        set nonumber
         set relativenumber
     endif
 endfunction
