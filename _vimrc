@@ -766,6 +766,7 @@ vnoremap <F1> <ESC>
 " U seems to always be the first key pressed when caps lock is on...
 nnoremap U <ESC>:echo " < < ===== C H E C K   C A P S   L O C K ===== > > "<CR>
 vnoremap U <ESC>:echo " < < ===== C H E C K   C A P S   L O C K ===== > > "<CR>
+nnoremap Q <ESC>:echo " < < ===== C H E C K   C A P S   L O C K ===== > > "<CR>
 
 " home key - accidentally pressed instead of backspace
 inoremap <home> <nop>
