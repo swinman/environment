@@ -316,6 +316,25 @@ function IHexChecksum()
 endfunction
 " END: --------------- iHexChecksum -----------------------------         2}}}
 
+" ----------------- AutoSpellGoodWords --------------------------         {{{2
+"  adapted from http://superuser.com/questions/133208/how-to-make-vim-spellcheck-remember-a-new-word
+function! AutoSpellGoodWords()
+    let l:goodwords_start = search('\C-\*-SpellGoodWordsStart-\*-', 'wcn')
+    let l:goodwords_end = search('\C-\*-SpellGoodWordsEnd-\*-', 'wcn')
+    if l:goodwords_start == 0 || l:goodwords_end == 0
+        return
+    endif
+    let l:lines = getline(l:goodwords_start + 1, l:goodwords_end - 1)
+    let l:words = []
+    call map(l:lines, "extend(l:words, split(v:val, '\\W\\+'))")
+    for l:word in l:words
+        silent execute ':spellgood! ' . l:word
+    endfor
+endfunction
+
+autocmd BufReadPost * call AutoSpellGoodWords()
+" END: ------------ AutoSpellGoodWords --------------------------         2}}}
+
 if has("eval")
 " ---------------- GitKeepAbove / Below -------------------------         {{{2
 function! GitKeepAbove()
@@ -570,7 +589,7 @@ function! LoadCscope()
         set cscopeverbose
     endif
 endfunction
-au BufEnter /* call LoadCscope()
+autocmd BufEnter /* call LoadCscope()
 
 if has("cscope") && !has("win32") && 0
     set csto=0
@@ -611,7 +630,7 @@ let NERDTreeIgnore = ['\.((jpe?g)|(png)|(PNG)|o|atsuo|docx?|xlsx?|pyc|pdf)$',
 
 " ---------------------- UltiSnips ------------------------------         {{{2
 "  set header files to filetype c for correct snips
-au BufRead,BufNewFile *.h set filetype=c
+autocmd BufRead,BufNewFile *.h set filetype=c
 if has("win32")
     let g:UltiSnipsSnippetsDir = g:softwaredir . "\\environment\\snippits"
     let &runtimepath.=','.g:softwaredir . "\\environment"
@@ -630,7 +649,7 @@ let g:syntastic_python_checkers = ['flake8']
 "let g:ropevim_guess_project=1
 
 " ----------------- Personal Functions --------------------------         {{{2
-au BufWritePre * call DelWhiteSpace()
+autocmd BufWritePre * call DelWhiteSpace()
 
 call DarkColorscheme()
 " END: ------------ Personal Functions --------------------------         2}}}
