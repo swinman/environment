@@ -602,6 +602,10 @@ autocmd FileType text setlocal formatoptions+=t spell
 autocmd FileType tex setlocal formatoptions+=t spell
 autocmd FileType gitcommit setlocal formatoptions+=t spell tw=72
 
+" add SpellGoodWordsStart and SpellGoodWordsEnd to dictionary
+silent spellgood! SpellGoodWordsStart
+silent spellgood! SpellGoodWordsEnd
+
 " END: ------------ File Type Specific --------------------------         2}}}
 " END: =============== VIM SETTINGS =============================         1}}}
 
