@@ -13,13 +13,13 @@
 config_icecube2() {
     DFLD=~/Downloads
     echo
-    echo "Download icecube2 from http://www.latticesemi.com/icecube2"
-    echo "Download 32 bit programmer, icecube2 and checksums to $DFLD"
+    echo "From http://www.latticesemi.com/icecube2"
+    echo "   download programmer, icecube2 and checksums to $DFLD"
     echo unp\ all,\ then\ run
     read -p "[ ENTER ] when software has been downloaded." jlink_dwn
     if [ "$OS" = "linux" ]; then
-        if [ -f $DFLD/LinuxInstallersMD532.tgz ]; then
-            unp $DFLD/LinuxInstallersMD532.tgz
+        if [ -f $DFLD/LinuxInstallersMD* ]; then
+            unp $DFLD/LinuxInstallersMD*.tgz
             mkdir $toolsdir/lscc
             if [ -f $DFLD/icecube2_*.tgz ]; then
                 sudo apt-get install lib32z1 lib32ncurses5 lib32bz2-1.0 -y
@@ -36,7 +36,7 @@ config_icecube2() {
                 sudo apt-get install libfontconfig1:i386 -y
                 sudo apt-get install libglib2.0-0:i386 -y
                 sudo apt-get install libstdc++6:i386 -y
-                unp icecube2*.tgz
+                unp $DFLD/icecube2_*.tgz
                 ./iCEcube2setup*
             fi
             if [ -f programmer_*-linux.rpm ]; then
@@ -86,6 +86,6 @@ tejainece_git_script() {
 
 echo "==================== config_fpga.sh ===================="
 config_icecube2;
-tejainece_git_script;
+#tejainece_git_script;
 
 echo "=============== END: config_fpga.sh ===================="
