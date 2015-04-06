@@ -40,8 +40,6 @@
 " such that only insert pairs if not immediately following change to insert
 " mode.. in other words only after typing at least one other character
 
-"TODO : change wraptext settings on git commit filetype to wrap at 70 chr?
-
 "TODO : make a shortcut for :r!locate somefile <CR>0i:e <ESC>"edd@e
 " see http://stackoverflow.com/questions/1218390/what-is-your-most-productive-shortcut-with-vim
 
@@ -600,6 +598,7 @@ endif
 " END: -------------- CTags / CScope ----------------------------         2}}}
 
 " ----------------- File Type Specific --------------------------         {{{2
+autocmd FileType text setlocal formatoptions+=t spell
 autocmd FileType tex setlocal formatoptions+=t spell
 autocmd FileType gitcommit setlocal formatoptions+=t spell tw=72
 
@@ -661,6 +660,9 @@ call DarkColorscheme()
 nnoremap B :ls<CR>:b
 " NOTE : autocmd runs at write, to disable use :noautocmd w
 nnoremap Y y$
+
+" use K to join a new line then
+nnoremap K Ji<CR><Esc>
 
 " map s to insert a space
 nnoremap s i <Esc>
