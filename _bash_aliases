@@ -53,6 +53,7 @@ alias gdc='git diff --cached'
 alias gad='git add '
 alias gpu='git push '
 alias glb='git log --graph --oneline'
+alias glop="git log --pretty=format:'%C(yellow)%h|%Cred%ad|%Cblue%an|%Cgreen%d %Creset%s' --date=short | column -ts'|' | less -r"
 function g1c() { git diff $@~ $@ ;}
 
 # DFU-Programmer
