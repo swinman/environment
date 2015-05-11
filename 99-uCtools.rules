@@ -127,6 +127,9 @@ ATTRS{idProduct}=="2fe4", MODE="0660", GROUP="plugdev"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0403",
 ATTRS{idProduct}=="6014", MODE="0660", GROUP="plugdev"
 
+#RH sensor (FTDI)
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0403",
+ATTRS{idProduct}=="6001", MODE="0660", GROUP="plugdev"
 # bootloader product ID for AT32UC3A3
 
 # FPGA ICE CUBE
