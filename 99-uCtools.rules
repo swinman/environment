@@ -122,7 +122,6 @@ SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2fe4", MODE="0660", GROUP="plugdev"
 
 
-
 ############## FTDI PROGRAMMER ###################
 # bootloader product ID for AT32UC3A3
 
@@ -131,5 +130,11 @@ SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0403",
 ATTRS{idProduct}=="6010", MODE="0660", GROUP="plugdev",
 #RUN+="/sbin/rmmod ftdi_sio vendor=0x0403 product=0x2404"
 #ENV{ID_MM_DEVICE_IGNORE}="1"
+
+
+############## FTDI USB DEVICE ###################
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0403",
+ATTRS{idProduct}=="6001", MODE="0660", GROUP="plugdev",
+
 
 # vim:ft=udevrules

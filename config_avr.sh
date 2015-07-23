@@ -61,12 +61,6 @@ config_avr() {
             echo "installing 'gtkterm'"
             sudo apt-get install gtkterm -y
         fi
-        echo "Adding atmel device usb ids to plugdev rules"
-        sudo cp $softwaredir/environment/99-uCtools.rules /etc/udev/rules.d/
-        sudo udevadm control --reload-rules
-        sudo udevadm trigger
-        echo "If user does not appear below, add user to plugdev group"
-        less /etc/group | grep plugdev
     else
         echo "Unzip tools folders, move tools to $toolsdir"
         echo "from $toolsdir add to path: avr32-tools/bin, avr8-tools/bin, av"
@@ -75,6 +69,17 @@ config_avr() {
         echo "      avr32-prog"
         echo "Unzip asf folder, move asf-version to $softwaredir"
         echo "Acquire the appropriate atmel cdc and dfu drivers"
+    fi
+}
+
+config_plugdev() {
+    if [ "$OS" = "linux" ]; then
+        echo "Adding device usb ids to plugdev rules"
+        sudo cp $softwaredir/environment/99-uCtools.rules /etc/udev/rules.d/
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger
+        echo "If user does not appear below, add user to plugdev group"
+        less /etc/group | grep plugdev
     fi
 }
 
@@ -104,3 +109,4 @@ config_dfu() {
 
 # add plugdev rules for accessing atmel devices
 config_avr;
+config_plugdev;
