@@ -14,6 +14,18 @@ export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi?(q)?( ):gvim:ipy:history?(
 
 alias cd..='cd ..'
 
+alias tdmesg='tail -n 0 -f /var/log/syslog'
+#tdmesg='tail -f /var/log/{messages,kernel,dmesg,syslog}'
+#   kern - kernel messages
+#    user - random user-level messages
+#    mail - mail system
+#  daemon - system daemons
+#    auth - security/authorization messages
+#  syslog - messages generated internally by syslogd
+#     lpr - line printer subsystem
+#    news - network news subsystem
+
+
 # start and quit vi to change the terminal size
 alias viq='vi -c q'
 alias vidq='vi -c call\ ToggleWidth\(\) -c qa'
