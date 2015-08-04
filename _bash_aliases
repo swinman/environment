@@ -35,7 +35,8 @@ alias ipy='ipython -i --no-banner'
 alias chrom='chromium-browser'
 alias py3='ipython3 -i --no-banner'
 
-alias pygrep='grep --include=*.py'
+alias pygrep='grep -r --include="*.py" --include="*.pyw"'
+alias cgrep='grep -r --include="*.[chsCHS]"'
 
 alias vsim='$toolsdir/altera/*/modelsim_ase/linux/vsim'
 alias quartus='$toolsdir/altera/*/quartus/bin/quartus'
