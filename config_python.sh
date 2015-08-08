@@ -64,7 +64,7 @@ get_python2_packages() {
         sudo pip install --upgrade pyusb
         # note : if this doesn't work it can always be installed through github
         # needed to build qrc
-        sudo apt-get install pyqt4-dev-tools -y$a
+        sudo apt-get install pyqt4-dev-tools -y
 
         # needed to build application
         sudo apt-get install cx-freeze -y
