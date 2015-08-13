@@ -750,10 +750,22 @@ nmap <C-Space>d :cs find d <C-R>=expand("<cword>")<CR><CR>
 
 " END: --------------- Command Mode -----------------------------         2}}}
 
-" ------------------- Windows Options ---------------------------         {{{2
+" --------------------- Visual Mode -----------------------------         {{{2
 " backspace in Visual mode deletes selection
 vnoremap <BS> d
 
+" use \is to reverse highlighted char http://vim.wikia.com/wiki/Reverse_letters
+vnoremap <silent> <Leader>is :<C-U>let old_reg_a=@a<CR>
+ \:let old_reg=@"<CR>
+ \gv"ay
+ \:let @a=substitute(@a, '.\(.*\)\@=',
+ \ '\=@a[strlen(submatch(1))]', 'g')<CR>
+ \gvc<C-R>a<Esc>
+ \:let @a=old_reg_a<CR>
+ \:let @"=old_reg<CR>
+" END: ---------------- Visual Mode -----------------------------         2}}}
+
+" ------------------- Windows Options ---------------------------         {{{2
 " Alt-Space is System menu - use <M-Space>x to maximize/restore (n to minimize)
 if has("gui")
   noremap <M-Space> :simalt ~<CR>
@@ -811,14 +823,5 @@ iabbr comnt <CR>\begin{comment}
 \<up><esc>0
 " END: --------------- Abbreviations ----------------------------         2}}}
 " END: =============== KEY MAPPINGS =============================         1}}}
-
-vnoremap <silent> <Leader>is :<C-U>let old_reg_a=@a<CR>
- \:let old_reg=@"<CR>
- \gv"ay
- \:let @a=substitute(@a, '.\(.*\)\@=',
- \ '\=@a[strlen(submatch(1))]', 'g')<CR>
- \gvc<C-R>a<Esc>
- \:let @a=old_reg_a<CR>
- \:let @"=old_reg<CR>
 
 " vim600:foldmethod=marker
