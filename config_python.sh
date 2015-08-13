@@ -50,6 +50,7 @@ get_python2_packages() {
         # python 2 versions
         sudo apt-get install python2.7 -y
         sudo apt-get install ipython -y
+        sudo apt-get install ipython-qtconsole
         sudo apt-get install python-numpy -y
         sudo apt-get install python-scipy -y
         sudo apt-get install python-matplotlib -y
@@ -64,6 +65,7 @@ get_python2_packages() {
         # note : if this doesn't work it can always be installed through github
         # needed to build qrc
         sudo apt-get install pyqt4-dev-tools -y
+
         # needed to build application
         sudo apt-get install cx-freeze -y
     elif [ $OS = windows ]; then
