@@ -34,7 +34,7 @@ config_avr() {
         if [ -f $DFLD/asf-standalone*.zip ]; then
             echo "Extracting and moving asf to $softwaredir"
             unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
-            mv $DFLD/asf-* $softwaredir
+            mv $DFLD/xdk-asf-* $softwaredir
         fi
         if [ -f $DFLD/avr8-gnu-tool*.tar.gz ]; then
             echo "Extracting and moving avr8-tools to $toolsdir"
