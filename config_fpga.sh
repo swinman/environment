@@ -18,10 +18,10 @@ config_icecube2() {
     echo unp\ all,\ then\ run
     read -p "[ ENTER ] when software has been downloaded." jlink_dwn
     if [ "$OS" = "linux" ]; then
-        if [ -f $DFLD/LinuxInstallersMD* ]; then
-            unp $DFLD/LinuxInstallersMD*.tgz
+        if [ -f $DFLD/linuxinstallersmd* ]; then
+            unp $DFLD/linuxinstallersmd*.tgz
             mkdir $toolsdir/lscc
-            if [ -f $DFLD/icecube2_*.tgz ]; then
+            if [ -f $DFLD/iCEcube2_*.tgz ]; then
                 sudo apt-get install lib32z1 lib32ncurses5 lib32bz2-1.0 -y
                 sudo apt-get install libxext6:i386 -y
                 sudo apt-get install libpng12-0:i386 -y
@@ -36,7 +36,7 @@ config_icecube2() {
                 sudo apt-get install libfontconfig1:i386 -y
                 sudo apt-get install libglib2.0-0:i386 -y
                 sudo apt-get install libstdc++6:i386 -y
-                unp $DFLD/icecube2_*.tgz
+                unp $DFLD/iCEcube2_*.tgz
                 ./iCEcube2setup*
             fi
             if [ -f programmer_*-linux.rpm ]; then
@@ -47,7 +47,7 @@ config_icecube2() {
                 mv usr/local/programmer $toolsdir/lscc/
             fi
             # for quartus
-            sudo apt-get install libxft2:i386
+            sudo apt-get install libxft2:i386 -y
         fi
     fi
 }
