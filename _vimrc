@@ -95,14 +95,16 @@ endif
 
 " -------------------- DelWhiteSpace ----------------------------         {{{2
 function! DelWhiteSpace()
-    let Lineno = line('.')
-    let Colno = col('.')
-    silent! exec '%s/\s\+$//g'
-    silent! exec '%s/\_s\+\%$//'
-    exe '/\%$'
-    if Lineno < line('.')
-        exe Lineno
-        exe "normal " . Colno . "|"
+    if exists( "g:rmwsp" ) && g:rmwsp == 1 && expand(@%)!="_vimrc"
+        let Lineno = line('.')
+        let Colno = col('.')
+        silent! exec '%s/\s\+$//g'
+        silent! exec '%s/\_s\+\%$//'
+        exe '/\%$'
+        if Lineno < line('.')
+            exe Lineno
+            exe "normal " . Colno . "|"
+        endif
     endif
 endfunction
 " END: --------------- DelWhiteSpace ----------------------------         2}}}
@@ -654,6 +656,11 @@ let g:syntastic_python_checkers = ['flake8']
 " ----------------- Personal Functions --------------------------         {{{2
 autocmd BufWritePre * call DelWhiteSpace()
 
+if getcwd()=~"drift" || getcwd()=~"stopsen" || getcwd()=~"environment" || getcwd()=~"liverchip" || getcwd()=~"walker" || getcwd()=~"lucid" 
+    let g:rmwsp = 1
+    " use unlet g:rmwsp or let g:rmwsp=0 to remove this functionality
+endif
+
 call DarkColorscheme()
 " END: ------------ Personal Functions --------------------------         2}}}
 " END: ============== PLUGIN SETTINGS ===========================         1}}}
@@ -661,7 +668,7 @@ call DarkColorscheme()
 " ==================== KEY MAPPINGS =============================         {{{1
 " ---------------------- Favorites ------------------------------         {{{2
 " use B to get buffer list
-nnoremap B :ls<CR>:b
+nnoremap B :ls<CR>:b 
 " NOTE : autocmd runs at write, to disable use :noautocmd w
 nnoremap Y y$
 
