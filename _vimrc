@@ -646,7 +646,8 @@ endif
 let g:UltiSnipsSnippetDirectories = ["snippits","UltiSnips"]
 " END: ----------------- UltiSnips ------------------------------         2}}}
 " Syntastic settings
-let g:syntastic_python_checkers = ['flake8']
+"let g:syntastic_python_checkers = ['flake8']
+let g:syntastic_python_checkers = ['']
 
 " Ropevim settings
 "let g:ropevim_autoimport_modules = ["os.*", "PyQt4.*"]
