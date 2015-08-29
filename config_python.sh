@@ -16,7 +16,7 @@ get_python3_packages() {
         sudo apt-get install python3-scipy -y
         sudo apt-get install python3-matplotlib -y
         sudo apt-get install python3-serial -y
-        sudo apt-get install python3-pyqt4 -y
+        sudo apt-get install python3-psutil -y
         sudo apt-get install python3-urllib3 -y
         sudo apt-get install python3-jedi -y
         # needed to buil qrc
