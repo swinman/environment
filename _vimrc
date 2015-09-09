@@ -95,7 +95,7 @@ endif
 
 " -------------------- DelWhiteSpace ----------------------------         {{{2
 function! DelWhiteSpace()
-    if exists( "g:rmwsp" ) && g:rmwsp == 1 && expand(@%)!="_vimrc"
+    if exists( "g:rmwsp" ) && g:rmwsp == 1 && expand(@%)!="_vimrc" && expand(@%)!=".diff"
         let Lineno = line('.')
         let Colno = col('.')
         silent! exec '%s/\s\+$//g'
@@ -657,7 +657,7 @@ let g:syntastic_python_checkers = ['']
 " ----------------- Personal Functions --------------------------         {{{2
 autocmd BufWritePre * call DelWhiteSpace()
 
-if getcwd()=~"drift" || getcwd()=~"stopsen" || getcwd()=~"environment" || getcwd()=~"liverchip" || getcwd()=~"walker" || getcwd()=~"lucid" 
+if getcwd()=~"drift" || getcwd()=~"stopsen" || getcwd()=~"environment" || getcwd()=~"liverchip" || getcwd()=~"walker" || getcwd()=~"lucid"
     let g:rmwsp = 1
     " use unlet g:rmwsp or let g:rmwsp=0 to remove this functionality
 endif
