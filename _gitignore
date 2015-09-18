@@ -3,8 +3,6 @@
 
 # Editors & Project Files #
 ###########################
-# vim
-*~
 *.swp
 *.swo
 *.taghl
@@ -18,6 +16,11 @@ cscope.out
 cscope.files
 .ropeproject*
 .spyderproject*
+
+# Backup Files #
+################
+*~
+*.bak
 
 # Compiled source #
 ###################
