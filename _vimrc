@@ -382,7 +382,7 @@ function! Run()
             let &makeprg = matchstr(getline(1),'^#!\zs.*').' %'
             make
         elseif &ft == 'mail' || &ft == 'text' || &ft == 'help' ||
-                    \&ft == 'gitcommit'
+                    \&ft == 'gitcommit' || &ft == 'rst'
             setlocal spell!
         elseif &ft == 'html' || &ft == 'xhtml' || &ft == 'php' ||
                     \&ft == 'aspvbs' || &ft == 'aspperl'
