@@ -3,10 +3,13 @@ import os
 
 def walkdrive( drive_top, backup_top ):
 
-    def backup_path( drive_path ):
-        return drive_path.replace( fn_drive, fn_backup )
+    drive_top = drive_top.rstrip('/\\')
+    backup_top = backup_top.rstrip('/\\')
 
-    for base, folders, files in os.walk( fn_drive ):
+    def backup_path( drive_path ):
+        return drive_path.replace( drive_top, backup_top )
+
+    for base, folders, files in os.walk( drive_top ):
         base_backup = backup_path( base )
         if not os.path.exists( base_backup ):
             #print( "Skipping contents of {}".format( base_backup ) )
