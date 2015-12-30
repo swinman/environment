@@ -55,6 +55,10 @@ config_avr() {
             unzip -d $DFLD $DFLD/atmel-headers* && rm $DFLD/atmel-header*.zip
             mv $DFLD/atmel-headers*/avr32 $toolsdir/avr32-tools/avr32/include && \
                 rm -r $DFLD/atmel-headers*
+        elif [ -f $DFLD/avr32-headers*.zip ]; then
+            echo "Extracting and moving avr32-headers to $toolsdir"
+            unzip -d $DFLD $DFLD/avr32-headers* && rm $DFLD/avr32-headers*.zip
+            mv $DFLD/avr32 $toolsdir/avr32-tools/avr32/include
         fi
         read -p "Would you like to get the gtkterm terminal ([n]/y): " done
         if [ "${done}" = "y" ]; then
