@@ -50,7 +50,7 @@ get_python2_packages() {
         # python 2 versions
         sudo apt-get install python2.7 -y
         sudo apt-get install ipython -y
-        sudo apt-get install ipython-qtconsole
+        sudo apt-get install ipython-qtconsole -y
         sudo apt-get install python-numpy -y
         sudo apt-get install python-scipy -y
         sudo apt-get install python-matplotlib -y
