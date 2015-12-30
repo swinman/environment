@@ -11,17 +11,43 @@ get_python3_packages() {
     if [ "$OS" = "linux" ]; then
         # python 3 versions
         sudo apt-get install python3 -y
-        sudo apt-get install ipython3 -y
         sudo apt-get install python3-numpy -y
         sudo apt-get install python3-scipy -y
-        sudo apt-get install python3-matplotlib -y
         sudo apt-get install python3-serial -y
         sudo apt-get install python3-psutil -y
         sudo apt-get install python3-urllib3 -y
         sudo apt-get install python3-jedi -y
         # needed to buil qrc
-        sudo apt-get install pyqt4-dev-tools -y
+        sudo apt-get install libfreetype6-dev -y        # matplotlib
+        sudo apt-get install libpng3 -y                 # matplotlib
         sudo apt-get install cx-freeze -y
+        sudo apt-get install python3-pyqt5 -y
+        sudo apt-get install python3-pyqt5.qtsvg -y
+        sudo apt-get install python3-pip -y
+        sudo pip3 install --upgrade jsonpickle
+        sudo pip3 install --upgrade qtconsole
+        sudo pip3 install --upgrade ipython
+        sudo pip3 install --upgrade pyfirmata
+        sudo pip3 install --upgrade simplegeneric
+
+        goback=$(pwd)
+        if [ ! -d "$softwaredir/libs/matplotlib" ]; then
+            mkdir -p $softwaredir/libs && \
+                cd $softwaredir/libs && \
+                git clone https://github.com/matplotlib/matplotlib.git && \
+                cd matplotlib && \
+                python3 setup.py build && \
+                sudo python3 setup.py install
+        fi
+        if [ ! -d "$softwaredir/libs/pyusb" ]; then
+            mkdir -p $softwaredir/libs && \
+                cd $softwaredir/libs && \
+                git clone https://github.com/walac/pyusb.git && \
+                cd pyusb && \
+                python3 setup.py build && \
+                sudo python3 setup.py install
+        fi
+        cd $goback
     elif [ $OS = windows ]; then
         echo "It's probably easier to type 'gb' over each link from vim"
         echo "Install the 32 bit versions unless NumPy works for 64bit"
@@ -60,11 +86,11 @@ get_python2_packages() {
         # python usb (pyusb)
         sudo apt-get install python-usb -y
         sudo apt-get install python-pip -y
-        sudo apt-get install python-jedi -y
         sudo pip install --upgrade pyusb
         # note : if this doesn't work it can always be installed through github
         # needed to build qrc
         sudo apt-get install pyqt4-dev-tools -y
+        sudo apt-get install python-jedi -y
 
         # needed to build application
         sudo apt-get install cx-freeze -y
