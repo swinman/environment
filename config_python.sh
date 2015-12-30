@@ -31,7 +31,9 @@ get_python3_packages() {
         sudo pip3 install --upgrade simplegeneric
 
         goback=$(pwd)
-        if [ ! -d "$softwaredir/libs/matplotlib" ]; then
+        if [ -d "$softwaredir/libs/matplotlib" ]; then
+            cd $softwaredir/libs/matplotlib && git pull
+        else
             mkdir -p $softwaredir/libs && \
                 cd $softwaredir/libs && \
                 git clone https://github.com/matplotlib/matplotlib.git && \
@@ -39,7 +41,9 @@ get_python3_packages() {
                 python3 setup.py build && \
                 sudo python3 setup.py install
         fi
-        if [ ! -d "$softwaredir/libs/pyusb" ]; then
+        if [ -d "$softwaredir/libs/pyusb" ]; then
+            cd $softwaredir/libs/pyusb && git pull
+        else
             mkdir -p $softwaredir/libs && \
                 cd $softwaredir/libs && \
                 git clone https://github.com/walac/pyusb.git && \
