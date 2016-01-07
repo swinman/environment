@@ -187,7 +187,7 @@ function! GetCChar()
         let CChar = "#"
     elseif &ft == 'udevrules'
         let CChar = '#'
-    elseif &ft == 'tcl'
+    elseif &ft == 'tcl' || &ft == 'samba'
         let CChar = '#'
     elseif &ft == 'c' || &ft == 'cpp'
         let CChar = "//"
