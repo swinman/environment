@@ -16,7 +16,6 @@ get_python3_packages() {
         sudo apt-get install python3-serial -y
         sudo apt-get install python3-psutil -y
         sudo apt-get install python3-urllib3 -y
-        sudo apt-get install python3-jedi -y
         # needed to buil qrc
         sudo apt-get install libfreetype6-dev -y        # matplotlib
         sudo apt-get install libpng3 -y                 # matplotlib
@@ -94,7 +93,6 @@ get_python2_packages() {
         # note : if this doesn't work it can always be installed through github
         # needed to build qrc
         sudo apt-get install pyqt4-dev-tools -y
-        sudo apt-get install python-jedi -y
 
         # needed to build application
         sudo apt-get install cx-freeze -y

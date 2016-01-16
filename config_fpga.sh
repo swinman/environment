@@ -36,6 +36,7 @@ config_icecube2() {
                 sudo apt-get install libfontconfig1:i386 -y
                 sudo apt-get install libglib2.0-0:i386 -y
                 sudo apt-get install libstdc++6:i386 -y
+                sudo apt-get install libelf1:i386
                 unp $DFLD/iCEcube2_*.tgz
                 ./iCEcube2setup*
             fi
