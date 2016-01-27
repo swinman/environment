@@ -72,12 +72,19 @@ init_software_dir() {
     fi
 }
 
-add_bash_alias() {
+config_bash() {
     if [ "$OS" = "mac" ]; then
         BRC=~/.bash_profile
     else
         BRC=~/.bashrc
     fi
+
+    if ! [ -a $BRC ]; then
+        echo "Adding $BRC"
+        touch $BRC
+    fi
+
+    sed -i 's/#\(force_color_prompt=yes\)/\1/' ~/.bashrc
 
     aliases='$softwaredir/environment/_bash_aliases'
     startline="##### START DO NOT EDIT BETWEEN THESE BRACKETS #####"
@@ -148,10 +155,9 @@ mac=mac
 linux=linux
 
 echo "==================== config_bash.sh ===================="
-sed -i 's/#\(force_color_prompt=yes\)/\1/' ~/.bashrc
 check_os;
 set_common_dir;
 init_software_dir;
-add_bash_alias;
 ensure_req_globals;
+config_bash;
 echo "================= END: config_bash.sh =================="
