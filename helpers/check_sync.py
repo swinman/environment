@@ -1,16 +1,15 @@
-#!/usr/bin/ipython3 -i
+#!/usr/bin/python3
 import os
 
 def walkdrive( drive_top, backup_top ):
-
     drive_top = drive_top.rstrip('/\\')
     backup_top = backup_top.rstrip('/\\')
 
-    if not os.path.exists( drive_top ):
+    if not os.path.isdir( drive_top ):
         print( "Drive not found {}".format( drive_top ) )
         return
 
-    if not os.path.exists( backup_top ):
+    if not os.path.isdir( backup_top ):
         print( "Backup not found {}".format( backup_top ) )
         return
 
@@ -55,4 +54,22 @@ def walkdrive( drive_top, backup_top ):
 
 
 if __name__ == "__main__":
-    pass
+    import sys
+    err = False
+    if len( sys.argv ) != 3:
+        err = True
+
+    _, drive, backup = sys.argv
+    if not os.path.isdir( drive ):
+        print( "invalid drive: {}".format( drive ) )
+        err = True
+    elif not os.path.isdir( backup ):
+        print( "invalid backup: {}".format( backup ) )
+        err = True
+
+    if err:
+        print( "./check_sync <drive_to_backup> <backup_location>" )
+    else:
+        print( "Checking that {} is backed up on {}".format( drive, backup ) )
+        walkdrive( drive, backup )
+        print( "DONE" )
