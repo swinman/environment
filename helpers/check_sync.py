@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os
 
-def walkdrive( drive_top, backup_top ):
+def walkdrive( drive_top, backup_top, check_timestamp=True, check_size=True ):
     drive_top = drive_top.rstrip('/\\')
     backup_top = backup_top.rstrip('/\\')
 
@@ -39,11 +39,11 @@ def walkdrive( drive_top, backup_top ):
                 continue
             st_base = os.stat( path )
             st_backup = os.stat( backup )
-            if st_base.st_size != st_backup.st_size:
+            if check_size and st_base.st_size != st_backup.st_size:
                 print( "SIZE ERR    : {}".format( path ) )
                 print( "    original {:.2f}mb vs backup {:.2f}mb".format(
                     st_base.st_size * 1e-6, st_backup.st_size * 1e-6 ) )
-            elif st_base.st_mtime > st_backup.st_mtime + 1:
+            elif check_timestamp and st_base.st_mtime > st_backup.st_mtime + 1:
                 print( "MODIFY ERR  : {}".format( path ) )
                 print( "    original modified {:.0f}s since backup".format(
                     st_base.st_mtime - st_backup.st_mtime ) )
@@ -56,10 +56,11 @@ def walkdrive( drive_top, backup_top ):
 if __name__ == "__main__":
     import sys
     err = False
-    if len( sys.argv ) != 3:
+    kwargs = dict()
+    if len( sys.argv ) < 3:
         err = True
 
-    _, drive, backup = sys.argv
+    _, drive, backup, *args = sys.argv
     if not os.path.isdir( drive ):
         print( "invalid drive: {}".format( drive ) )
         err = True
@@ -67,9 +68,18 @@ if __name__ == "__main__":
         print( "invalid backup: {}".format( backup ) )
         err = True
 
+    if '-t' in args:
+        args.remove( '-t' )
+        print( "ignoring timestamp" )
+        kwargs["check_timestamp"] = False
+    if '-s' in args:
+        args.remove( '-s' )
+        print( "ignoring size differences" )
+        kwargs["check_size"] = False
+
     if err:
         print( "./check_sync <drive_to_backup> <backup_location>" )
     else:
         print( "Checking that {} is backed up on {}".format( drive, backup ) )
-        walkdrive( drive, backup )
+        walkdrive( drive, backup, **kwargs )
         print( "DONE" )
