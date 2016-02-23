@@ -27,6 +27,7 @@ alias tdmesg='tail -n 0 -f /var/log/syslog'
 
 
 # start and quit vi to change the terminal size
+alias vi='vim'
 alias viq='vi -c q'
 alias vidq='vi -c call\ ToggleWidth\(\) -c qa'
 

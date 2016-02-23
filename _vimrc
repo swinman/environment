@@ -657,7 +657,7 @@ let g:syntastic_python_checkers = ['']
 " ----------------- Personal Functions --------------------------         {{{2
 autocmd BufWritePre * call DelWhiteSpace()
 
-if getcwd()=~"drift" || getcwd()=~"stopsen" || getcwd()=~"environment" || getcwd()=~"liverchip" || getcwd()=~"walker" || getcwd()=~"lucid"
+if getcwd()=~"drift" || getcwd()=~"stopsen" || getcwd()=~"environment" || getcwd()=~"liverchip" || getcwd()=~"walke" || getcwd()=~"lucid"
     let g:rmwsp = 1
     " use unlet g:rmwsp or let g:rmwsp=0 to remove this functionality
 endif
