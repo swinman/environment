@@ -514,6 +514,9 @@ set title         " set window title
 set visualbell    " turns off bell, turns on flash
 " END: ------------------ Display -------------------------------         2}}}
 
+sy match OverLength /\%81v\+/
+sy match Braces /[(){}\[\]]/
+
 " --------------------- Status Line -----------------------------         {{{2
 "set stl=%<%f\ %{fugitive#statusline()}%h%m%r%=%-14.(%l,%c%V%)\ %P
 "set stl=[%n]\ %<%.99f\ %h%w%m%r%y%=%-16(\ %l,%c-%v\ %)%P
@@ -613,18 +616,18 @@ silent spellgood! SpellGoodWordsEnd
 
 " =================== PLUGIN SETTINGS ===========================         {{{1
 " -------------------- TagHighlight -----------------------------         {{{2
-if ! exists('g:TagHighlightSettings')
-    let g:TagHighlightSettings = {}
-endif
-
-if has("win32")
-    let g:TagHighlightSettings['CtagsExecutable'] =
-                \ "C:\\Program Files (x86)\\ctags58\\ctags.exe"
-else
-    let g:TagHighlightSettings['CtagsExecutable'] = "ctags"
-end
-
-let g:TagHighlightSettings['TagFileName'] = 'tags'
+"if ! exists('g:TagHighlightSettings')
+"    let g:TagHighlightSettings = {}
+"endif
+"
+"if has("win32")
+"    let g:TagHighlightSettings['CtagsExecutable'] =
+"                \ "C:\\Program Files (x86)\\ctags58\\ctags.exe"
+"else
+"    let g:TagHighlightSettings['CtagsExecutable'] = "ctags"
+"end
+"
+"let g:TagHighlightSettings['TagFileName'] = 'tags'
 " END: --------------- TagHighlight -----------------------------         2}}}
 
 " ---------------------- NERDTree -------------------------------         {{{2
@@ -669,7 +672,7 @@ call DarkColorscheme()
 " ==================== KEY MAPPINGS =============================         {{{1
 " ---------------------- Favorites ------------------------------         {{{2
 " use B to get buffer list
-nnoremap B :ls<CR>:b 
+nnoremap B :ls<CR>:b
 " NOTE : autocmd runs at write, to disable use :noautocmd w
 nnoremap Y y$
 
@@ -706,7 +709,7 @@ nnoremap <C-n> :NERDTreeToggle<cr>
 " toggle relative line numbers
 map <F2> :call ToggleLineNo()<CR>
 map <F3> <Esc>:call ChangeColorScheme()<CR>
-map <F4> <Esc>:call ToggleWidth()<CR>
+map <F4> <Esc>:call ToggleWidth()<CR> colorscheme desert2
 map <F5> <Esc>:call ToggleSpelling()<CR>
 map <F6> <Esc>:call ShowLineExtents()<CR>
 

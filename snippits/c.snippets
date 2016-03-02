@@ -1,10 +1,10 @@
 snippet cstart "Template for New C File" !b
-/** file:       ${1:`!p snip.rv = snip.fn`}
-  * modified:   ${2:`!p import time
+/**** file:       ${1:`!p snip.rv = snip.fn`}
+    * modified:   ${2:`!p import time
 snip.rv = time.strftime("%Y-%m-%d %H:%M:%S")
   `}
-  * author:     ${3:<<AUTHOR>>}
-  */
+    * author:     ${3:<<AUTHOR>>}
+    */
 
 //___ I N C L U D E S ________________________________________________________
 #include "${4:`!p snip.rv = snip.fn.rsplit('.',1)[0] + ".h"`}"
@@ -24,16 +24,15 @@ snip.rv = time.strftime("%Y-%m-%d %H:%M:%S")
 //___ F U N C T I O N S ______________________________________________________
 ${0}
 
-// vim: shiftwidth=2
 endsnippet
 
 snippet hstart "Template for new header file" !b
-/** file:       ${1:`!p snip.rv = snip.fn`}
-  * modified:   ${2:`!p import time
+/**** file:       ${1:`!p snip.rv = snip.fn`}
+    * modified:   ${2:`!p import time
 snip.rv = time.strftime("%Y-%m-%d %H:%M:%S")
   `}
-  * author:     ${3:<<AUTHOR>>}
-  */
+    * author:     ${3:<<AUTHOR>>}
+    */
 
 #ifndef __${4:`!p
 if not snip.c:
@@ -56,15 +55,14 @@ else:
 ${0}
 
 #endif /* end of include guard: __$4__ */
-// vim: shiftwidth=2
 endsnippet
 
 snippet func "Function Dec and Function" !b
 ${2:void} ${1:function_name}( ${3:void} );
-  /* @brief ${4:short description}
-   * @param ${5:None}
-   * @retrn ${6:None}
-   */
+    /* @brief ${4:short description}
+     * @param ${5:None}
+     * @retrn ${6:None}
+     */
 
 $2 $1( $3 ) {${0}
 }
@@ -73,10 +71,10 @@ endsnippet
 
 snippet hfunc "Function Dec and Function" !b
 ${2:void} ${1:function_name}( ${3:void} );
-  /* @brief ${4:short description}
-   * @param ${5:None}
-   * @retrn ${6:None}
-   */
+    /* @brief ${4:short description}
+     * @param ${5:None}
+     * @retrn ${6:None}
+     */
 endsnippet
 
 snippet ifdef "Add #ifdef X #endif" !b
@@ -143,22 +141,20 @@ endsnippet
 snippet main "main() (main)"
 int main(int argc, char *argv[])
 {
-	${VISUAL}${0}
-	return 0;
+    ${VISUAL}${0}
+    return 0;
 }
 endsnippet
 
 snippet for "for loop (for)"
-for (${2:i} = 0; $2 < ${1:count}; ${3:++$2})
-{
-	${VISUAL}${0}
+for (${2:i} = 0; $2 < ${1:count}; ${3:++$2}) {
+    ${VISUAL}${0}
 }
 endsnippet
 
 snippet fori "for int loop (fori)"
-for (${4:int} ${2:i} = 0; $2 < ${1:count}; ${3:++$2})
-{
-	${VISUAL}${0}
+for (${4:int} ${2:i} = 0; $2 < ${1:count}; ${3:++$2}) {
+    ${VISUAL}${0}
 }
 endsnippet
 
