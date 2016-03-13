@@ -76,6 +76,11 @@ if __name__ == "__main__":
         args.remove( '-s' )
         print( "ignoring size differences" )
         kwargs["check_size"] = False
+    if '-r' in args:
+        print( "reversing sync direction" )
+        __tmp = drive
+        drive = backup
+        backup = __tmp
 
     if err:
         print( "./check_sync <drive_to_backup> <backup_location>" )
