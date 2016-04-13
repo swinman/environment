@@ -10,6 +10,64 @@
 #alias vsim='$toolsdir/altera/*/modelsim_ase/linux/vsim'
 #alias quartus='$toolsdir/altera/*/quartus/bin/quartus'
 
+install_packages() {
+    if [ "$OS" = "linux" ]; then
+        # tejainece related
+            sudo dpkg --add-architecture i386
+            sudo apt-get update
+
+            sudo apt-get install gcc-multilib -y
+            sudo apt-get install g++-multilib -y
+            sudo apt-get install lib32z1 -y
+            sudo apt-get install lib32stdc++6 -y
+            sudo apt-get install lib32gcc1 -y
+            sudo apt-get install expat:i386 -y
+            sudo apt-get install fontconfig:i386 -y
+            sudo apt-get install libfreetype6:i386 -y
+            sudo apt-get install libexpat1:i386 -y
+            sudo apt-get install libc6:i386 -y
+            sudo apt-get install libgtk-3-0:i386 -y
+            sudo apt-get install libcanberra0:i386 -y
+            sudo apt-get install libpng12-0:i386 -y
+            sudo apt-get install libice6:i386 -y
+            sudo apt-get install libsm6:i386 -y
+            sudo apt-get install libncurses5:i386 -y
+            sudo apt-get install zlib1g:i386 -y
+            sudo apt-get install libx11-6:i386 -y
+            sudo apt-get install libxau6:i386 -y
+            sudo apt-get install libxdmcp6:i386 -y
+            sudo apt-get install libxext6:i386 -y
+            sudo apt-get install libxft2:i386 -y
+            sudo apt-get install libxrender1:i386 -y
+            sudo apt-get install libxt6:i386 -y
+            sudo apt-get install libxtst6:i386 -y
+        # iCECube2 related
+            sudo apt-get install lib32z1 -y
+            sudo apt-get install lib32ncurses5 -y
+            sudo apt-get install lib32bz2-1.0 -y
+            sudo apt-get install libxext6:i386 -y
+            sudo apt-get install libpng12-0:i386 -y
+            sudo apt-get install libsm6:i386 -y
+            sudo apt-get install libxi6:i386 -y
+            sudo apt-get install libxrender1:i386 -y
+            sudo apt-get install libxrandr2:i386 -y
+            sudo apt-get install libxfixes3:i386 -y
+            sudo apt-get install libxcursor1:i386 -y
+            sudo apt-get install libxinerama1:i386 -y
+            sudo apt-get install libfreetype6:i386 -y
+            sudo apt-get install libfontconfig1:i386 -y
+            sudo apt-get install libglib2.0-0:i386 -y
+            sudo apt-get install libstdc++6:i386 -y
+            sudo apt-get install libelf1:i386
+        # lattice programmer related
+            sudo apt-get install rpm2cpio -y
+            sudo apt-get install cpio -y
+            sudo apt-get install libelf1:i386 -y
+        # quartus related
+            sudo apt-get install libxft2:i386 -y
+    fi
+}
+
 config_icecube2() {
     DFLD=~/Downloads
     echo
@@ -22,48 +80,19 @@ config_icecube2() {
             unp $DFLD/linuxinstallersmd*.tgz
             mkdir $toolsdir/lscc
             if [ -f $DFLD/iCEcube2_*.tgz ]; then
-                sudo apt-get install lib32z1 lib32ncurses5 lib32bz2-1.0 -y
-                sudo apt-get install libxext6:i386 -y
-                sudo apt-get install libpng12-0:i386 -y
-                sudo apt-get install libsm6:i386 -y
-                sudo apt-get install libxi6:i386 -y
-                sudo apt-get install libxrender1:i386 -y
-                sudo apt-get install libxrandr2:i386 -y
-                sudo apt-get install libxfixes3:i386 -y
-                sudo apt-get install libxcursor1:i386 -y
-                sudo apt-get install libxinerama1:i386 -y
-                sudo apt-get install libfreetype6:i386 -y
-                sudo apt-get install libfontconfig1:i386 -y
-                sudo apt-get install libglib2.0-0:i386 -y
-                sudo apt-get install libstdc++6:i386 -y
-                sudo apt-get install libelf1:i386
                 unp $DFLD/iCEcube2_*.tgz
                 ./iCEcube2setup*
             fi
             if [ -f programmer_*-linux.rpm ]; then
-                sudo apt-get install rpm2cpio -y
-                sudo apt-get install cpio -y
-                #sudo apt-get install libelf1:i386
                 unp programmer_*-linux.rpm
                 mv usr/local/programmer $toolsdir/lscc/
             fi
-            # for quartus
-            sudo apt-get install libxft2:i386 -y
         fi
     fi
 }
 
 tejainece_git_script() {
-    ALTERA_PATH=$toolsdir/altera/14.0/
-
-    sudo dpkg --add-architecture i386
-    sudo apt-get update
-    sudo apt-get install -y gcc-multilib g++-multilib lib32z1 lib32stdc++6 \
-    lib32gcc1 expat:i386 fontconfig:i386 libfreetype6:i386 libexpat1:i386 \
-    libc6:i386 libgtk-3-0:i386 libcanberra0:i386 libpng12-0:i386 libice6:i386 \
-    libsm6:i386 libncurses5:i386 zlib1g:i386 libx11-6:i386 libxau6:i386 \
-    libxdmcp6:i386 libxext6:i386 libxft2:i386 libxrender1:i386 libxt6:i386 \
-    libxtst6:i386
+    ALTERA_PATH=$toolsdir/altera/15.0/
     cd /tmp
     wget http://download.savannah.gnu.org/releases/freetype/freetype-2.4.12.tar.bz2
     tar -xjvf freetype-2.4.12.tar.bz2
@@ -86,6 +115,7 @@ tejainece_git_script() {
 ########## RUN WHATEVER YOU WANT DOWN HERE ############
 
 echo "==================== config_fpga.sh ===================="
+install_packages;
 config_icecube2;
 #tejainece_git_script;
 
