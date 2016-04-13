@@ -1,3 +1,9 @@
+#### RULES /etc/udev/rules.d
+#
+# to reload rules:
+#   sudo udevadm control --reload-rules
+#   sudo udevadm trigger
+#
 ############## CDC ACM DEVICES ###################
 # Atmel CDC device product ID (for at32uc3b at least)
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",

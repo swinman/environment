@@ -95,6 +95,7 @@ endif
 
 " -------------------- DelWhiteSpace ----------------------------         {{{2
 function! DelWhiteSpace()
+    " use  let g:rmwsp = 0 to disable
     if exists( "g:rmwsp" ) && g:rmwsp == 1 && expand(@%)!="_vimrc" && expand(@%)!=".diff"
         let Lineno = line('.')
         let Colno = col('.')
