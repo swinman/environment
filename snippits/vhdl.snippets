@@ -2,6 +2,12 @@ snippet --- "add -- line" !b
 -------------------------------------------------------------------------------
 endsnippet
 
+snippet generate "complete the generate"
+generate
+  ${1:}
+end generate;
+endsnippet
+
 snippet GEN "GENERATE statement" !b
 ${1:<label>}: FOR ${2:<identifier>} IN ${3:<range>} GENERATE
 ${4:  [<declarative_part>
