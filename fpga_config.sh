@@ -44,6 +44,8 @@ alias edifparser=$ICEDIR/sbt_backend/bin/linux/opt/edifparser
 alias sbtplacer=$ICEDIR/sbt_backend/bin/linux/opt/sbtplacer
 alias iCEcube2=$ICEDIR/iCEcube2
 
+export PATH=$PATH:$toolsdir/flopoco
+
 #ln -s -T proj_ice/stopsen_impl/stopsen.srr log.log
 #ln -s -T ~/.config/LatticeSemi/programmer.log programmer.log
 
