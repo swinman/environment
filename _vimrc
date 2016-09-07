@@ -96,7 +96,7 @@ endif
 " -------------------- DelWhiteSpace ----------------------------         {{{2
 function! DelWhiteSpace()
     " use  let g:rmwsp = 0 to disable
-    if exists( "g:rmwsp" ) && g:rmwsp == 1 && expand(@%)!="_vimrc" && expand(@%)!=".diff"
+    if exists( "g:rmwsp" ) && g:rmwsp == 1 && expand(@%)!~"_vimrc$" && expand(@%)!~"\.diff$"
         let Lineno = line('.')
         let Colno = col('.')
         silent! exec '%s/\s\+$//g'
@@ -673,7 +673,7 @@ call DarkColorscheme()
 " ==================== KEY MAPPINGS =============================         {{{1
 " ---------------------- Favorites ------------------------------         {{{2
 " use B to get buffer list
-nnoremap B :ls<CR>:b
+nnoremap B :ls<CR>:b 
 " NOTE : autocmd runs at write, to disable use :noautocmd w
 nnoremap Y y$
 
