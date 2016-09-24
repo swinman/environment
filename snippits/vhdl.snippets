@@ -34,12 +34,12 @@ snippet SIGNAL "SIGNAL declaration" !b
 SIGNAL ${1:<signal_name>}: ${2:<signal_type>} ${3:[range]} ${4:[:= default_value]}
 endsnippet
 
-snippet oz "( others => '0' );"
-( others => '0' );
+snippet oz "(others => '0');"
+(others => '${1:0}');
 endsnippet
 
-snippet ooz "( others => ( others => '0' ) );"
-( others => ( others => '0' ) );
+snippet ooz "(others => (others => '0'));"
+(others => (others => '${1:0}'));
 endsnippet
 
 snippet slv "std_logic_vector"
@@ -50,12 +50,12 @@ snippet sl "std_logic"
 std_logic
 endsnippet
 
-snippet dtz "downto 0 );"
+snippet dtz "downto 0);"
 downto 0
 endsnippet
 
 snippet reg " signal reg_r, reg_nx : unsigned(x);" !b
-signal ${1:<reg>}_r, $1_nx ${2:          }: ${3:unsigned}( ${4:8} - 1 downto ${5:0} );
+signal ${1:<reg>}_r, $1_nx ${2:          }: ${3:unsigned}(${4:8} - 1 downto ${5:0});
 endsnippet
 
 # vim: shiftwidth=2
