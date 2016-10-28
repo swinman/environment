@@ -11,46 +11,30 @@ get_python3_packages() {
     if [ "$OS" = "linux" ]; then
         # python 3 versions
         sudo apt-get install python3 -y
-        sudo apt-get install python3-numpy -y
-        sudo apt-get install python3-scipy -y
-        sudo apt-get install python3-serial -y
-        sudo apt-get install python3-psutil -y
-        sudo apt-get install python3-urllib3 -y
+        sudo apt-get install python3-pip -y
+
         # needed to buil qrc
         sudo apt-get install libfreetype6-dev -y        # matplotlib
         sudo apt-get install libpng3 -y                 # matplotlib
-        sudo apt-get install cx-freeze -y
-        sudo apt-get install python3-pyqt5 -y
-        sudo apt-get install python3-pyqt5.qtsvg -y
-        sudo apt-get install python3-pip -y
+
+        sudo pip3 install --upgrade pyqt5
+        #sudo apt-get install python3-pyqt5.qtsvg -y
+        sudo pip3 install --upgrade pyparsing
+        sudo pip3 install --upgrade numpy
+        sudo pip3 install --upgrade scipy
+        sudo pip3 install --upgrade pyserial
+        sudo pip3 install --upgrade pyusb
+        sudo pip3 install --upgrade psutil
+        sudo pip3 install --upgrade urllib3
         sudo pip3 install --upgrade jsonpickle
         sudo pip3 install --upgrade qtconsole
         sudo pip3 install --upgrade ipython
         sudo pip3 install --upgrade pyfirmata
         sudo pip3 install --upgrade simplegeneric
-
-        goback=$(pwd)
-        if [ -d "$softwaredir/libs/matplotlib" ]; then
-            cd $softwaredir/libs/matplotlib && git pull
-        else
-            mkdir -p $softwaredir/libs && \
-                cd $softwaredir/libs && \
-                git clone https://github.com/matplotlib/matplotlib.git && \
-                cd matplotlib && \
-                python3 setup.py build && \
-                sudo python3 setup.py install
-        fi
-        if [ -d "$softwaredir/libs/pyusb" ]; then
-            cd $softwaredir/libs/pyusb && git pull
-        else
-            mkdir -p $softwaredir/libs && \
-                cd $softwaredir/libs && \
-                git clone https://github.com/walac/pyusb.git && \
-                cd pyusb && \
-                python3 setup.py build && \
-                sudo python3 setup.py install
-        fi
-        cd $goback
+        sudo pip3 install --upgrade pandas
+        sudo pip3 install --upgrade plotly
+        sudo pip3 install --upgrade matplotlib
+        sudo pip3 install --upgrade pyusb
     elif [ $OS = windows ]; then
         echo "It's probably easier to type 'gb' over each link from vim"
         echo "Install the 32 bit versions unless NumPy works for 64bit"
@@ -76,26 +60,7 @@ get_python3_packages() {
 get_python2_packages() {
     echo "Getting required python packages"
     if [ "$OS" = "linux" ]; then
-        # python 2 versions
         sudo apt-get install python2.7 -y
-        sudo apt-get install ipython -y
-        sudo apt-get install ipython-qtconsole -y
-        sudo apt-get install python-numpy -y
-        sudo apt-get install python-scipy -y
-        sudo apt-get install python-matplotlib -y
-        sudo apt-get install python-serial -y
-        sudo apt-get install python-qt4 -y
-        sudo apt-get install python-setuptools -y
-        # python usb (pyusb)
-        sudo apt-get install python-usb -y
-        sudo apt-get install python-pip -y
-        sudo pip install --upgrade pyusb
-        # note : if this doesn't work it can always be installed through github
-        # needed to build qrc
-        sudo apt-get install pyqt4-dev-tools -y
-
-        # needed to build application
-        sudo apt-get install cx-freeze -y
     elif [ $OS = windows ]; then
         echo "It's probably easier to type 'gb' over each link from vim"
         echo "Install the 32 bit versions unless NumPy works for 64bit"
