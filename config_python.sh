@@ -17,24 +17,25 @@ get_python3_packages() {
         sudo apt-get install libfreetype6-dev -y        # matplotlib
         sudo apt-get install libpng3 -y                 # matplotlib
 
-        sudo pip3 install --upgrade pyqt5
+        sudo -H pip3 install --upgrade pyqt5
         #sudo apt-get install python3-pyqt5.qtsvg -y
-        sudo pip3 install --upgrade pyparsing
-        sudo pip3 install --upgrade numpy
-        sudo pip3 install --upgrade scipy
-        sudo pip3 install --upgrade pyserial
-        sudo pip3 install --upgrade pyusb
-        sudo pip3 install --upgrade psutil
-        sudo pip3 install --upgrade urllib3
-        sudo pip3 install --upgrade jsonpickle
-        sudo pip3 install --upgrade qtconsole
-        sudo pip3 install --upgrade ipython
-        sudo pip3 install --upgrade pyfirmata
-        sudo pip3 install --upgrade simplegeneric
-        sudo pip3 install --upgrade pandas
-        sudo pip3 install --upgrade plotly
-        sudo pip3 install --upgrade matplotlib
-        sudo pip3 install --upgrade pyusb
+        sudo -H pip3 install --upgrade pyparsing
+        sudo -H pip3 install --upgrade numpy
+        sudo -H pip3 install --upgrade scipy
+        sudo -H pip3 install --upgrade pyserial
+        sudo -H pip3 install --upgrade pyusb
+        sudo -H pip3 install --upgrade psutil
+        sudo -H pip3 install --upgrade urllib3
+        sudo -H pip3 install --upgrade jsonpickle
+        sudo -H pip3 install --upgrade qtconsole
+        sudo -H pip3 install --upgrade ipython
+        sudo -H pip3 install --upgrade pyfirmata
+        sudo -H pip3 install --upgrade simplegeneric
+        sudo -H pip3 install --upgrade pandas
+        sudo -H pip3 install --upgrade plotly
+        sudo -H pip3 install --upgrade matplotlib
+        sudo -H pip3 install --upgrade pyusb
+        sudo -H pip3 install --upgrade plotly
     elif [ $OS = windows ]; then
         echo "It's probably easier to type 'gb' over each link from vim"
         echo "Install the 32 bit versions unless NumPy works for 64bit"
