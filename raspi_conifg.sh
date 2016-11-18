@@ -96,7 +96,7 @@ ensure_req_globals() {
 setup_python() {
     sudo apt-get install libblas-dev liblapack-dev libatlas-base-dev gfortran -y
     sudo apt-get install python python3 python3-pip -y
-    sudo pip3 install gpiozero numpy raspi
+    sudo pip3 install gpiozero numpy raspi flask wtforms
     sudo pip3 install jupyter
 }
 
