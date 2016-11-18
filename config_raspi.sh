@@ -191,17 +191,17 @@ windows=windows
 mac=mac
 linux=linux
 
-echo "=================== raspi_config.sh ===================="
+echo "=================== config_raspi.sh ===================="
 set_os;
 set_common_dir;
 init_software_dir;
-#add_bash_alias;
-#ensure_req_globals;
+add_bash_alias;
+ensure_req_globals;
 
-#sudo apt-get update
-#sudo apt-get install git -y
-#get_vim_packages;
-#config_vim;
-#get_vim_addons;
-#setup_python;
-echo "================ END: raspi_config.sh ================="
+sudo apt-get update
+sudo apt-get install git -y
+get_vim_packages;
+config_vim;
+get_vim_addons;
+setup_python;
+echo "================ END: config_raspi.sh ================="
