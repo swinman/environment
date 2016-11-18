@@ -203,5 +203,6 @@ sudo apt-get install git -y
 get_vim_packages;
 config_vim;
 get_vim_addons;
+sudo apt-get install wiringpi pigpio -y
 setup_python;
 echo "================ END: config_raspi.sh ================="
