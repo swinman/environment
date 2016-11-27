@@ -17,6 +17,13 @@ set_common_dir() {
     TOOLSDIR=$HOME/tools
 }
 
+set_time_zone() {
+    TZINFO=$(grep TZ ~/.profile | wc -l)
+    if [ TZINFO -eq 0 ]; then
+        echo "TZ=$(tzselect); export TZ" >> ".profile"
+    fi
+}
+
 init_software_dir() {
     echo "Checking that $SOFTWAREDIR exists"
     if ! [ -d $SOFTWAREDIR ]; then
@@ -186,6 +193,11 @@ get_git_repo() {
     fi
 }
 
+setup_gpio() {
+    echo "Getting command line gpio"
+    sudo apt-get install wiringpi -y
+}
+
 # --------------------- RUN SCRIPT --------------------- #
 windows=windows
 mac=mac
@@ -197,6 +209,8 @@ set_common_dir;
 init_software_dir;
 add_bash_alias;
 ensure_req_globals;
+setup_gpio;
+set_time_zone;
 
 sudo apt-get update
 sudo apt-get install git -y
