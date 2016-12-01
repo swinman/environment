@@ -12,6 +12,7 @@ get_python3_packages() {
         # python 3 versions
         sudo apt-get install python3 -y
         sudo apt-get install python3-pip -y
+        sudo apt-get install python3-tk -y
 
         # needed to buil qrc
         sudo apt-get install libfreetype6-dev -y        # matplotlib
