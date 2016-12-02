@@ -33,6 +33,7 @@ config_latex() {
 config_drawing() {
   if [ "$OS" = "linux" ]; then
     sudo apt-get install gimp -y
+    sudo apt-get install ufraw -y
     sudo apt-get install inkscape -y
   elif [ $OS = windows ]; then
     echo "http://www.inkscape.org/en/download/"
