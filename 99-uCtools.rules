@@ -145,5 +145,9 @@ ATTRS{idProduct}=="6001", MODE="0660", GROUP="plugdev",
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0403",
 ATTRS{idProduct}=="6014", MODE="0660", GROUP="plugdev"
 
+############## USB SENSORS ###################
+#DirecTemp
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="1dfd",
+ATTRS{idProduct}=="0001", MODE="0660", GROUP="plugdev",
 
 # vim:ft=udevrules
