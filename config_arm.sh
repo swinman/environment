@@ -105,13 +105,14 @@ get_openocd() {
         sudo apt-get install autoconf -y
         sudo apt-get install automake -y
         sudo apt-get install texinfo -y
+        sudo apt-get install libhidapi-dev -y
         sudo apt-get install libusb-1.0-0-dev -y
         if [ -d $toolsdir/openocd ]; then
             (cd $toolsdir/openocd && git pull)
         else
             (cd $toolsdir && git clone git://git.code.sf.net/p/openocd/code openocd)
             (cd $toolsdir/openocd && ./bootstrap)
-            (cd $toolsdir/openocd && ./configure --enable-stlink --enable-jlink)
+            (cd $toolsdir/openocd && ./configure --enable-stlink --enable-jlink --enable-cmsis-dap)
         fi
         (cd $toolsdir/openocd && make)
         (cd $toolsdir/openocd && sudo make install)
