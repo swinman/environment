@@ -2,7 +2,7 @@ snippet cstart "Template for New C File" !b
 /**** file:       ${1:`!p snip.rv = snip.fn`}
     * modified:   ${2:`!p import time
 snip.rv = time.strftime("%Y-%m-%d %H:%M:%S")
-  `}
+`}
     * author:     ${3:<<AUTHOR>>}
     */
 
@@ -36,11 +36,12 @@ snip.rv = time.strftime("%Y-%m-%d %H:%M:%S")
 
 #ifndef __${4:`!p
 if not snip.c:
-	import string
-	name = re.sub(r'[^A-Za-z0-9]+','_', snip.fn).upper()
-	snip.rv = '{0}'.format(name)
+    import string
+    name = re.sub(r'[^A-Za-z0-9]+','_', snip.fn).upper()
+    snip.rv = '{0}'.format(name)
 else:
-    snip.rv = snip.c`}__
+    snip.rv = snip.c
+`}__
 #define __$4__
 
 /*___ I N C L U D E S ______________________________________________________*/
@@ -81,14 +82,14 @@ snippet ifdef "Add #ifdef X #endif" !b
 #ifdef ${1:UNDEFINED}
 ${VISUAL:
 }
-#endif	/* $1 */
+#endif        /* $1 */
 
 endsnippet
 
 snippet ifdevice "If the _DEVICE type is x" !b
 #if ( _DEVICE == ${1:_STM32F4} )
 ${VISUAL: }
-#endif	/* _DEVICE */
+#endif        /* _DEVICE */
 endsnippet
 
 snippet rmwarn "If the _DEVICE type is x" !b
@@ -165,12 +166,13 @@ endsnippet
 snippet once "Include header once only guard"
 #ifndef ${1:`!p
 if not snip.c:
-	import random, string
-	name = re.sub(r'[^A-Za-z0-9]+','_', snip.fn).upper()
-	rand = ''.join(random.sample(string.ascii_letters+string.digits, 8))
-	snip.rv = ('%s_%s' % (name,rand)).upper()
+    import random, string
+    name = re.sub(r'[^A-Za-z0-9]+','_', snip.fn).upper()
+    rand = ''.join(random.sample(string.ascii_letters+string.digits, 8))
+    snip.rv = ('%s_%s' % (name,rand)).upper()
 else:
-	snip.rv = snip.c`}
+    snip.rv = snip.c
+`}
 #define $1
 
 ${VISUAL}${0}
@@ -184,13 +186,13 @@ endsnippet
 
 snippet wh "while loop"
 while (${1:/* condition */}) {
-	${VISUAL}${0}
+    ${VISUAL}${0}
 }
 endsnippet
 
 snippet do "do...while loop (do)"
 do {
-	${VISUAL}${0}
+    ${VISUAL}${0}
 } while (${1:/* condition */});
 endsnippet
 
@@ -199,32 +201,28 @@ fprintf(${1:stderr}, "${2:%s}\n"${2/([^%]|%%)*(%.)?.*/(?2:, :\);)/}$3${2/([^%]|%
 endsnippet
 
 snippet if "if .. (if)"
-if (${1:/* condition */})
-{
-	${VISUAL}${0}
+if (${1:/* condition */}) {
+    ${VISUAL}${0}
 }
 endsnippet
 
 snippet el "else .. (else)"
 else {
-	${VISUAL}${0}
+    ${VISUAL}${0}
 }
 endsnippet
 
 snippet eli "else if .. (eli)"
 else if (${1:/* condition */}) {
-	${VISUAL}${0}
+    ${VISUAL}${0}
 }
 endsnippet
 
 snippet ife "if .. else (ife)"
-if (${1:/* condition */})
-{
-	${2}
-}
-else
-{
-	${3:/* else */}
+if (${1:/* condition */}) {
+    ${2}
+} else {
+    ${3:/* else */}
 }
 endsnippet
 
@@ -233,16 +231,14 @@ printf("${1:%s}\n"${1/([^%]|%%)*(%.)?.*/(?2:, :\);)/}$2${1/([^%]|%%)*(%.)?.*/(?2
 endsnippet
 
 snippet st "struct"
-struct ${1:`!p snip.rv = (snip.basename or "name") + "_t"`}
-{
-	${0:/* data */}
+struct ${1:`!p snip.rv = (snip.basename or "name") + "_t"`} {
+    ${0:/* data */}
 };
 endsnippet
 
 snippet fun "function" b
-${1:void} ${2:function_name}(${3})
-{
-	${VISUAL}${0}
+${1:void} ${2:function_name}(${3}) {
+    ${VISUAL}${0}
 }
 endsnippet
 

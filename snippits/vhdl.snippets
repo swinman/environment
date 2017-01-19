@@ -4,7 +4,7 @@ endsnippet
 
 snippet generate "complete the generate"
 generate
-  ${1:}
+    ${1:}
 end generate;
 endsnippet
 
@@ -18,15 +18,15 @@ endsnippet
 
 snippet PROCESS "PROCESS statement" !b
 ${1:<label>}: PROCESS ${2:<sensitivity list>} IS
-  ${3:<declarative_part>}
+    ${3:<declarative_part>}
 BEGIN
-  ${4:<sequential_statements_part>}
+    ${4:<sequential_statements_part>}
 END PROCESS $1;
 endsnippet
 
 snippet IF "IF statement" !b
 ${1:<label>}: IF ${2:<conditions>} THEN
-  ${3:<assignments>}
+    ${3:<assignments>}
 END IF;
 endsnippet
 
@@ -58,4 +58,4 @@ snippet reg " signal reg_r, reg_nx : unsigned(x);" !b
 signal ${1:<reg>}_r, $1_nx ${2:          }: ${3:unsigned}(${4:8} - 1 downto ${5:0});
 endsnippet
 
-# vim: shiftwidth=2
+# vim:ft=snippets:

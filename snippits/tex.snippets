@@ -1,28 +1,8 @@
-snippet fold "improved folding" !b
-% `!p
-try:
-    level = int(t[2])
-except:
-    level = 0
-if level == 1:
-    key = "="
-elif level == 2:
-    key = "-"
-elif level == 3:
-    key = '.'
-else:
-    key = ' '
-# previously had ${3:=} as one of the delim values
-#try:
-#    key = t[3][-1]
-#except IndexError:
-#    key = " "
-snip.rv = key*max(0, 26 - int(len(t[1])//2)) ` ${1:Section} `!p
-snip.rv = key*max(0, 35 - int((1 + len(t[1]))//2)) `         {{{${2:1}
-${VISUAL:}% END: `!p
-snip.rv = key*max(0, 21 - int(len(t[1])//2)) ` $1 `!p
-snip.rv = key*max(0, 35 - int((1 + len(t[1]))//2)) `         ${2/(\d+).*/$1/}}}}
-
+snippet spell "Add Spelling Good Words" !b
+%-*-SpellGoodWordsStart-*-
+% ${1:}
+% foldmethod vspace sw tw vim600 vim inkscape svg png pdf txt
+%-*-SpellGoodWordsEnd-*-
 endsnippet
 
 snippet newcmd "New Command" !b
@@ -36,14 +16,6 @@ snippet comment "Comment and fold - verbatim" !b
 ${VISUAL:    }
 \end{comment}   `!p snip.rv = " "*55` % ${1/(\d+).*/$1/g}}}}
 
-endsnippet
-
-snippet uuid "UUID" !b
-`!p
-import uuid
-if not snip.c:
-    snip.rv = uuid.uuid4().hex
-`
 endsnippet
 
 snippet hils "Add A Highlights Enum List" !b
