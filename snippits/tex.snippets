@@ -1,8 +1,20 @@
 snippet spell "Add Spelling Good Words" !b
 %-*-SpellGoodWordsStart-*-
 % ${1:}
-% foldmethod vspace sw tw vim600 vim inkscape svg png pdf txt
+% foldmethod vspace sw tw vim600 vim inkscape svg png pdf txt shiftwidth
 %-*-SpellGoodWordsEnd-*-
+endsnippet
+
+snippet enum "Add Enum" !b
+\begin{compactenum}
+  \item ${1:}
+\end{compactenum}
+endsnippet
+
+snippet item "Add Itemize" !b
+\begin{compactitem}
+  \item ${1:}
+\end{compactitem}
 endsnippet
 
 snippet newcmd "New Command" !b

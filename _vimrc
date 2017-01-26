@@ -200,6 +200,8 @@ function! GetCChar()
         let CChar = ':'
     elseif &ft == 'tex' || &ft == 'bib'
         let CChar = '%'
+    elseif &ft == 'markdown'
+        let CChar = '#'
     elseif &ft == 'inform'
         let CChar = ';'
     elseif &ft == 'vhdl'
@@ -606,6 +608,7 @@ endif
 " ----------------- File Type Specific --------------------------         {{{2
 autocmd FileType text setlocal formatoptions+=t spell
 autocmd FileType tex setlocal formatoptions+=t spell
+autocmd FileType markdown setlocal formatoptions+=t spell
 autocmd FileType gitcommit setlocal formatoptions+=t spell tw=72
 
 " add SpellGoodWordsStart and SpellGoodWordsEnd to dictionary
