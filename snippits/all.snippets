@@ -34,7 +34,7 @@ endglobal
 snippet ifold "improved folding" !b
 `!p snip.rv = _get_comment_format()` `!p
 try:
-    level = int(t[2])
+    level = int(t[2].split('\n')[0])
 except:
     level = 0
 if level == 1:
