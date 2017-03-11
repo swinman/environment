@@ -37,6 +37,7 @@ get_python3_packages() {
         sudo -H pip3 install --upgrade matplotlib
         sudo -H pip3 install --upgrade pyusb
         sudo -H pip3 install --upgrade plotly
+        sudo -H pip3 install --upgrade opencv-python
     elif [ $OS = windows ]; then
         echo "It's probably easier to type 'gb' over each link from vim"
         echo "Install the 32 bit versions unless NumPy works for 64bit"
