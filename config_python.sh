@@ -18,6 +18,7 @@ get_python3_packages() {
         sudo apt-get install libfreetype6-dev -y        # matplotlib
         sudo apt-get install libpng3 -y                 # matplotlib
 
+        sudo -H pip3 install --upgrade pip
         sudo -H pip3 install --upgrade pyqt5
         #sudo apt-get install python3-pyqt5.qtsvg -y
         sudo -H pip3 install --upgrade pyparsing
