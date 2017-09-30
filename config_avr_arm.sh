@@ -1,0 +1,233 @@
+#!/bin/sh
+
+# to run this dd below line (minus #) into "r, then use @r
+#! chmod 755 %; %
+# to run a line individually, do the above, but yy instead of dd
+# 0i! <Esc>"ryy@ruu
+
+# --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
+get_packages() {
+    sudo apt-get install libusb-0.1-4:i386 -y
+    # sudo apt-get install lpc21isp -y
+    sudo apt-get install gtkterm -y
+    sudo apt-get install unp -y
+    sudo apt-get install libtool -y
+    sudo apt-get install autoconf -y
+    sudo apt-get install automake -y
+    sudo apt-get install texinfo -y
+    sudo apt-get install libhidapi-dev -y
+    sudo apt-get install libusb-1.0-0-dev -y
+}
+
+config_rules() {
+    echo "Config avr/arm device plugdev rules"
+    echo "Adding device usb ids to plugdev rules"
+    sudo cp $softwaredir/environment/99-uCtools.rules /etc/udev/rules.d/
+    echo "Ensuring correct permissions are set"
+    for GROUP in plugdev dialout; do
+        if [ -z $(grep $GROUP /etc/group)  ]; then
+            echo "Adding the group $GROUP"
+            sudo groupadd $GROUP
+        fi
+        if [ -z $(grep $GROUP /etc/group | grep $USER) ]; then
+            echo "Adding $USER to $GROUP"
+            sudo usermod -a -G $GROUP $USER
+        fi
+    done
+    sudo udevadm control --reload-rules
+    sudo udevadm trigger
+    echo "If user does not appear below, add user to plugdev group"
+    less /etc/group | grep plugdev
+}
+
+install_tools() {
+    DFLD=~/Downloads
+    echo
+    echo "Download j-link software to $DFLD"
+    echo "http://www.segger.com/jlink-software.html"
+    echo
+    echo "Download saleae software to $DFLD"
+    echo "http://www.saleae.com/downloads"
+    echo
+    read -p "[ ENTER ] when software has been downloaded." jlink_dwn
+    if [ "$OS" = "linux" ]; then
+        if [ -f $DFLD/JLink_Linux*.tgz ]; then
+            FOLDERNAME=$(ls $DFLD | grep JLink_Linux | sed 's/\(.*\)\.tgz/\1/')
+            echo "Extracting and moving $FOLDERNAME to $toolsdir"
+            (cd $DFLD && unp JLink_Linux* && rm $FOLDERNAME.tgz)
+            (cd $DFLD/$FOLDERNAME && sudo cp libjlinkarm.so.* /usr/lib)
+            (cd $DFLD/$FOLDERNAME && sudo cp 45-jlink.rules /etc/udev/rules.d/)
+            mv $DFLD/$FOLDERNAME $toolsdir
+            sudo ldconfig
+            if [ "$(grep $FOLDERNAME ~/.pam_environment)" = "" ]; then
+                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$FOLDERNAME \
+                    >> ~/.pam_environment
+            fi
+            echo "It will now be necessary to restart the system"
+        fi
+        if [ -f $DFLD/Logic*.zip ]; then
+            FOLDERNAME=$(ls $DFLD | grep Logic | sed 's/\(.*\)\.zip/\1/')
+            echo "Extracting and moving $FOLDERNAME to $toolsdir"
+            (cd $DFLD && unp Logic* && rm "$FOLDERNAME.zip")
+    #        (cd $DFLD/$FOLDERNAME && sudo cp libjlinkarm.so.* /usr/lib)
+    #        (cd $DFLD/$FOLDERNAME && sudo cp 45-jlink.rules /etc/udev/rules.d/)
+            NEWFOLDERNAME=$(echo $FOLDERNAME | sed "s/ /_/g" | sed "s/[()]//g")
+            mv $DFLD/"$FOLDERNAME" $toolsdir/$NEWFOLDERNAME
+            if [ "$(grep $NEWFOLDERNAME ~/.pam_environment)" = "" ]; then
+                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$NEWFOLDERNAME \
+                    >> ~/.pam_environment
+            fi
+            sudo cp $toolsdir/$NEWFOLDERNAME/Drivers/99-SaleaeLogic.rules \
+                /etc/udev/rules.d/
+            echo "It will now be necessary to restart the system"
+        fi
+    fi
+}
+
+get_avr_tools() {
+    sudo apt-get install gdb-avr -y
+    # try avr-gdb and avr-run ... doesn't seem like there is much here..
+    sudo apt-get install gdb-doc -y
+}
+
+get_gcc_arm() {
+    if [ "$OS" = "linux" ]; then
+        if [ "$(ls /etc/apt/sources.list.d/ | grep "gcc-arm-embedded")" = "" ]; then
+            if [ "$(lsb_release -r | sed "s/.*\s\+\(.*\)/\1/")" = "14.04" ]; then
+                sudo apt-get remove binutils-arm-none-eabi gcc-arm-none-eabi -y
+            fi
+            sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded
+            sudo apt-get update
+        fi
+        GCCARMNONE=gcc-arm-none-eabi
+        if [ "$(lsb_release -r | sed "s/.*\s\+\(.*\)/\1/")" = "14.04" ]; then
+            GCCARMNONE=gcc-arm-none-eabi=4.9.3.2014q4-0trusty12
+        fi
+        echo ">>>>>>>>>>> using $GCCARMNONE >>>>>>>>>>>"
+        sudo apt-get install $GCCARMNONE -y
+    else
+        echo
+        echo "Download and install arm-none-eabi-gcc"
+        echo "https://launchpad.net/gcc-arm-embedded/+download"
+        echo
+        echo "Download openocd, add bin to path, rename as openocd.exe"
+        echo "http://www.freddiechopin.info/en/download/category/4-openocd"
+        echo "You need 7z to extract: http://www.7-zip.org/"
+        echo
+        echo "Install the stm32 vlink driver"
+        echo "http://www.st.com/web/en/catalog/tools/PF258167"
+    fi
+}
+
+config_avr() {
+    if [ "$OS" = "windows" ]; then
+        TOOLURL="http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORWINDOWS.aspx"
+    else
+        TOOLURL="http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORLINUX.aspx"
+    fi
+    DFLD=~/Downloads
+    echo
+    echo "Download atmel software framework to $DFLD"
+    echo "http://www.atmel.com/tools/AVRSOFTWAREFRAMEWORK.aspx"
+    echo
+    echo "Download 'avr8', 'avr32' and 'headers' to $DFLD:"
+    echo $TOOLURL
+    echo
+    read -p "[ ENTER ] when software has been downloaded." jlink_dwn
+    if [ "$OS" = "linux" ]; then
+        if [ -f $DFLD/asf-standalone*.zip ]; then
+            echo "Extracting and moving asf to $softwaredir"
+            unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
+            mkdir -p $softwaredir/libs
+            mv $DFLD/xdk-asf-* $softwaredir/libs
+        fi
+        if [ -f $DFLD/avr8-gnu-tool*.tar.gz ]; then
+            echo "Extracting and moving avr8-tools to $toolsdir"
+            tar -zxvf $DFLD/avr8-gnu-toolchain* && rm $DFLD/avr8-gnu-tool*.tar.gz
+            mv avr8-gnu-toolchain* $toolsdir/avr8-tools
+            echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr8-tools/bin \
+                >> ~/.pam_environment
+        fi
+        if [ -f $DFLD/avr32-gnu-tool*.tar.gz ]; then
+            echo "Extracting and moving avr32-tools to $toolsdir"
+            tar -zxvf $DFLD/avr32-gnu-toolchain* && rm $DFLD/avr32-gnu-tool*.tar.gz
+            mv avr32-gnu-toolchain* $toolsdir/avr32-tools
+            echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr32-tools/bin \
+                >> ~/.pam_environment
+        fi
+        if [ -f $DFLD/atmel-header*.zip ]; then
+            echo "Extracting and moving avr32-headers to $toolsdir"
+            unzip -d $DFLD $DFLD/atmel-headers* && rm $DFLD/atmel-header*.zip
+            mv $DFLD/atmel-headers*/avr32 $toolsdir/avr32-tools/avr32/include && \
+                rm -r $DFLD/atmel-headers*
+        elif [ -f $DFLD/avr32-headers*.zip ]; then
+            echo "Extracting and moving avr32-headers to $toolsdir"
+            unzip -d $DFLD $DFLD/avr32-headers* && rm $DFLD/avr32-headers*.zip
+            mv $DFLD/avr32 $toolsdir/avr32-tools/avr32/include
+        fi
+        read -p "Would you like to get the gtkterm terminal ([n]/y): " done
+        if [ "${done}" = "y" ]; then
+            echo "installing 'gtkterm'"
+            sudo apt-get install gtkterm -y
+        fi
+    else
+        echo "Unzip tools folders, move tools to $toolsdir"
+        echo "from $toolsdir add to path: avr32-tools/bin, avr8-tools/bin, av"
+        echo "      avr32-tools/bin"
+        echo "      avr8-tools/bin"
+        echo "      avr32-prog"
+        echo "Unzip asf folder, move asf-version to $softwaredir"
+        echo "Acquire the appropriate atmel cdc and dfu drivers"
+    fi
+}
+
+get_openocd() {
+    if [ "$OS" = "linux" ]; then
+        # sudo apt-get install openocd -y
+        if [ -d $softwaredir/libs/openocd ]; then
+            (cd $toolsdir/libs/openocd && git pull)
+        else
+            (cd $softwaredir && git clone git://git.code.sf.net/p/openocd/code openocd)
+            (cd $softwaredir/libs/openocd && ./bootstrap)
+            (cd $softwaredir/libs/openocd && ./configure --enable-stlink --enable-jlink --enable-cmsis-dap)
+        fi
+        (cd $softwaredir/libs/openocd && make)
+        (cd $softwaredir/libs/openocd && sudo make install)
+    fi
+}
+
+config_dfu() {
+    if [ "$OS" = linux ]; then
+        echo "getting dfu-programmer set up"
+        get_git_proj dfu-programmer;
+        echo "gathering required packages"
+        sudo apt-get install autoconf libusb-1.0-0-dev -y
+        echo "configure dfu-programmer"
+        $softwaredir/dfu-programmer/bootstrap.sh
+        $softwaredir/dfu-programmer/configure
+        echo "make and install"
+        make -C $softwaredir/dfu-programmer/src
+        sudo make -C $softwaredir/dfu-programmer/src install
+        (cd $softwaredir/dfu-programmer/src && ctags-exuberant -R)
+        (cd $softwaredir/dfu-programmer/src && cscope -R -b)
+    fi
+}
+
+
+
+# --------------------- SETUP SCRIPT --------------------- #
+echo "==================== config_avr_arm.sh ====================="
+if [ "$OS" = "linux" ]; then
+    get_packages;
+    config_rules;
+fi
+
+#install_tools;
+#get_gcc_arm;
+#get_avr_tools
+#config_avr;
+
+# get dfuprogrammer project and install dfu-programmer
+#config_dfu;
+#get_openocd;
+echo "================= END: config_avr_arm.sh ==================="

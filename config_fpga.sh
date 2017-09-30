@@ -116,7 +116,7 @@ tejainece_git_script() {
 
 echo "==================== config_fpga.sh ===================="
 install_packages;
-config_icecube2;
+#config_icecube2;
 #tejainece_git_script;
 
 echo "=============== END: config_fpga.sh ===================="
