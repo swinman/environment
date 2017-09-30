@@ -1,0 +1,8 @@
+#### RULES /etc/udev/rules.d
+#
+# to reload rules:
+#   sudo udevadm control --reload-rules
+#   sudo udevadm trigger
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="ZZZ", NAME="eth0"
+
+# vim:ft=udevrules

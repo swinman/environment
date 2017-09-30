@@ -111,6 +111,11 @@ tejainece_git_script() {
     echo "or dont... it may not be necessary if you use source fconfig"
 }
 
+check_eth_addr() {
+    echo "In order to have a license for lattice you need an eth0 device"
+    echo "run ifconfig -a | grep \"^[^ ]\""
+    echo 'SUBSYSTEM=="net", ACTION="add", ATTR{address}=="xx:xx:xx:xx:xx:xx", NAME="eth0"'
+}
 # --------------------- SETUP SCRIPT --------------------- #
 ########## RUN WHATEVER YOU WANT DOWN HERE ############
 
