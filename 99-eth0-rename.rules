@@ -1,4 +1,4 @@
-#### RULES /etc/udev/rules.d
+#### RULES move to /etc/udev/rules.d
 #
 # to reload rules:
 #   sudo udevadm control --reload-rules
