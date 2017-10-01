@@ -1,0 +1,76 @@
+diff --git a/config/execute b/config/execute
+index c262dd9..90fe970 100755
+--- a/config/execute
++++ b/config/execute
+@@ -9,6 +9,10 @@
+ #+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+ reqtmp=300
+ # allow enabling valgrind or other debugger from env vars
++
++shel=`ps $$ | tail -1 | sed 's/.*:[^ ]* \([^ ]*\) .*/\1/'`
++echo "Running execute using $shel"
++
+ for e in `echo $SYN_MEMCHECK_EXEC`
+ do
+ 	echo "SYN_PRGM is $SYN_PRGM"
+@@ -61,10 +65,15 @@ update_rlwrap() {
+ }
+ 
+ parse_runtime_args() {
++    echo "Arguments are $args"
++    echo "Arguments array is $args_a"
++
++# http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
++
+     idx=0
+     for i in $args
+         do
+-            idx=`expr $idx + 1`
++            idx=`expr $idx + 1`     # get argument value
+             case $i in
+                 board_query   )  mode=3;;
+                 board_bringup )  mode=2;;
+@@ -205,7 +214,9 @@ case $SYN_PRGM in
+         cwd=`pwd`
+         #set input directory (location of debug.prj)
+         runtime_dir="$cwd"
+-        args_a=( $@ )
++        echo "Arguments are: '$@'"
++        declare -a args_a
++        args_a=$@
+         args=$@
+ 
+         parse_runtime_args
+@@ -270,7 +281,9 @@ case $SYN_PRGM in
+         cwd=`pwd`
+         #set input directory (location of debug.prj)
+         runtime_dir="$cwd"
+-        args_a=( $@ )
++        echo "Arguments are: '$@'"
++        declare -a args_a
++        args_a=$@
+         args=$@
+ 
+         parse_runtime_args
+@@ -337,7 +350,9 @@ case $SYN_PRGM in
+         cwd=`pwd`
+         #set input directory (location of debug.prj)
+         runtime_dir="$cwd"
+-        args_a=( $@ )
++        declare -a args_a
++        echo "Arguments are: '$@'"
++        args_a=$@
+         args=$@
+ 
+         parse_runtime_args
+@@ -429,7 +444,9 @@ case $SYN_PRGM in
+         cwd=`pwd`
+         #set input directory (location of debug.prj)
+         runtime_dir="$cwd"
+-        args_a=( $@ )
++        declare -a args_a
++        echo "Arguments are: '$@'"
++        args_a=$@
+         args=$@
+         script=""
+         idx=0
