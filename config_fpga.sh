@@ -10,6 +10,9 @@
 #alias vsim='$toolsdir/altera/*/modelsim_ase/linux/vsim'
 #alias quartus='$toolsdir/altera/*/quartus/bin/quartus'
 
+# the synpbase code needs to be patched becuase bash is not the
+# default /bin/sh terminal -- see icecube_2017.01_use_bash.patch
+
 install_packages() {
     if [ "$OS" = "linux" ]; then
         # tejainece related
