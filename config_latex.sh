@@ -35,6 +35,7 @@ config_drawing() {
     sudo apt-get install gimp -y
     sudo apt-get install ufraw -y
     sudo apt-get install inkscape -y
+    sudo apt-get install imagemagick -y
   elif [ $OS = windows ]; then
     echo "http://www.inkscape.org/en/download/"
     echo "http://www.gimp.org/downloads/"
@@ -42,57 +43,55 @@ config_drawing() {
 }
 
 get_fonts() {
-  mkdir -p ~/.fonts
+  mkdir ~/.fonts
+  sudo apt-get install fontconfig -y
   config_adobe;
   get_adobe_open_fonts;
   if [ "$OS" = "linux" ]; then
     sudo apt-get install lcdf-typetools -y
     sudo apt-get install ttf-mscorefonts-installer -y
+    sudo apt-get install ttf-dejavu -y
     sudo apt-get install ttf-oxygen-font-family -y
     sudo apt-get install texlive-fonts-recommended -y
     sudo apt-get install texlive-fonts-extra -y
     sudo apt-get install texlive-font-utils -y
   fi
+  sudo fc-cache -fv
 }
 
 config_adobe() {
+  sudo apt-get install libxm12:i386 -y
+
   if [ "$OS" = "linux" ]; then
-    CODENAME=$(lsb_release -a | grep Codename | sed 's/^Codename:\s*//')
-    echo "codename is $CODENAME"
-    sudo add-apt-repository "deb http://archive.canonical.com/ $CODENAME partner"
+    #CODENAME=$(lsb_release -a | grep Codename | sed 's/^Codename:\s*//')
+    #echo "codename is $CODENAME"
+    #sudo add-apt-repository "deb http://archive.canonical.com/ $CODENAME partner"
+    sudo add-apt-repository "deb http://archive.canonical.com/ precise partner"
     sudo apt-get update
-    sudo apt-get install acroread -y
+    #sudo apt-get install acroread -y
+    sudo apt-get install adobereader-enu
     if [ $? -eq 0 ]; then
       cp /opt/Adobe/Reader9/Resource/Font/*.otf ~/.fonts
+      #sudo cp /opt/Adobe/Reader9/Resource/Font/*.otf /usr/local/share/fonts
     fi
   fi
 }
 
 get_adobe_open_fonts () {
-  FONT_NAME="SourceCodePro"
-  URL="http://sourceforge.net/projects/sourcecodepro.adobe/files/latest/download"
-  FN2="SourceSansPro"
-  URL2="http://sourceforge.net/projects/sourcesans.adobe/files/latest/download?source=files"
-
+  FONT_NAME="source-code-pro"
+  URLa="https://github.com/adobe-fonts/source-code-pro/releases/download/variable-fonts/SourceCodeVariable-Roman.otf"
+  URLb="https://github.com/adobe-fonts/source-code-pro/releases/download/variable-fonts/SourceCodeVariable-Italic.otf"
+  FN2="source-sans-pro"
+  URL2a="https://github.com/adobe-fonts/source-sans-pro/releases/download/variable-fonts/SourceSansVariable-Roman.otf"
+  URL2b="https://github.com/adobe-fonts/source-sans-pro/releases/download/variable-fonts/SourceSansVariable-Italic.otf"
+  echo "FIXME: these fonts are broken -- must get archived otf release"
   if [ "$OS" = "linux" ]; then
-    mkdir -p /tmp/adodefont
-    cd /tmp/adodefont
-    NEW=false
-    if [ $(ls ~/.fonts | grep $FONT_NAME | wc -l) -eq 0 ]; then
-      wget ${URL} -O ${FONT_NAME}.zip
-      unzip -o -j ${FONT_NAME}.zip
+      wget ${URLa}
+      wget ${URLb}
+      wget ${URL2a}
+      wget ${URL2b}
       mv *.otf ~/.fonts
-      NEW=true
-    fi
-    if [ $(ls ~/.fonts | grep $FN2 | wc -l) -eq 0 ]; then
-      wget ${URL2} -O ${FN2}.zip
-      unzip -o -j ${FN2}.zip
-      mv *.otf ~/.fonts
-      NEW=true
-    fi
-    if [ $NEW = true ]; then
-      fc-cache -f -v
-    fi
+      #sudo mv *.otf /usr/local/share/fonts
   fi
 }
 
