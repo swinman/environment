@@ -1,0 +1,197 @@
+From 4ff93a0e4741737b4c0fe0e46c4bcb45a584f02f Mon Sep 17 00:00:00 2001
+From: Walker Inman <winman@lucidsci.com>
+Date: Sun, 1 Oct 2017 12:58:31 -0400
+Subject: [PATCH] explicitly use bash shell instead of default
+
+---
+ assistant        | 2 +-
+ c_hdl            | 2 +-
+ c_structver      | 2 +-
+ c_ver            | 2 +-
+ c_vhdl           | 2 +-
+ config/execute   | 2 +-
+ edf2srs          | 2 +-
+ fpga_help        | 2 +-
+ lib2syn          | 2 +-
+ m_gen_lattice    | 2 +-
+ m_generic        | 2 +-
+ run_external     | 2 +-
+ s2o              | 2 +-
+ scllp            | 2 +-
+ syn_nfilter      | 2 +-
+ syn_system_check | 2 +-
+ synplify_pro     | 2 +-
+ 17 files changed, 17 insertions(+), 17 deletions(-)
+
+diff --git a/assistant b/assistant
+index 5feada4..f7696ae 100755
+--- a/assistant
++++ b/assistant
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/c_hdl b/c_hdl
+index c19b5df..2006dfd 100755
+--- a/c_hdl
++++ b/c_hdl
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/c_structver b/c_structver
+index c19b5df..2006dfd 100755
+--- a/c_structver
++++ b/c_structver
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/c_ver b/c_ver
+index c19b5df..2006dfd 100755
+--- a/c_ver
++++ b/c_ver
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/c_vhdl b/c_vhdl
+index c19b5df..2006dfd 100755
+--- a/c_vhdl
++++ b/c_vhdl
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/config/execute b/config/execute
+index d406fcf..1417479 100755
+--- a/config/execute
++++ b/config/execute
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ #+-+-+-+-+-+-+-+-   Invoking all tools with one case statement    +-+-+-+-+-+-+
+ #
+ # Common code is executed, synbatch/certbatch/protobatch is not executed in case of synplify,
+diff --git a/edf2srs b/edf2srs
+index d672d34..0c7a413 100755
+--- a/edf2srs
++++ b/edf2srs
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/fpga_help b/fpga_help
+index 5feada4..f7696ae 100755
+--- a/fpga_help
++++ b/fpga_help
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/lib2syn b/lib2syn
+index d672d34..0c7a413 100755
+--- a/lib2syn
++++ b/lib2syn
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/m_gen_lattice b/m_gen_lattice
+index d672d34..0c7a413 100755
+--- a/m_gen_lattice
++++ b/m_gen_lattice
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/m_generic b/m_generic
+index d672d34..0c7a413 100755
+--- a/m_generic
++++ b/m_generic
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/run_external b/run_external
+index e4ae7d9..c902fa7 100755
+--- a/run_external
++++ b/run_external
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+
+ #restore environment vars if necessary
+ if [ "${SYN_BACKUP_LD_LIBRARY_PATH}" != "" ]; then
+diff --git a/s2o b/s2o
+index d672d34..0c7a413 100755
+--- a/s2o
++++ b/s2o
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/scllp b/scllp
+index c19b5df..2006dfd 100755
+--- a/scllp
++++ b/scllp
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/syn_nfilter b/syn_nfilter
+index 04f8614..0072067 100755
+--- a/syn_nfilter
++++ b/syn_nfilter
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/syn_system_check b/syn_system_check
+index e8b0e84..96309c7 100755
+--- a/syn_system_check
++++ b/syn_system_check
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+diff --git a/synplify_pro b/synplify_pro
+index 5feada4..f7696ae 100755
+--- a/synplify_pro
++++ b/synplify_pro
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ x=$0
+ y=`expr $x : '\(.\)'`
+ if [ "$y" != "/" ] ; then
+--
+2.7.4
