@@ -36,6 +36,7 @@ config_drawing() {
     sudo apt-get install ufraw -y
     sudo apt-get install inkscape -y
     sudo apt-get install imagemagick -y
+    sudo apt-get install pdftk -y
   elif [ $OS = windows ]; then
     echo "http://www.inkscape.org/en/download/"
     echo "http://www.gimp.org/downloads/"
