@@ -28,6 +28,8 @@ get_python3_packages() {
         sudo pip3 install --upgrade ipython
         sudo pip3 install --upgrade pyfirmata
         sudo pip3 install --upgrade simplegeneric
+        sudo pip3 install --upgrade argcomplete
+        suod activate-global-python-argcomplete
 
         goback=$(pwd)
         if [ -d "$softwaredir/libs/matplotlib" ]; then
