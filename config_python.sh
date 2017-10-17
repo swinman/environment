@@ -17,9 +17,10 @@ get_python3_packages() {
         # needed to buil qrc
         sudo apt-get install libfreetype6-dev -y        # matplotlib
         sudo apt-get install libpng3 -y                 # matplotlib
-
         sudo -H pip3 install --upgrade pip
         sudo -H pip3 install --upgrade pyqt5
+        #sudo apt-get install cx-freeze -y
+        #sudo apt-get install python3-pyqt5 -y
         #sudo apt-get install python3-pyqt5.qtsvg -y
         sudo -H pip3 install --upgrade pyparsing
         sudo -H pip3 install --upgrade numpy
@@ -39,6 +40,8 @@ get_python3_packages() {
         sudo -H pip3 install --upgrade pyusb
         sudo -H pip3 install --upgrade plotly
         sudo -H pip3 install --upgrade opencv-python
+        sudo -H pip3 install --upgrade argcomplete
+        sudo activate-global-python-argcomplete
     elif [ $OS = windows ]; then
         echo "It's probably easier to type 'gb' over each link from vim"
         echo "Install the 32 bit versions unless NumPy works for 64bit"
