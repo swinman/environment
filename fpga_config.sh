@@ -20,7 +20,7 @@ else
     ALTERADIR=""
     if [ -d "$toolsdir/intelFPGA_lite" ]; then
         INTELDIRs=$(find $toolsdir/intelFPGA_lite/* -maxdepth 0 -type d)
-        INTELDIR=$(echo $ALTERADIRs | sed 's/\([^ ]*\).* \(.*\)/\2/')
+        INTELDIR=$(echo $INTELDIRs | sed 's/\([^ ]*\).* \(.*\)/\2/')
     else
         echo "modelsim not installed"
     fi
