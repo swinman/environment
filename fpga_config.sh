@@ -8,7 +8,7 @@
 #######################################################################
 
 export LM_LICENSE_FILE=~/tools/lscc/license-ice.dat
-export LM_LICENSE_FILE=$LM_LICENSE_FILE:~/tools/altera/14.0/license.dat
+#export LM_LICENSE_FILE=$LM_LICENSE_FILE:~/tools/altera/14.0/license.dat
 
 ICEDIRs=$(find $toolsdir/lscc/iCEcube2* -maxdepth 0 -type d)
 #export ICEDIR=$(echo $ICEDIRs | sed 's/\([^ ]*\).* \(.*\)/\1/')  # first
@@ -18,7 +18,12 @@ if [ -d "$toolsdir/altera" ]; then
     ALTERADIR=$(echo $ALTERADIRs | sed 's/\([^ ]*\).* \(.*\)/\2/')
 else
     ALTERADIR=""
-    echo "modelsim not installed"
+    if [ -d "$toolsdir/intelFPGA_lite" ]; then
+        INTELDIRs=$(find $toolsdir/intelFPGA_lite/* -maxdepth 0 -type d)
+        INTELDIR=$(echo $ALTERADIRs | sed 's/\([^ ]*\).* \(.*\)/\2/')
+    else
+        echo "modelsim not installed"
+    fi
 fi
 
 export LD_LIBRARY_PATH=
@@ -41,6 +46,8 @@ export PATH=$PATH:$ICEDIR/synpbase/linux/lib
 if [ -n "$ALTERADIR" ]; then
     alias vsim="$ALTERADIR/modelsim_ase/linux/vsim"
     alias quartus="$ALTERADIR/quartus/bin/quartus"
+elif [ -n "$INTELDIR" ]; then
+    alias vsim="$INTELDIR/modelsim_ase/linux/vsim"
 fi
 
 #alias synplify=$ICEDIR/synpbase/linux/mbin/synplify

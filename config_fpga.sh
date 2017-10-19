@@ -13,6 +13,9 @@
 # the synpbase code needs to be patched becuase bash is not the
 # default /bin/sh terminal -- see icecube_2017.01_use_bash.patch
 
+# Download Altera Quartus Lite software as a single file - you want to install
+# only the cyclone portions -- don't want the other larger chips
+
 install_packages() {
     if [ "$OS" = "linux" ]; then
         # tejainece related
