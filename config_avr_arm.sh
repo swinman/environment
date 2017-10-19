@@ -17,6 +17,7 @@ get_packages() {
     sudo apt-get install texinfo -y
     sudo apt-get install libhidapi-dev -y
     sudo apt-get install libusb-1.0-0-dev -y
+    sudo apt-get install gtkterm -y
 }
 
 config_rules() {
@@ -121,56 +122,13 @@ get_gcc_arm() {
 
 config_avr() {
     if [ "$OS" = "windows" ]; then
+        DFLD=~/Downloads
+        echo "Download atmel software framework to $DFLD"
+        echo "http://www.atmel.com/tools/AVRSOFTWAREFRAMEWORK.aspx"
         TOOLURL="http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORWINDOWS.aspx"
-    else
-        TOOLURL="http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORLINUX.aspx"
-    fi
-    DFLD=~/Downloads
-    echo
-    echo "Download atmel software framework to $DFLD"
-    echo "http://www.atmel.com/tools/AVRSOFTWAREFRAMEWORK.aspx"
-    echo
-    echo "Download 'avr8', 'avr32' and 'headers' to $DFLD:"
-    echo $TOOLURL
-    echo
-    read -p "[ ENTER ] when software has been downloaded." jlink_dwn
-    if [ "$OS" = "linux" ]; then
-        if [ -f $DFLD/asf-standalone*.zip ]; then
-            echo "Extracting and moving asf to $softwaredir"
-            unzip -d $DFLD $DFLD/asf-standalone* && rm $DFLD/asf-standalone*
-            mkdir -p $softwaredir/libs
-            mv $DFLD/xdk-asf-* $softwaredir/libs
-        fi
-        if [ -f $DFLD/avr8-gnu-tool*.tar.gz ]; then
-            echo "Extracting and moving avr8-tools to $toolsdir"
-            tar -zxvf $DFLD/avr8-gnu-toolchain* && rm $DFLD/avr8-gnu-tool*.tar.gz
-            mv avr8-gnu-toolchain* $toolsdir/avr8-tools
-            echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr8-tools/bin \
-                >> ~/.pam_environment
-        fi
-        if [ -f $DFLD/avr32-gnu-tool*.tar.gz ]; then
-            echo "Extracting and moving avr32-tools to $toolsdir"
-            tar -zxvf $DFLD/avr32-gnu-toolchain* && rm $DFLD/avr32-gnu-tool*.tar.gz
-            mv avr32-gnu-toolchain* $toolsdir/avr32-tools
-            echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr32-tools/bin \
-                >> ~/.pam_environment
-        fi
-        if [ -f $DFLD/atmel-header*.zip ]; then
-            echo "Extracting and moving avr32-headers to $toolsdir"
-            unzip -d $DFLD $DFLD/atmel-headers* && rm $DFLD/atmel-header*.zip
-            mv $DFLD/atmel-headers*/avr32 $toolsdir/avr32-tools/avr32/include && \
-                rm -r $DFLD/atmel-headers*
-        elif [ -f $DFLD/avr32-headers*.zip ]; then
-            echo "Extracting and moving avr32-headers to $toolsdir"
-            unzip -d $DFLD $DFLD/avr32-headers* && rm $DFLD/avr32-headers*.zip
-            mv $DFLD/avr32 $toolsdir/avr32-tools/avr32/include
-        fi
-        read -p "Would you like to get the gtkterm terminal ([n]/y): " done
-        if [ "${done}" = "y" ]; then
-            echo "installing 'gtkterm'"
-            sudo apt-get install gtkterm -y
-        fi
-    else
+        echo "Download 'avr8', 'avr32' and 'headers' to $DFLD:"
+        echo $TOOLURL
+        read -p "[ ENTER ] when software has been downloaded." jlink_dwn
         echo "Unzip tools folders, move tools to $toolsdir"
         echo "from $toolsdir add to path: avr32-tools/bin, avr8-tools/bin, av"
         echo "      avr32-tools/bin"
@@ -178,6 +136,56 @@ config_avr() {
         echo "      avr32-prog"
         echo "Unzip asf folder, move asf-version to $softwaredir"
         echo "Acquire the appropriate atmel cdc and dfu drivers"
+    fi
+    if [ "$OS" = "linux" ]; then
+        if [ ! -d $softwaredir/libs/xdk-asf-3.35.1 ]; then
+            wget -P /tmp/ "lucidsci.com/atmel/asf-standalone-archive-3.35.1.54.zip"
+            if [ -f /tmp/asf-standalone*.zip ]; then
+                echo "Extracting and moving asf to $softwaredir"
+                unzip -d /tmp/ /tmp/asf-standalone*
+                mkdir -p $softwaredir/libs
+                mv /tmp/xdk-asf-* $softwaredir/libs
+            fi
+        else
+            echo "ASF version 3.35 already present"
+        fi
+
+        if [ ! -d $toolsdir/avr8-tools ]; then
+            wget -P /tmp/ "lucidsci.com/atmel/avr8-gnu-toolchain-3.5.4.1709-linux.any.x86_64.tar.gz"
+            if [ -f /tmp/avr8-gnu-toolchain-3.5.4.1709-linux.any.x86_64.tar.gz ]; then
+                echo "Extracting and moving avr8-tools to $toolsdir"
+                tar -zxvf /tmp/avr8-gnu-toolchain-3.5.4.1709-linux.any.x86_64.tar.gz
+                mv avr8-gnu-toolchain* $toolsdir/avr8-tools
+                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr8-tools/bin \
+                    >> ~/.pam_environment
+            fi
+        else
+            echo "avr8 tools already present"
+        fi
+
+        if [ ! -d $toolsdir/avr32-tools ]; then
+            wget -P /tmp/ "lucidsci.com/atmel/avr32-gnu-toolchain-3.4.3.820-linux.any.x86_64.tar.gz"
+            if [ -f /tmp/avr32-gnu-toolchain-3.4.3.820-linux.any.x86_64.tar.gz ]; then
+                echo "Extracting and moving avr32-tools to $toolsdir"
+                tar -zxvf /tmp/avr32-gnu-toolchain-3.4.3.820-linux.any.x86_64.tar.gz
+                mv avr32-gnu-toolchain* $toolsdir/avr32-tools
+                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr32-tools/bin \
+                    >> ~/.pam_environment
+            fi
+        else
+            echo "avr32 tools already present"
+        fi
+
+        if [ ! -d $toolsdir/avr32-tools/avr32/include ]; then
+            wget -P /tmp/ "lucidsci.com/atmel/avr32-headers-6.2.0.742.zip"
+            if [ -f /tmp/avr32-headers-6.2.0.742.zip ]; then
+                echo "Extracting and moving avr32-headers to $toolsdir"
+                unzip -d /tmp/ /tmp/avr32-headers-6.2.0.742.zip
+                mv /tmp/avr32 $toolsdir/avr32-tools/avr32/include
+            fi
+        else
+            echo "avr32 headers already present"
+        fi
     fi
 }
 
@@ -221,6 +229,8 @@ if [ "$OS" = "linux" ]; then
     get_packages;
     config_rules;
 fi
+
+config_avr;
 
 #install_tools;
 #get_gcc_arm;
