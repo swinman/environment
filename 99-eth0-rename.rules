@@ -3,6 +3,6 @@
 # to reload rules:
 #   sudo udevadm control --reload-rules
 #   sudo udevadm trigger
-SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="ZZZ", NAME="eth0"
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="MA:C :AD:DR:ES:S ", NAME="eth0"
 
 # vim:ft=udevrules
