@@ -64,6 +64,11 @@ filetype plugin indent on
 
 " END: =================== SETUP ================================         1}}}
 
+" commands to put backup files (ending in ~) in tmp directory 
+set swapfile
+set directory=~/tmp
+set backupdir=~/tmp
+
 " ====================== FUNCTIONS ==============================         {{{1
 " -------------------- win32 MyDiff -----------------------------         {{{2
 if has("win32")
