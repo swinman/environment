@@ -55,6 +55,11 @@ ATTRS{idProduct}=="2104", MODE="0660", GROUP="plugdev"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2141", MODE="0660", GROUP="plugdev"
 
+# JLINK
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="1366",
+ATTRS{idProduct}=="0101", MODE="0660", GROUP="plugdev"
+
+
 # AVRONE:
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb",
 ATTRS{idProduct}=="2105", MODE="0660", GROUP="plugdev"
