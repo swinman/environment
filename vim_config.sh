@@ -41,3 +41,5 @@ if [ -e $TAGHL ]; then
     rm -f $SRC_DIR/types_*.taghl
     cd $SRC_DIR && python $TAGHL --ctags-file tags --source-root .
 fi
+
+mkdir ~/.tmp #for storing vim backup files

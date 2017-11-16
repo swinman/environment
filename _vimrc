@@ -66,8 +66,7 @@ filetype plugin indent on
 
 " commands to put backup files (ending in ~) in tmp directory 
 set swapfile
-set directory=~/tmp
-set backupdir=~/tmp
+set backupdir=~/.tmp
 
 " ====================== FUNCTIONS ==============================         {{{1
 " -------------------- win32 MyDiff -----------------------------         {{{2
