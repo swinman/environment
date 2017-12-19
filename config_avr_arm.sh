@@ -176,12 +176,14 @@ config_avr() {
             echo "avr32 tools already present"
         fi
 
-        if [ ! -d $toolsdir/avr32-tools/avr32/include ]; then
+        if [ ! -d $toolsdir/avr32-tools/avr32/avr32/include/avr32 ]; then
             wget -P /tmp/ "lucidsci.com/atmel/avr32-headers-6.2.0.742.zip"
             if [ -f /tmp/avr32-headers-6.2.0.742.zip ]; then
                 echo "Extracting and moving avr32-headers to $toolsdir"
                 unzip -d /tmp/ /tmp/avr32-headers-6.2.0.742.zip
-                mv /tmp/avr32 $toolsdir/avr32-tools/avr32/include
+                mv /tmp/avr32 $toolsdir/avr32-tools/avr32/include/avr32
+            else
+                echo "Failed to extract avr32-headers"
             fi
         else
             echo "avr32 headers already present"
