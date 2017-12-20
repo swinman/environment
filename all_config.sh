@@ -63,6 +63,7 @@ fi
 time ./config_arm.sh
 time ./config_avr.sh
 time ./config_fpga.sh
+time ./config_dev_rules.sh
 update_default_programs;
 #if [ "$add_chromium" = "y" ]; then
 #    config_chromium;
