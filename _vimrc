@@ -721,6 +721,8 @@ map <F4> <Esc>:call ToggleWidth()<CR> colorscheme desert2
 map <F5> <Esc>:call ToggleSpelling()<CR>
 map <F6> <Esc>:call ShowLineExtents()<CR>
 
+map <F7> <Esc>:set guifont=*<CR>
+
 map <F8> <ESC>{v}gq
 
 "map <F8> :!/usr/bin/ctags-exuberant -R <CR>
