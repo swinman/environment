@@ -19,4 +19,4 @@ elif [ -z $(echo $fn | sed -e '/.pdf$/!d') ]; then
 fi
 
 echo "Joining pages in $fn into 2 page per side"
-pdfjam --suffix joined --paper letter --landscape --nup 2x1 $fn
+pdfjam --suffix joined --paper letter --landscape --nup 2x1 "$fn"
