@@ -54,7 +54,7 @@ get_fonts() {
     sudo apt-get install ttf-dejavu -y
     sudo apt-get install ttf-oxygen-font-family -y
     sudo apt-get install texlive-fonts-recommended -y
-    sudo apt-get install texlive-fonts-extra -y
+    #sudo apt-get install texlive-fonts-extra -y    # 670 MB
     sudo apt-get install texlive-font-utils -y
   fi
   sudo fc-cache -fv
