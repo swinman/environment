@@ -37,6 +37,7 @@ alias vidq='vi -c call\ ToggleWidth\(\) -c qa'
 alias ipy='ipython -i --no-banner'
 alias chrom='chromium-browser'
 alias py3='ipython3 -i --no-banner'
+alias py='python -c'
 
 alias pygrep='grep -r --include="*.py" --include="*.pyw"'
 alias vgrep='grep -r --include="*.vhd" --include="*.v" --include="*.inc"'
