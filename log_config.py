@@ -25,19 +25,19 @@ BUFHANDLER = None   # configured during config_log
 BUF_SIZE = 128      # number of records to store
 
 
-def config_log(console_level=logging.DEBUG,
-        console_disp_thread=False, console_disp_level=True,
-        console_disp_line=True, console_disp_file=True,
+def config_log(level=logging.DEBUG,
+        show_thread=False, show_level=True,
+        show_line=True, show_file=True,
         redirect_std=False, mem_handler=False,
         log_suppress_exceptions=False, debug_to_file=False,
         global_log_info_prog_name=None):
     """ configure the log
         kwargs include:
-            console_level ( logging.DEBUG ) : level for console debug ( if not redirect_std )
-            console_disp_thread ( False ) : display thread info on console
-            console_disp_level ( False ) : set false to suppress level display in console
-            console_disp_line ( True ) : set false to suppress line display in console
-            console_disp_file ( False ) : set false to suppress file display in console
+            level ( logging.DEBUG ) : level for console debug ( if not redirect_std )
+            show_thread ( False ) : display thread info on console
+            show_level ( False ) : set false to suppress level display in console
+            show_line ( True ) : set false to suppress line display in console
+            show_file ( False ) : set false to suppress file display in console
             redirect_std (False) : redirect stdin / stdout / stderr to log
             log_suppress_exceptions (False) : log attempts to suppress exceptions
             debug_to_file (False) : also write debug log to a file
@@ -76,13 +76,13 @@ def config_log(console_level=logging.DEBUG,
     logging.captureWarnings(True)     # integrate warnings with logging
     logging.raiseExceptions = not log_suppress_exceptions
 
-    if console_disp_file:
-        console_fmt.insert(0, "%(name)-16s")
-    if console_disp_line:
+    if show_file:
+        console_fmt.insert(0, "%(name)-22s")
+    if show_line:
         console_fmt.insert(0, "%(lineno)4d")
-    if console_disp_thread:
+    if show_thread:
         console_fmt.insert(0, "%(threadName)-10s")
-    if console_disp_level:
+    if show_level:
         console_fmt.insert(0, "%(levelname)-7s")
 
     log_fmt_file = logging.Formatter( " ".join( file_fmt ),
@@ -110,7 +110,7 @@ def config_log(console_level=logging.DEBUG,
     else:
         console = logging.StreamHandler( sys.stderr )
         console.setFormatter( log_fmt_console )
-        console.setLevel( console_level )
+        console.setLevel( level )
         rootLogger.addHandler( console )
 
     if mem_handler:
@@ -257,4 +257,4 @@ if __name__ == "__main__":
         print("FIXME: print log_config kwargs")
 
     if args.configure:
-        config_log(console_level=logging.DEBUG)
+        config_log(level=logging.DEBUG)
