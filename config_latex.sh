@@ -70,7 +70,7 @@ config_adobe() {
     sudo add-apt-repository "deb http://archive.canonical.com/ precise partner"
     sudo apt-get update
     #sudo apt-get install acroread -y
-    sudo apt-get install adobereader-enu
+    sudo apt-get install adobereader-enu -y
     if [ $? -eq 0 ]; then
       cp /opt/Adobe/Reader9/Resource/Font/*.otf ~/.fonts
       #sudo cp /opt/Adobe/Reader9/Resource/Font/*.otf /usr/local/share/fonts
