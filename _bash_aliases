@@ -58,7 +58,10 @@ alias gpu='git push '
 alias glb='git log --graph --oneline'
 alias glop="git log --pretty=format:'%C(yellow)%h|%Cred%ad|%Cblue%an|%Cgreen%d %Creset%s' --date=short | column -ts'|' | less -r"
 function g1c() { git diff $@~ $@ ;}
-
+function gcbb() { git clone git@bitbucket.org:$1/$2 ;}
+function gcgh() { git clone git@github.com:$1/$2 ;}
+function grabb() { git remote add $1 git@bitbucket.org:$1/$2 ;}
+function gragh() { git remote add $1 git@github.com:$1/$2 ;}
 # DFU-Programmer
 alias dfu='dfu-programmer at32uc3b1512'
 alias dflash='dfu flash --suppress-bootloader-mem'
