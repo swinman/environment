@@ -41,6 +41,8 @@ get_python3_packages() {
         sudo -H pip3 install --upgrade plotly
         sudo -H pip3 install --upgrade opencv-python
         sudo -H pip3 install --upgrade argcomplete
+        sudo -H pip3 install --upgrade svg.path
+        sudo -H pip3 install --upgrade sympy
         sudo activate-global-python-argcomplete
     elif [ $OS = windows ]; then
         echo "It's probably easier to type 'gb' over each link from vim"
