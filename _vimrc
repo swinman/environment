@@ -192,6 +192,8 @@ function! GetCChar()
         let CChar = "#"
     elseif &ft == 'udevrules'
         let CChar = '#'
+    elseif &ft == 'ngc'
+        let CChar = '('
     elseif &ft == 'tcl' || &ft == 'samba'
         let CChar = '#'
     elseif &ft == 'c' || &ft == 'cpp'
@@ -215,13 +217,23 @@ function! GetCChar()
     endif
     return CChar
 endfunction
+
+function! GetCEndChar()
+    if &ft == 'ngc'
+        let CEndChar = ')'
+    else
+        let CEndChar = ''
+    endif
+    return CEndChar
+endfunction
 " END: ----------------- GetCChar -------------------------------         2}}}
 
 " ----------------------- Comment -------------------------------         {{{2
 function! Comment()
     let CChar = GetCChar()
+    let CEndChar = GetCEndChar()
     let Line = getline('.')
-    let Newline = CChar . Line
+    let Newline = CChar . Line . CEndChar
     call setline('.', Newline)
     let Lineno = line('.') + 1
     exe Lineno
@@ -614,6 +626,7 @@ autocmd FileType text setlocal formatoptions+=t spell
 autocmd FileType tex setlocal formatoptions+=t spell
 autocmd FileType markdown setlocal formatoptions+=t spell
 autocmd FileType gitcommit setlocal formatoptions+=t spell tw=72
+autocmd FileType ngc setlocal foldmethod=marker
 
 " add SpellGoodWordsStart and SpellGoodWordsEnd to dictionary
 silent spellgood! SpellGoodWordsStart

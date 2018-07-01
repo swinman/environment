@@ -21,7 +21,9 @@ def _get_comment_format():
     try:
         return _commentDict[ft]
     except KeyError:
-        commentformat = vim.eval("GetCChar()")
+        opencomment = vim.eval("GetCChar()")
+        closecomment = vim.eval("GetCEndChar()")
+        commentformat = opencomment, closecomment
         _commentDict[ft] = commentformat
         return commentformat
 
@@ -32,7 +34,7 @@ def foldmarker():
 endglobal
 
 snippet ifold "improved folding" !b
-`!p snip.rv = _get_comment_format()` `!p
+`!p snip.rv = _get_comment_format()[0]` `!p
 try:
     level = int(t[2].split('\n')[0])
 except:
@@ -51,23 +53,27 @@ else:
 #except IndexError:
 #    key = " "
 snip.rv = key*max(0,
-        27 - int(len(t[1])//2) - len(_get_comment_format()) )
+        (27 - int(len(t[1])//2) - len(_get_comment_format()[0])
+	- (1 if len(_get_comment_format()[1]) != 0 else 0)
+	- len(_get_comment_format()[1])))
 ` ${1:Section} `!p
 snip.rv = key*max(0, 35 - int((1 + len(t[1]))//2))
 `         `!p
 snip.rv = foldmarker()[0]
-`${2:1}
+`${2:1}`!p snip.rv = ' ' + _get_comment_format()[1]`
 ${VISUAL:
 }
 `!p
-snip.rv = _get_comment_format()
+snip.rv = _get_comment_format()[0]
 ` END: `!p
 snip.rv = key*max(0,
-        27 - int(len(t[1])//2) - len(_get_comment_format()) - len("END: ") )
+        (27 - int(len(t[1])//2) - len(_get_comment_format()[0]) - len("END: ")
+	- (1 if len(_get_comment_format()[1]) != 0 else 0)
+	- len(_get_comment_format()[1])))
 ` $1 `!p
 snip.rv = key*max(0, 35 - int((1 + len(t[1]))//2))
 `         ${2/(\d+).*/$1/}`!p
-snip.rv = foldmarker()[1]`
+snip.rv = foldmarker()[1] + ' ' + _get_comment_format()[1]`
 endsnippet
 
 snippet uuid_nd "Print a uuid (no dashes)" !b
