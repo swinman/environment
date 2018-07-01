@@ -42,6 +42,7 @@ alias py='python -c'
 alias pygrep='grep -r --include="*.py" --include="*.pyw"'
 alias vgrep='grep -r --include="*.vhd" --include="*.v" --include="*.inc"'
 alias cgrep='grep -r --include="*.[chsCHS]" --include="*.[chsCHS][Pp][pP]"'
+alias ncgrep='grep -r --include="*.nc"'
 
 # Git
 alias gco='git checkout '
