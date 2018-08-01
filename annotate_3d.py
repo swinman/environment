@@ -13,13 +13,13 @@ class Annotation3D(Annotation):
     """ Annotate the point xyz with text s """
 
     def __init__(self, s, xyz, *args, **kwargs):
-        Annotation.__init__(self,s, xy=(0,0), *args, **kwargs)
+        super().__init__(s, xy=(0, 0), *args, **kwargs)
         self._verts3d = xyz
 
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs = proj_transform(xs3d, ys3d, zs3d, renderer.M)
-        self.xy=(xs,ys)
+        self.xy = (xs, ys)
         Annotation.draw(self, renderer)
 
 
