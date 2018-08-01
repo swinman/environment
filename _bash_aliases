@@ -65,4 +65,12 @@ alias dflash='dfu flash --suppress-bootloader-mem'
 alias derase='dfu erase'
 alias dreset='dfu reset'
 
+# Recording the desktop
+SCREENWIDTH=$(xdpyinfo | grep -oP 'dimensions:\s+\K[0-9]*')
+SCREENHEIGHT=$(xdpyinfo | grep -oP 'dimensions:\s+[0-9]*x\K[0-9]*\S+')
+alias grabscreen='recordmydesktop --no-sound --fps=15 --delay=1 '
+alias grabscreen1='recordmydesktop --no-sound --fps=15 --delay=1 --width=$(($SCREENWIDTH/2))'
+alias grabscreen2='recordmydesktop --no-sound --fps=15 --delay=1 --x=$(($SCREENWIDTH/2))'
+alias video='xdg-open '
+
 # vim:ft=sh
