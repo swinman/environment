@@ -207,7 +207,7 @@ function! GetCChar()
     elseif &ft == 'tex' || &ft == 'bib'
         let CChar = '%'
     elseif &ft == 'markdown'
-        let CChar = '#'
+        let CChar = '[//]: # ('
     elseif &ft == 'inform'
         let CChar = ';'
     elseif &ft == 'vhdl'
@@ -220,6 +220,8 @@ endfunction
 
 function! GetCEndChar()
     if &ft == 'ngc'
+        let CEndChar = ')'
+    elseif &ft == 'markdown'
         let CEndChar = ')'
     else
         let CEndChar = ''
@@ -625,6 +627,7 @@ endif
 autocmd FileType text setlocal formatoptions+=t spell
 autocmd FileType tex setlocal formatoptions+=t spell
 autocmd FileType markdown setlocal formatoptions+=t spell
+autocmd FileType markdown setlocal foldmethod=marker
 autocmd FileType gitcommit setlocal formatoptions+=t spell tw=72
 autocmd FileType ngc setlocal foldmethod=marker
 
