@@ -20,6 +20,7 @@ config_vim() {
         text="source $softwaredir/environment/_vimrc"
         target=~/.vimrc
     fi
+    mkdir -p ~/.tmp
     echo "Checking if $target has \"$text\""
     # change \ to . for grep to avoid matching the slash
     text2=$(echo "$text" | sed 's|\\|.|g')

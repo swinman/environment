@@ -13,7 +13,10 @@ import sys
 import logging
 from logging import handlers
 
-from drift import __version__
+try:
+    from drift import __version__
+except ImportError:
+    __version__ = -1
 
 log = logging.getLogger(__name__)
 
