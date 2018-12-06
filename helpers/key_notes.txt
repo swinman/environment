@@ -1,0 +1,37 @@
+https://help.ubuntu.com/community/LaptopSpecialKeys
+https://help.ubuntu.com/community/MultimediaKeys
+
+check acer wmi --- may have additional buttons
+
+Acer Laptop ACPI-WMI Extras  (in dmesg)
+
+on other acer, key sig when using acpi_listen is
+ PNP0C14:00 000000bc 00000000
+
+but brightness commands work:
+video/brightnessup BRTUP 00000086
+ PNP0C14:00 000000bc 00000000
+ PNP0C14:00 000000bc 00000000
+ PNP0C14:00 000000bc 00000000
+
+video/brightnessdown BRTDN 00000087
+ PNP0C14:00 000000bc 00000000
+ PNP0C14:00 000000bc 00000000
+ PNP0C14:00 000000bc 00000000
+
+don't want this one (wlan)
+button/wlan WLAN 00000080 00000000 K
+
+tdmesg to dmesg
+
+
+unknown key pressed code 08a
+
+check keys
+xmodmap -pke | less
+
+keycode 199 XF86TouchpadToggle NoSymbol XF86TouchpadToggle
+
+http://www.jveweb.net/en/archives/2011/01/configure-unrecognized-keys-in-linux.html
+
+use 'setkeycodes e00a <keycode>' to make it known
