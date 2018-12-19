@@ -125,7 +125,7 @@ def config_log(level=logging.DEBUG,
 
     if global_log_info_prog_name is not None:
         global_log_dir = os.path.expanduser(os.path.join('~', ".logfiles" ))
-        if not os.path.exists( global_log_dir ):
+        if not os.path.exists(global_log_dir):
             os.makedirs(global_log_dir)
         global_log_name = os.path.join(global_log_dir, global_log_info_prog_name + ".log")
 
