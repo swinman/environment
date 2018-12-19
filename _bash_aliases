@@ -15,6 +15,7 @@ export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi?(q)?( ):gvim:ipy:history?(
 alias cd..='cd ..'
 
 alias tdmesg='tail -n 0 -f /var/log/syslog'
+alias math="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases/math.sh/')"
 
 alias LS='echo "Remove CAPS LOCK you ass"'
 #tdmesg='tail -f /var/log/{messages,kernel,dmesg,syslog}'
