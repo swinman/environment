@@ -20,27 +20,6 @@ get_packages() {
     sudo apt-get install gtkterm -y
 }
 
-config_rules() {
-    echo "Config avr/arm device plugdev rules"
-    echo "Adding device usb ids to plugdev rules"
-    sudo cp $softwaredir/environment/99-uCtools.rules /etc/udev/rules.d/
-    echo "Ensuring correct permissions are set"
-    for GROUP in plugdev dialout; do
-        if [ -z $(grep $GROUP /etc/group)  ]; then
-            echo "Adding the group $GROUP"
-            sudo groupadd $GROUP
-        fi
-        if [ -z $(grep $GROUP /etc/group | grep $USER) ]; then
-            echo "Adding $USER to $GROUP"
-            sudo usermod -a -G $GROUP $USER
-        fi
-    done
-    sudo udevadm control --reload-rules
-    sudo udevadm trigger
-    echo "If user does not appear below, add user to plugdev group"
-    less /etc/group | grep plugdev
-}
-
 install_tools() {
     DFLD=~/Downloads
     echo
@@ -229,7 +208,6 @@ config_dfu() {
 echo "==================== config_avr_arm.sh ====================="
 if [ "$OS" = "linux" ]; then
     get_packages;
-    config_rules;
 fi
 
 config_avr;
