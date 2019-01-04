@@ -72,8 +72,15 @@ alias derase='dfu erase'
 alias dreset='dfu reset'
 
 # Recording the desktop
-SCREENWIDTH=$(xdpyinfo | grep -oP 'dimensions:\s+\K[0-9]*')
-SCREENHEIGHT=$(xdpyinfo | grep -oP 'dimensions:\s+[0-9]*x\K[0-9]*\S+')
+HAS_XDPY=1
+xdpyinfo -v >/dev/null 2>&1 || HAS_XDPY=0
+if [ $HAS_XDPY -eq 1 ]; then
+    SCREENWIDTH=$(xdpyinfo | grep -oP 'dimensions:\s+\K[0-9]*')
+    SCREENHEIGHT=$(xdpyinfo | grep -oP 'dimensions:\s+[0-9]*x\K[0-9]*\S+')
+else
+    SCREENWIDTH=0
+    SCREENHEIGHT=0
+fi
 alias grabscreen='recordmydesktop --no-sound --fps=15 --delay=1 '
 alias grabscreen1='recordmydesktop --no-sound --fps=15 --delay=1 --width=$(($SCREENWIDTH/2))'
 alias grabscreen2='recordmydesktop --no-sound --fps=15 --delay=1 --x=$(($SCREENWIDTH/2))'
