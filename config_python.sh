@@ -38,7 +38,6 @@ get_python3_packages() {
         sudo -H pip3 install --upgrade plotly
         sudo -H pip3 install --upgrade matplotlib
         sudo -H pip3 install --upgrade pyusb
-        sudo -H pip3 install --upgrade plotly
         sudo -H pip3 install --upgrade opencv-python
         sudo -H pip3 install --upgrade argcomplete
         sudo -H pip3 install --upgrade svg.path
