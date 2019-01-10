@@ -35,6 +35,7 @@ get_python3_packages() {
         sudo -H pip3 install --upgrade pyfirmata
         sudo -H pip3 install --upgrade simplegeneric
         sudo -H pip3 install --upgrade pandas
+        sudo -H pip3 install --upgrade tables
         sudo -H pip3 install --upgrade plotly
         sudo -H pip3 install --upgrade matplotlib
         sudo -H pip3 install --upgrade pyusb
