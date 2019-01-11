@@ -13,10 +13,10 @@ import random
 import logging
 log = logging.getLogger(__name__)
 
-DEFAULT_SAURATION = 72 / 100
+DEFAULT_SAURATION = 75 / 100
 DEFAULT_VALUE = 100 / 100
-DEFAULT_DHUE = 16 / 360
-DEFAULT_NUM_COLORS = int(1 / DEFAULT_DHUE) + 2
+DEFAULT_DHUE = 4 / 100
+DEFAULT_NUM_COLORS = int(1 / DEFAULT_DHUE) + 1
 DEFAULT_NUM_SWATCHES = 20
 
 def _rgb_to_text(r, g, b, uint8=False):
@@ -29,8 +29,8 @@ def _rgb_to_text(r, g, b, uint8=False):
 def make_swatch(hue_seed=None, dhue=DEFAULT_DHUE, num_colors=DEFAULT_NUM_COLORS,
         saturation=DEFAULT_SAURATION, value=DEFAULT_VALUE):
     """ make an array of colors with constant saturation and value
-            hue_seed [0, 360) - seed for hue value
-            hue_step [0, 360) - step for next hue
+            hue_seed [0, 100) - seed for hue value
+            hue_step [0, 100) - step for next hue
             num_colors - number of colors in the array
             saturation [0, 100] - satuartion for all colors
             value [0, 100] - value for all colors
@@ -39,9 +39,9 @@ def make_swatch(hue_seed=None, dhue=DEFAULT_DHUE, num_colors=DEFAULT_NUM_COLORS,
     """
     if hue_seed is None:
         hue_seed = random.random()
-        log.info("Random hue seed is {:.0f}".format(hue_seed * 360))
+        log.info("Random hue seed is {:.0f}".format(hue_seed * 100))
     else:
-        hue_seed = (hue_seed / 360) % 1.0
+        hue_seed = (hue_seed / 100) % 1.0
 
     def make_rgb(hue):
         rgb = colorsys.hsv_to_rgb(hue % 1.0, saturation, value)
@@ -53,6 +53,7 @@ def make_swatch(hue_seed=None, dhue=DEFAULT_DHUE, num_colors=DEFAULT_NUM_COLORS,
     swatch = [make_rgb(hue_seed + dhue * i) for i in range(num_colors)]
 
     log.info("Swatch is [{}]".format(", ".join(_rgb_to_text(*rgb, uint8=True) for rgb in swatch)))
+    log.info("Swatch has {} colors".format(len(swatch)))
     return swatch
 
 
@@ -67,10 +68,10 @@ if __name__ == "__main__":
     def _make_parser():
         parser = argparse.ArgumentParser(description="Gradient Picker")
         parser.add_argument('-u', '--hue-seed', type=int, default=None,
-                help='Hue seed [0, 360)')
+                help='Hue seed [0, 100)')
 
-        parser.add_argument('-d', '--hue-step', type=int, default=16,
-                help='Hue step, out of 360')
+        parser.add_argument('-d', '--hue-step', type=int, default=DEFAULT_DHUE*100,
+                help='Hue step, out of 100')
 
         parser.add_argument('-n', '--number-colors', type=int, default=DEFAULT_NUM_COLORS,
                 help='Number of colors in the swatch')
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     parser = _make_parser()
     args = parser.parse_args()
 
-    array = [make_swatch(args.hue_seed, dhue=args.hue_step/360,
+    array = [make_swatch(args.hue_seed, dhue=args.hue_step/100,
         num_colors=args.number_colors, saturation=args.saturation/100,
         value=args.value/100) for j in range(args.number_swatches if args.hue_seed is None else 1)]
     io.imshow(np.array(array, dtype=np.uint8))
