@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 DEFAULT_SAURATION = 75 / 100
 DEFAULT_VALUE = 100 / 100
 DEFAULT_DHUE = 5 / 100
-DEFAULT_NUM_COLORS = int(1 / DEFAULT_DHUE) + 1
 DEFAULT_NUM_SWATCHES = 20
 
 def _rgb_to_text(r, g, b, uint8=False):
@@ -26,7 +25,6 @@ def _rgb_to_text(r, g, b, uint8=False):
         rgb = [int(0xff * c) % 0x100 for c in rgb]
     txt = '#{:02X}{:02X}{:02X}'.format(*rgb)
     return txt
-
 
 def make_rgb_from_hsv(hue, saturation, value):
     rgb = colorsys.hsv_to_rgb(hue % 1.0, saturation, value)
@@ -60,7 +58,7 @@ def make_rgb_sin(hue, saturation, value):
 
 # TODO : add ramp function
 
-def make_swatch(make_color_fcn, hue_seed=None, dhue=DEFAULT_DHUE, num_colors=DEFAULT_NUM_COLORS,
+def make_swatch(make_color_fcn, hue_seed=None, dhue=DEFAULT_DHUE, num_colors=6,
         saturation=DEFAULT_SAURATION, value=DEFAULT_VALUE):
     """ make an array of colors with constant saturation and value
         uses 3 sinusoids offset by 1/3 to maintain a constant sum
@@ -103,7 +101,7 @@ if __name__ == "__main__":
         parser.add_argument('-d', '--hue-step', type=int, default=DEFAULT_DHUE*100,
                 help='Hue step, out of 100')
 
-        parser.add_argument('-n', '--number-colors', type=int, default=DEFAULT_NUM_COLORS,
+        parser.add_argument('-n', '--number-colors', type=int, default=None,
                 help='Number of colors in the swatch')
         parser.add_argument('-q', '--number-swatches', type=int, default=DEFAULT_NUM_SWATCHES,
                 help='Number of swatches to display')
@@ -118,16 +116,25 @@ if __name__ == "__main__":
 
         return parser
 
+
     parser = _make_parser()
     args = parser.parse_args()
+
+    if args.number_colors is None:
+        num_colors = int(100 / args.hue_step) + 1
+        log.info("Setting number of colors to {}, full spectrum".format(num_colors))
+    else:
+        num_colors = args.number_colors
 
     if args.use_rgb:
         fcn = make_rgb_sin
     else:
         fcn = make_rgb_from_hsv
+
+    N = args.number_swatches if args.hue_seed is None else 1
     array = [make_swatch(fcn, args.hue_seed, dhue=args.hue_step/100,
-        num_colors=args.number_colors, saturation=args.saturation/100,
-        value=args.value/100) for j in range(args.number_swatches if args.hue_seed is None else 1)]
+        num_colors=num_colors, saturation=args.saturation/100,
+        value=args.value/100) for j in range(N)]
     if len(array) == 1:
         plt.subplot(211)
         colors = ['.-r', '.-g', '.-b']
