@@ -11,7 +11,9 @@ get_python3_packages() {
     if [ "$OS" = "linux" ]; then
         # python 3 versions
         sudo apt-get install python3 -y
-        sudo apt-get install python3-pip -y
+
+        #sudo apt-get install python3-pip -y
+        # TODO check if ubuntu > specific version where pip not necessary
         sudo apt-get install python3-tk -y
 
         # needed to buil qrc
