@@ -84,11 +84,50 @@ def make_swatch(make_color_fcn, hue_seed=None, dhue=DEFAULT_DHUE, num_colors=6,
     return swatch
 
 
+# color picker from stopsen testing scripts
+def get_color(**kwargs):
+    """ return a color (possibly translated from a number)
+        translate color based on multiple options
+        freq|trial|rep
+    """
+    fmin = kwargs.pop('fmin', 400)
+    fmax = kwargs.pop('fmin', 3000)
+    tcmax = kwargs.pop('tcmax', 32)
+    tcmin = kwargs.pop('tcmin', 2)
+    dmin = kwargs.pop('dmin', 0)
+    dmax = kwargs.pop('dmax', 600)
+    vmin = kwargs.pop('vmin', 0)
+    vmax = kwargs.pop('vmax', 9)
+    color_num = random.randint(0, 255)
+    if 'color_num' in kwargs:
+        color_num = kwargs.pop('color_num')
+    elif 'freq' in kwargs and 'tc' in kwargs:
+        f = int(255*(kwargs.pop('freq')-fmin)/(fmax-fmin))
+        tc = int(255*(math.log(kwargs.pop('tc'))-math.log(tcmin))/(math.log(tcmax)-math.log(tcmin)))
+        return "#{:02X}{:02X}{:02X}".format(f, 0xff-(f+tc)//2, tc)
+    elif 'tc' in kwargs:
+        tc = int(255*(math.log(kwargs.pop('tc'))-math.log(tcmin))/(math.log(tcmax)-math.log(tcmin)))
+        return "#{:02X}{:02X}{:02X}".format(tc, 0, 0xff-tc)
+    elif 'freq' in kwargs:
+        f = int(255*(kwargs.pop('freq')-fmin)/(fmax-fmin))
+        return "#{:02X}{:02X}{:02X}".format(f, 0, 0xff-f)
+    elif 'dist' in kwargs and 'vac' in kwargs:
+        d = int(255*(kwargs.pop('dist')-dmin)/(dmax-dmin))
+        v = int(255*(kwargs.pop('vac')-vmin)/(vmax-vmin))
+
+        return "#{:02X}{:02X}{:02X}".format(d, 0xff-(d+v)//2, v)
+    elif 'rep' in kwargs:
+        scale = 255 / 8
+        color_num = int(scale * (kwargs.pop('rep')-1))
+    return "#{:02X}{:02X}{:02X}".format(color_num, 0, 0xff-color_num)
 
 if __name__ == "__main__":
     import argparse
     import matplotlib.pyplot as plt
-    from skimage import io
+    try:
+        from skimage import io
+    except ImportError:
+        io = None
     import numpy as np
 
     logging.basicConfig(level=logging.DEBUG)
@@ -142,5 +181,6 @@ if __name__ == "__main__":
         for i in range(3):
             plt.plot(ndx, [c[i] for c in array[0]], colors[i])
         plt.subplot(212)
-    io.imshow(np.array(array, dtype=np.uint8))
-    plt.show()
+    if io is not None:
+        io.imshow(np.array(array, dtype=np.uint8))
+        plt.show()
