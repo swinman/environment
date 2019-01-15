@@ -86,9 +86,8 @@ alias grabscreen1='recordmydesktop --no-sound --fps=15 --delay=1 --width=$(($SCR
 alias grabscreen2='recordmydesktop --no-sound --fps=15 --delay=1 --x=$(($SCREENWIDTH/2))'
 alias video='xdg-open '
 
-
-if [ -z "$DISPLAY" ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
+if [ -n $DISPLAY ]; then
+    PS1=$(echo "$PS1" | sed 's/32m/31m/')
+fi
 
 # vim:ft=sh
