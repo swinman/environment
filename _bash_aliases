@@ -86,7 +86,7 @@ alias grabscreen1='recordmydesktop --no-sound --fps=15 --delay=1 --width=$(($SCR
 alias grabscreen2='recordmydesktop --no-sound --fps=15 --delay=1 --x=$(($SCREENWIDTH/2))'
 alias video='xdg-open '
 
-if [ -n $DISPLAY ]; then
+if [ -z $DISPLAY ]; then
     PS1=$(echo "$PS1" | sed 's/32m/31m/')
 fi
 
