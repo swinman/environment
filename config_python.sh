@@ -12,40 +12,44 @@ get_python3_packages() {
         # python 3 versions
         sudo apt-get install python3 -y
 
-        #sudo apt-get install python3-pip -y
         # TODO check if ubuntu > specific version where pip not necessary
         sudo apt-get install python3-tk -y
 
         # needed to buil qrc
         sudo apt-get install libfreetype6-dev -y        # matplotlib
         sudo apt-get install libpng3 -y                 # matplotlib
+
+        if [ -z "$( pip3 --version 2> /dev/null )" ]; then
+            sudo apt-get install python3-pip -y
+        fi
         sudo -H pip3 install --upgrade pip
-        sudo -H pip3 install --upgrade pyqt5
-        #sudo apt-get install cx-freeze -y
-        #sudo apt-get install python3-pyqt5 -y
-        #sudo apt-get install python3-pyqt5.qtsvg -y
-        sudo -H pip3 install --upgrade pyparsing
-        sudo -H pip3 install --upgrade numpy
-        sudo -H pip3 install --upgrade scipy
-        sudo -H pip3 install --upgrade pyserial
-        sudo -H pip3 install --upgrade pyusb
-        sudo -H pip3 install --upgrade psutil
-        sudo -H pip3 install --upgrade urllib3
-        sudo -H pip3 install --upgrade jsonpickle
-        sudo -H pip3 install --upgrade qtconsole
-        sudo -H pip3 install --upgrade ipython
-        sudo -H pip3 install --upgrade pyfirmata
-        sudo -H pip3 install --upgrade simplegeneric
-        sudo -H pip3 install --upgrade pandas
-        sudo -H pip3 install --upgrade tables
-        sudo -H pip3 install --upgrade plotly
-        sudo -H pip3 install --upgrade matplotlib
-        sudo -H pip3 install --upgrade pyusb
-        sudo -H pip3 install --upgrade opencv-python
-        sudo -H pip3 install --upgrade argcomplete
-        sudo -H pip3 install --upgrade svg.path
-        sudo -H pip3 install --upgrade sympy
-        sudo activate-global-python-argcomplete
+        sudo apt-get remove python3-pip -y
+        sudo apt-get autoremove -y
+
+        pip3 install --upgrade --user argcomplete
+        pip3 install --upgrade --user cxfreeze
+        pip3 install --upgrade --user ipython
+        pip3 install --upgrade --user jsonpickle
+        pip3 install --upgrade --user matplotlib
+        pip3 install --upgrade --user numpy
+        pip3 install --upgrade --user opencv-python
+        pip3 install --upgrade --user pandas
+        pip3 install --upgrade --user plotly
+        pip3 install --upgrade --user psutil
+        pip3 install --upgrade --user pyfirmata
+        pip3 install --upgrade --user pyparsing
+        pip3 install --upgrade --user pyqt5
+        pip3 install --upgrade --user pyserial
+        pip3 install --upgrade --user pyusb
+        pip3 install --upgrade --user qtconsole
+        pip3 install --upgrade --user scipy
+        pip3 install --upgrade --user simplegeneric
+        pip3 install --upgrade --user svg.path
+        pip3 install --upgrade --user sympy
+        pip3 install --upgrade --user tables
+        pip3 install --upgrade --user urllib3
+
+        activate-global-python-argcomplete --user
     elif [ $OS = windows ]; then
         echo "It's probably easier to type 'gb' over each link from vim"
         echo "Install the 32 bit versions unless NumPy works for 64bit"
