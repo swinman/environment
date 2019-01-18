@@ -30,6 +30,7 @@ get_python3_packages() {
         pip3 install --upgrade --user cxfreeze
         pip3 install --upgrade --user ipython
         pip3 install --upgrade --user jsonpickle
+        pip3 install --upgrade --user jupyter
         pip3 install --upgrade --user matplotlib
         pip3 install --upgrade --user numpy
         pip3 install --upgrade --user opencv-python
@@ -44,6 +45,7 @@ get_python3_packages() {
         pip3 install --upgrade --user qtconsole
         pip3 install --upgrade --user scipy
         pip3 install --upgrade --user simplegeneric
+        pip3 install --upgrade --user snakeviz
         pip3 install --upgrade --user svg.path
         pip3 install --upgrade --user sympy
         pip3 install --upgrade --user tables
