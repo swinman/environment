@@ -91,7 +91,7 @@ def get_color(**kwargs):
         freq|trial|rep
     """
     fmin = kwargs.pop('fmin', 400)
-    fmax = kwargs.pop('fmin', 3000)
+    fmax = kwargs.pop('fmax', 3000)
     tcmax = kwargs.pop('tcmax', 32)
     tcmin = kwargs.pop('tcmin', 2)
     dmin = kwargs.pop('dmin', 0)
@@ -114,7 +114,6 @@ def get_color(**kwargs):
     elif 'dist' in kwargs and 'vac' in kwargs:
         d = int(255*(kwargs.pop('dist')-dmin)/(dmax-dmin))
         v = int(255*(kwargs.pop('vac')-vmin)/(vmax-vmin))
-
         return "#{:02X}{:02X}{:02X}".format(d, 0xff-(d+v)//2, v)
     elif 'rep' in kwargs:
         scale = 255 / 8
