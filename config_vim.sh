@@ -1,5 +1,4 @@
-#!/bin/sh
-
+g
 get_vim_packages() {
     if [ "${OS}" = "linux" ]; then
         echo "Getting required vim packages"
@@ -29,6 +28,7 @@ config_vim() {
         echo "adding \"$text\" to $target"
         echo "$text" >> $target
     fi
+
 }
 
 get_vim_addons() {
@@ -51,6 +51,11 @@ get_vim_addons() {
     if ! [ -e $VIMDIR/autoload/pathogen.vim ]; then
         curl -LSso $VIMDIR/autoload/pathogen.vim \
             https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+    fi
+
+    #undo directory for persistent undo history
+    if ! [ -d $VIMDIR/undo ]; then
+        mkdir -p $VIMDIR/undo
     fi
 
     # set windows driver vim filetype to dosini

@@ -66,7 +66,10 @@ filetype plugin indent on
 
 " commands to put backup files (ending in ~) in tmp directory 
 set swapfile
-set backupdir=~/.tmp
+set backupdir=/tmp
+
+set undofile
+set undodir=~/.vim/undo
 
 " ====================== FUNCTIONS ==============================         {{{1
 " -------------------- win32 MyDiff -----------------------------         {{{2
