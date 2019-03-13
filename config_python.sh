@@ -23,6 +23,7 @@ get_python3_packages() {
             sudo apt-get install python3-pip -y
         fi
         sudo -H pip3 install --upgrade pip
+        #sudo -H pip3 install --upgrade Cython
         sudo apt-get remove python3-pip -y
         sudo apt-get autoremove -y
 
@@ -50,6 +51,9 @@ get_python3_packages() {
         pip3 install --upgrade --user sympy
         pip3 install --upgrade --user tables
         pip3 install --upgrade --user urllib3
+        pip3 install --upgrade --user scikit-image
+        pip3 install --upgrade --user scikit-umfpack
+
 
         activate-global-python-argcomplete --user
     elif [ $OS = windows ]; then

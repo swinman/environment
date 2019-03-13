@@ -79,6 +79,7 @@ def config_log(level=logging.DEBUG,
     logging.captureWarnings(True)     # integrate warnings with logging
     logging.raiseExceptions = not log_suppress_exceptions
 
+
     if show_file:
         console_fmt.insert(0, "%(name)-22s")
     if show_line:
@@ -96,6 +97,7 @@ def config_log(level=logging.DEBUG,
 
     rootLogger = logging.getLogger()
     rootLogger.setLevel( logging.DEBUG )
+    logging.getLogger('parso').setLevel(logging.INFO)   # prevent terminal glut
 
     if debug_to_file:
         debugfile = logging.FileHandler( "DEBUG.log", mode='w' )
