@@ -142,6 +142,8 @@ ATTRS{idProduct}=="2fe4", MODE="0660", GROUP="plugdev"
 # FPGA ICE CUBE
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0403",
 ATTRS{idProduct}=="6010", MODE="0660", GROUP="plugdev",
+RUN += "/bin/sh -c 'basename %p:1.0 > /sys/bus/usb/drivers/ftdi_sio/unbind'"
+
 #RUN+="/sbin/rmmod ftdi_sio vendor=0x0403 product=0x2404"
 #ENV{ID_MM_DEVICE_IGNORE}="1"
 
