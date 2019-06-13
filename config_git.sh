@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # to run this dd below line (minus #) into "r, then use @r
 #! chmod 755 %; %

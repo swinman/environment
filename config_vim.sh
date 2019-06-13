@@ -1,4 +1,5 @@
-g
+#!/bin/bash
+
 get_vim_packages() {
     if [ "${OS}" = "linux" ]; then
         echo "Getting required vim packages"
@@ -40,7 +41,7 @@ get_vim_addons() {
         VIMDIR=~/.vim
     fi
     VBUND=$VIMDIR/bundle
-    GHURL=git://github.com
+    GHURL=https://github.com
 
     if ! [ -d $VIMDIR/autoload ]; then
         mkdir -p $VIMDIR/autoload
