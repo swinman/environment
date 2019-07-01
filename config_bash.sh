@@ -116,8 +116,6 @@ add_bash_alias() {
     echo "export softwaredir=\"$SOFTWAREDIR\"" >> $BRC
     echo "export toolsdir=\"$TOOLSDIR\"" >> $BRC
     echo "export PYTHONPATH=\"\$PYTHONPATH:$SOFTWAREDIR\"" >> $BRC
-    echo "export PYTHONPATH=\"\$PYTHONPATH:$SOFTWAREDIR/libs\"" >> $BRC
-    echo "export PYTHONPATH=\"\$PYTHONPATH:$SOFTWAREDIR/pyusb\"" >> $BRC
     echo "export PYTHONPATH=\"\$PYTHONPATH:$SOFTWAREDIR/lucid\"" >> $BRC
     echo "" >> $BRC
     echo "Sourcing aliases from $aliases"
