@@ -103,7 +103,7 @@ get_adobe_open_fonts () {
 echo "==================== config_latex.sh ==================="
 config_latex;
 config_drawing;
-get_fonts;
+#get_fonts;
 echo "=============== END: config_latex.sh ==================="
 
 # vim: shiftwidth=2
