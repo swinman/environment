@@ -3,7 +3,7 @@
 
 # Editors & Project Files #
 ###########################
-\.*.sw[lmnopkw]
+\.*.sw[a-z]
 *.taghl
 *.json
 
