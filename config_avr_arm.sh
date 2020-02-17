@@ -9,7 +9,6 @@
 get_packages() {
     sudo apt-get install libusb-0.1-4:i386 -y
     # sudo apt-get install lpc21isp -y
-    sudo apt-get install gtkterm -y
     sudo apt-get install unp -y
     sudo apt-get install libtool -y
     sudo apt-get install autoconf -y
@@ -17,6 +16,8 @@ get_packages() {
     sudo apt-get install texinfo -y
     sudo apt-get install libhidapi-dev -y
     sudo apt-get install libusb-1.0-0-dev -y
+    sudo apt-get install libc6 -y
+    sudo apt-get install libncurses5 -y
     sudo apt-get install gtkterm -y
 }
 
@@ -71,6 +72,29 @@ get_avr_tools() {
 }
 
 get_gcc_arm() {
+    if [ "$OS" = "linux" ]; then
+        if [ ! -d $toolsdir/arm-none-eabi ]; then
+            wget -P $toolsdir "https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en603996"
+            if [ -f $toolsdir/arm-gnu-toolchain-*-linux.any.x86_64.tar.gz ]; then
+                echo "Extracting and moving arm binaries to $toolsdir"
+                unp $toolsdir/arm-gnu-toolchain-*.x86_64.tar.gz
+                mv /tmp/arm-none-eabi $toolsdir
+            fi
+        else
+            echo "arm-none-eabi tools already present"
+        fi
+        if [ -d $toolsdir/arm-none-eabi ]; then
+            FOLDERNAME=arm-none-eabi/bin
+            if [ "$(grep $FOLDERNAME ~/.pam_environment)" = "" ]; then
+                echo "adding $toolsdir/$FOLDERNAME to path"
+                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$FOLDERNAME \
+                    >> ~/.pam_environment
+            fi
+        fi
+    fi
+}
+
+get_gcc_arm_OLD() {
     if [ "$OS" = "linux" ]; then
         if [ "$(ls /etc/apt/sources.list.d/ | grep "gcc-arm-embedded")" = "" ]; then
             if [ "$(lsb_release -r | sed "s/.*\s\+\(.*\)/\1/")" = "14.04" ]; then
@@ -210,10 +234,11 @@ if [ "$OS" = "linux" ]; then
     get_packages;
 fi
 
-config_avr;
+get_gcc_arm;
+
+#config_avr;
 
 #install_tools;
-#get_gcc_arm;
 #get_avr_tools
 #config_avr;
 
