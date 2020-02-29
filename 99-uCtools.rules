@@ -37,6 +37,9 @@ SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="1dfd",\
 ATTRS{idProduct}=="0001", MODE="0660", GROUP="plugdev",\
 ENV{ID_MM_DEVICE_IGNORE}="1"
 #RUN+="/sbin/modprobe usbserial vendor=0x0483 product=0x5740"
+#  -- this isn't working anymore, below link does work
+#  change /lib/systemd/system/ModemManager.service file
+# https://askubuntu.com/questions/399263/udev-rules-seem-ignored-can-not-prevent-modem-manager-from-grabbing-device
 
 ############## PROGRAMMERS #######################
 # ICE50:

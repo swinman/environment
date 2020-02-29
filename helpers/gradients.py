@@ -109,7 +109,9 @@ def get_color(**kwargs):
         tc = int(255*(math.log(kwargs.pop('tc'))-math.log(tcmin))/(math.log(tcmax)-math.log(tcmin)))
         return "#{:02X}{:02X}{:02X}".format(tc, 0, 0xff-tc)
     elif 'freq' in kwargs:
-        f = int(255*(kwargs.pop('freq')-fmin)/(fmax-fmin))
+        freq = kwargs.pop('freq')
+        log.info("Freq {} fmin {} fmax {}".format(freq, fmin, fmax))
+        f = int(255*(freq-fmin)/(fmax-fmin))
         return "#{:02X}{:02X}{:02X}".format(f, 0, 0xff-f)
     elif 'dist' in kwargs and 'vac' in kwargs:
         d = int(255*(kwargs.pop('dist')-dmin)/(dmax-dmin))

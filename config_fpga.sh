@@ -70,7 +70,7 @@ install_packages() {
             sudo apt-get install cpio -y
             sudo apt-get install libelf1:i386 -y
         # quartus related
-            sudo apt-get install libxft2:i386 -y
+            sudo apt-get install build-essential
     fi
 }
 
