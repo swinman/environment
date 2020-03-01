@@ -43,12 +43,12 @@ get_python3_packages() {
         pip3 install --upgrade --user setuptools
         pip3 install --upgrade --user pyfirmata
         pip3 install --upgrade --user pyparsing
-        pip3 install --upgrade --user pyqt5
+        pip3 install --user pyqt5==5.9.2
+#        pip3 install --upgrade --user sip  # installs with pyqt5
         pip3 install --upgrade --user pyserial
         pip3 install --upgrade --user pyusb
         pip3 install --upgrade --user qtconsole
         pip3 install --upgrade --user scipy
-        pip3 install --upgrade --user sip
         pip3 install --upgrade --user pytimeparse
         pip3 install --upgrade --user simplegeneric
         pip3 install --upgrade --user snakeviz
