@@ -12,6 +12,7 @@ get_python3_packages() {
         # python 3 versions
         sudo apt-get install python3 -y
         sudo apt-get install python3-dev -y
+        sudo apt-get install python3-testresources -y
 
         # TODO check if ubuntu > specific version where pip not necessary
         sudo apt-get install python3-tk -y
@@ -39,6 +40,7 @@ get_python3_packages() {
         pip3 install --upgrade --user pandas
         pip3 install --upgrade --user plotly
         pip3 install --upgrade --user psutil
+        pip3 install --upgrade --user setuptools
         pip3 install --upgrade --user pyfirmata
         pip3 install --upgrade --user pyparsing
         pip3 install --upgrade --user pyqt5
@@ -46,6 +48,8 @@ get_python3_packages() {
         pip3 install --upgrade --user pyusb
         pip3 install --upgrade --user qtconsole
         pip3 install --upgrade --user scipy
+        pip3 install --upgrade --user sip
+        pip3 install --upgrade --user pytimeparse
         pip3 install --upgrade --user simplegeneric
         pip3 install --upgrade --user snakeviz
         pip3 install --upgrade --user svg.path

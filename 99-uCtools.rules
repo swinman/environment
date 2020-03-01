@@ -4,6 +4,10 @@
 #   sudo udevadm control --reload-rules
 #   sudo udevadm trigger
 #
+# useful for debugging:
+#   ls -l /dev/bus/usb/001/010  to check permissions
+#   udevadm test $(udevadm info -q path -n /dev/bus/usb/001/010)
+#
 ############## CDC ACM DEVICES ###################
 # Atmel CDC device product ID (for at32uc3b at least)
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb", \
@@ -16,6 +20,11 @@ SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb", \
 ATTRS{idProduct}=="2425", MODE="0660", GROUP="plugdev", \
 ENV{ID_MM_DEVICE_IGNORE}="1"
 #RUN+="/sbin/modprobe usbserial vendor=0x03eb product=0x2425"
+
+# ##### NOTE : DEVTYPE had to change to usb_device for at least one machine
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="03eb", \
+ATTRS{idProduct}=="2425", MODE="0660", GROUP="plugdev", \
+ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # Atmel CDC device product ID for EDBG
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb", \
