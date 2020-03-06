@@ -36,7 +36,9 @@ def b32(number, chr_len=None):
                 char = str(2 + digit - 26)
         else:
             raise NotImplementedError("no conversions for other basese")
-        rstr = char + rstr
+        rstr = rstr + char
+        if i in (7, 19):
+            rstr = rstr + '-'
     if number != 0:
         raise RuntimeError("Calc went wrong")
     return rstr
@@ -50,6 +52,9 @@ if __name__ == "__main__":
     example_128bit = eval(example_128bit_hex_str)
 
     #example_128bit = 0xFF19191737202020515135431B02F6DB
+
+
+
     max_128bit = eval('0x' + 'F'*32)
 
     len_base_10 = len(str(max_128bit))
@@ -61,3 +66,16 @@ if __name__ == "__main__":
     print("  Number Format:   {0:0{1}}".format(example_128bit, len_base_10))
     print("  Hex Format (0x): {:032X}".format(example_128bit))
     print("  b32 Format:      {}".format(example_as_b32))
+
+    atmel_uids = [
+            0xFF172A133720202051513543321F6698,
+            0xFF181F0E3720202051513543F2391E50,
+            0xFF182A0A372020205151354377F1BEC2,
+            0xFF19070F3720202051513543DFFCD666,
+            0xFF19191737202020515135431B02F6DB,
+            ]
+
+    print()
+    print("Atmel UIDs")
+    for uid in atmel_uids:
+        print("  {}  0x{:032X}".format(b32(uid, len_base_32), uid))
