@@ -42,6 +42,7 @@ export SBT_DIR=$ICEDIR/sbt_backend
 export DIAMOND_DIR=$toolsdir/lscc/programmer/3.2
 export PATH=$PATH:$DIAMOND_DIR/bin/lin:$DIAMOND_DIR/ispfpga/bin/lin
 export PATH=$PATH:$ICEDIR/synpbase/linux/lib
+export PATH=$PATH:$toolsdir/arm-none-eabi/bin
 
 if [ -n "$ALTERADIR" ]; then
     alias vsim="$ALTERADIR/modelsim_ase/linux/vsim"

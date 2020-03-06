@@ -74,11 +74,13 @@ get_avr_tools() {
 get_gcc_arm() {
     if [ "$OS" = "linux" ]; then
         if [ ! -d $toolsdir/arm-none-eabi ]; then
-            wget -P $toolsdir "https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en603996"
+            if [ ! -f $toolsdir/arm-gnu-toolchain-*-linux.any.x86_64.tar.gz ]; then
+                wget -P $toolsdir "https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en603996"
+            fi
             if [ -f $toolsdir/arm-gnu-toolchain-*-linux.any.x86_64.tar.gz ]; then
                 echo "Extracting and moving arm binaries to $toolsdir"
                 unp $toolsdir/arm-gnu-toolchain-*.x86_64.tar.gz
-                mv /tmp/arm-none-eabi $toolsdir
+                mv arm-none-eabi $toolsdir
             fi
         else
             echo "arm-none-eabi tools already present"
