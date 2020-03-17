@@ -45,6 +45,7 @@ def b32(number, chr_len=None):
 
 if __name__ == "__main__":
     import random
+    import argparse
     len_128bit_hex = 32
     b32_chars = [chr(ord('A')+i) for i in range(26)] + [str(i) for i in range(2,9)]
     hex_chars = [str(i) for i in range(10)] + [chr(ord('A')+i) for i in range(6)]
