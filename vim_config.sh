@@ -32,14 +32,26 @@ fi
 
 if hash $CTAGS 2>/dev/null; then
     echo "Make ctags list"
+    echo "ctags is version $(ctags --version)"
     rm -f $SRC_DIR/tags
     cd $SRC_DIR && $CTAGS -R --exclude="*~" --exclude=".git"
+    if [ -f $SRC_DIR/tags ]; then
+        for var in uint8_t uint16_t uint32_t; do
+            echo "sed -i \"s/^$var .*//\" $SRC_DIR/tags"
+            sed -i "s/^$var\s.*//" $SRC_DIR/tags
+        done
+        echo "sed -i '/^$/d' $SRC_DIR/tags"
+        sed -i '/^$/d' $SRC_DIR/tags
+    fi
 fi
 
 if [ -e $TAGHL ]; then
     echo "Make taghighlight files"
     rm -f $SRC_DIR/types_*.taghl
-    cd $SRC_DIR && python $TAGHL --ctags-file tags --source-root .
+    cd $SRC_DIR && python $TAGHL \
+        --cscope-filename=$SRC_DIR/cscope.out \
+        --use-existing-tagfile --ctags-file=$SRC_DIR/tags \
+        --source-root=$SRC_DIR
 fi
 
 mkdir -p ~/.tmp #for storing vim backup files
