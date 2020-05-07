@@ -5,8 +5,23 @@
 # to run a line individually, do the above, but yy instead of dd
 # 0i! <Esc>"ryy@ruu
 
+
+
+
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 get_python3_packages() {
+
+    PY_PACKAGES="argcomplete cxfreeze ipython jsonpickle jupyter \
+        numpy pandas psutil setuptools pyfirmata pyparsing \
+        pyserial pyusb scipy pytimeparse simplegeneric \
+        svg.path sympy tables urllib3 scikit-image scikit-umfpack"
+
+    # only get these if we have a display
+    if [ -n $DISPLAY ]; then
+        PY_PACKAGES="$PY_PACKAGES plotly matplotlib opencv-python \
+            qtconsole snakeviz"
+    fi
+
     echo "Getting required python packages"
     if [ "$OS" = "linux" ]; then
         # python 3 versions
@@ -14,12 +29,13 @@ get_python3_packages() {
         sudo apt-get install python3-dev -y
         sudo apt-get install python3-testresources -y
 
-        # TODO check if ubuntu > specific version where pip not necessary
-        sudo apt-get install python3-tk -y
-
         # needed to buil qrc
         sudo apt-get install libfreetype6-dev -y        # matplotlib
         sudo apt-get install libpng3 -y                 # matplotlib
+
+        if [ -n $DISPLAY ]; then
+            sudo apt-get install python3-tk -y
+        fi
 
         if [ -z "$( pip3 --version 2> /dev/null )" ]; then
             sudo apt-get install python3-pip -y
@@ -29,36 +45,15 @@ get_python3_packages() {
         sudo apt-get remove python3-pip -y
         sudo apt-get autoremove -y
 
-        pip3 install --upgrade --user argcomplete
-        pip3 install --upgrade --user cxfreeze
-        pip3 install --upgrade --user ipython
-        pip3 install --upgrade --user jsonpickle
-        pip3 install --upgrade --user jupyter
-        pip3 install --upgrade --user matplotlib
-        pip3 install --upgrade --user numpy
-        pip3 install --upgrade --user opencv-python
-        pip3 install --upgrade --user pandas
-        pip3 install --upgrade --user plotly
-        pip3 install --upgrade --user psutil
-        pip3 install --upgrade --user setuptools
-        pip3 install --upgrade --user pyfirmata
-        pip3 install --upgrade --user pyparsing
-        pip3 install --user pyqt5==5.9.2
-#        pip3 install --upgrade --user sip  # installs with pyqt5
-        pip3 install --upgrade --user pyserial
-        pip3 install --upgrade --user pyusb
-        pip3 install --upgrade --user qtconsole
-        pip3 install --upgrade --user scipy
-        pip3 install --upgrade --user pytimeparse
-        pip3 install --upgrade --user simplegeneric
-        pip3 install --upgrade --user snakeviz
-        pip3 install --upgrade --user svg.path
-        pip3 install --upgrade --user sympy
-        pip3 install --upgrade --user tables
-        pip3 install --upgrade --user urllib3
-        pip3 install --upgrade --user scikit-image
-        pip3 install --upgrade --user scikit-umfpack
+        # TODO check if ubuntu > specific version where pip not necessary
 
+        for pkg in $PY_PACKAGES; do
+            sudo -H pip3 install $pkg
+        done
+
+        if [ -n $DISPLAY ]; then
+            sudo -H pip3 install pyqt5==5.9.2
+        fi
 
         activate-global-python-argcomplete --user
     elif [ $OS = windows ]; then

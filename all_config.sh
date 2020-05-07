@@ -52,7 +52,7 @@ fi
 time ./config_git.sh
 config_environment_directory;
 if [ "$OS" = "linux" ]; then
-    sudo apt-get install sc -y
+    #sudo apt-get install sc -y
     sudo apt-get install unp -y
 fi
 time ./config_vim.sh
@@ -60,8 +60,7 @@ time ./config_python.sh
 if [ "$add_latex" = "y" ]; then
     time ./config_latex.sh
 fi
-time ./config_arm.sh
-time ./config_avr.sh
+time ./config_avr_arm.sh
 time ./config_fpga.sh
 time ./config_dev_rules.sh
 update_default_programs;
