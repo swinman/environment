@@ -14,7 +14,7 @@ get_python3_packages() {
     PY_PACKAGES="argcomplete cxfreeze ipython jsonpickle jupyter \
         numpy pandas psutil setuptools pyfirmata pyparsing \
         pyserial pyusb scipy pytimeparse simplegeneric \
-        svg.path sympy tables urllib3 scikit-image scikit-umfpack"
+        svg.path sympy tables urllib3 scikit-image scikit-umfpack sty"
 
     # only get these if we have a display
     if [ -n $DISPLAY ]; then
