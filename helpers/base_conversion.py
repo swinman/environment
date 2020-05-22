@@ -59,9 +59,11 @@ if __name__ == "__main__":
     max_128bit = eval('0x' + 'F'*32)
 
     len_base_10 = len(str(max_128bit))
-    len_base_32 = math.ceil(128/5)
+    len_base_32_128b = math.ceil(128/5)
+    len_base_32_72b = math.ceil(72/5)
 
-    example_as_b32 = b32(example_128bit, len_base_32)
+
+    example_as_b32 = b32(example_128bit, len_base_32_128b)
 
     print("Example 128 bit number")
     print("  Number Format:   {0:0{1}}".format(example_128bit, len_base_10))
@@ -76,7 +78,18 @@ if __name__ == "__main__":
             0xFF19191737202020515135431B02F6DB,
             ]
 
+    lid_uids = [
+            0x01236646deb1f604ee,
+            0x0123c2243e440b93ee,
+            0x0123bddf47aaf0e5ee,
+            ]
+
     print()
     print("Atmel UIDs")
     for uid in atmel_uids:
-        print("  {}  0x{:032X}".format(b32(uid, len_base_32), uid))
+        print("  {}  0x{:032X}".format(b32(uid, len_base_32_128b), uid))
+
+    print()
+    print("Lid UIDs")
+    for uid in lid_uids:
+        print("  {}  0x{:018X}".format(b32(uid, len_base_32_72b), uid))
