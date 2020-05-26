@@ -44,7 +44,7 @@ alias miniterm='miniterm.py -e'
 
 alias pygrep='grep -r --include="*.py" --include="*.pyw"'
 alias vgrep='grep -r --include="*.vhd" --include="*.v" --include="*.inc"'
-alias cgrep='grep -r --include="*.[chsCHS]" --include="*.[chsCHS][Pp][pP]"'
+alias cgrep='grep -r --include="*.[chsCHS]" --include="*.mk" --include=Makefile --include="*.[chsCHS][Pp][pP]"'
 alias ncgrep='grep -r --include="*.nc"'
 alias texgrep='grep -r --include="*.tex"'
 alias shgrep='grep -r --include="*.sh"'
