@@ -5,6 +5,8 @@
 # test with
 # $ for ((i=0; i<300; i++)); do ./counter.sh; done
 
+# to simply convert to our format call with ./counter [int]
+
 convert() {
     NUM=$1
     CHR_LEN=$2
@@ -56,18 +58,22 @@ convert() {
     echo $RSTR
 }
 
-SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-COUNT_FILENAME=$SCRIPTPATH/.ccount
-if [ -f $COUNT_FILENAME ]; then
-    COUNT=$(head -c 25 $COUNT_FILENAME)
-else
-    COUNT=0
-fi
-DEBUG=false
+COUNT=$1
 
+if [ -z $COUNT ]; then
+    SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+    COUNT_FILENAME=$SCRIPTPATH/.ccount
+    if [ -f $COUNT_FILENAME ]; then
+        COUNT=$(head -c 25 $COUNT_FILENAME)
+    else
+        COUNT=0
+    fi
+    NV=$(($COUNT+1))
+    echo $NV > $COUNT_FILENAME
+fi
+
+DEBUG=false
 RV=$(convert $COUNT 4)
 
-NV=$(($COUNT+1))
-echo $NV > $COUNT_FILENAME
 
 echo $RV

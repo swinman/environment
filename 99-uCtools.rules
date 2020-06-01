@@ -1,5 +1,7 @@
 #### RULES /etc/udev/rules.d
 #
+# sudo cp 99-uCtools.rules /etc/udev/rules.d/
+#
 # to reload rules:
 #   sudo udevadm control --reload-rules
 #   sudo udevadm trigger
