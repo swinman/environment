@@ -40,6 +40,9 @@ convert() {
             if [ $DIGIT -lt 26 ]; then
                 ASCII=$(( 65 + $DIGIT ))        # 'A' is 65
             else
+                if [ $DIGIT -gt 31 ]; then
+                    DIGIT=$(( $DIGIT % 32 ))
+                fi
                 ASCII=$(( 50 + $DIGIT - 26 ))   # '2' is 50
             fi
             CHR=$(printf "\x$(printf %x $ASCII)")
