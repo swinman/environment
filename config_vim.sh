@@ -29,7 +29,6 @@ config_vim() {
         echo "adding \"$text\" to $target"
         echo "$text" >> $target
     fi
-
 }
 
 get_vim_addons() {

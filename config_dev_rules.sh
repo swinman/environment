@@ -1,9 +1,12 @@
 #!/bin/sh
 
+# get the path of directory containing this file
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+
 config_rules() {
     echo "Config device plugdev rules"
     echo "Adding device usb ids to plugdev rules"
-    sudo cp 99-uCtools.rules /etc/udev/rules.d/
+    sudo cp $SCRIPTPATH/99-uCtools.rules /etc/udev/rules.d/
     echo "Ensuring correct permissions are set"
     for GROUP in plugdev dialout; do
         if [ -z $(grep $GROUP /etc/group)  ]; then

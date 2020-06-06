@@ -101,7 +101,6 @@ add_bash_alias() {
 	fi
     fi
 
-
     # check if last line is blank, if not add a blank line
     llb=$(grep -n -v "^." $BRC | grep $(wc -l $BRC | sed 's/^ *//' | sed 's/ .*//') | wc -l)
     if [ $llb -eq 0 ]; then
