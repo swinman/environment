@@ -62,7 +62,7 @@ if [ "$add_latex" = "y" ]; then
 fi
 time ./config_avr_arm.sh
 time ./config_fpga.sh
-time ./config_dev_rules.sh
+time ./config_udev.sh
 update_default_programs;
 #if [ "$add_chromium" = "y" ]; then
 #    config_chromium;
