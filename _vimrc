@@ -142,7 +142,7 @@ function! DarkColorscheme()
     if has("gui")
         try
             set colorcolumn=
-            colorscheme desert2
+            colorscheme storm
         catch /^Vim\%((\a\+)\)\=:E185/
             colorscheme darkblue
             set colorcolumn=80
@@ -151,7 +151,7 @@ function! DarkColorscheme()
 endfunction
 
 function! ChangeColorScheme()
-    if exists("g:colors_name") && (g:colors_name=='desert2'
+    if exists("g:colors_name") && (g:colors_name=='storm'
                 \|| g:colors_name=='desert' || g:colors_name=='darkblue')
         call LightColorscheme()
     else

@@ -20,8 +20,6 @@ config_rules() {
     done
     sudo udevadm control --reload-rules
     sudo udevadm trigger
-    echo "If user does not appear below, add user to plugdev group"
-    less /etc/group | grep plugdev
 }
 
 config_rules;

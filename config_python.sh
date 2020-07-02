@@ -10,7 +10,6 @@
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 get_python3_packages() {
-
     PY_PACKAGES="argcomplete cxfreeze ipython jsonpickle jupyter \
         numpy pandas psutil setuptools pyfirmata pyparsing \
         pyserial pyusb scipy pytimeparse simplegeneric \

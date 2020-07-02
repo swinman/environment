@@ -171,13 +171,18 @@ ATTRS{idProduct}=="6001", MODE="0660", GROUP="plugdev"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="0403",\
 ATTRS{idProduct}=="6014", MODE="0660", GROUP="plugdev"
 
-############## USB SENSORS ###################
+############## USB SENSORS #######################
 #DirecTemp
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="1dfd",\
 ATTRS{idProduct}=="0001", MODE="0660", GROUP="plugdev"
 
-############## MITUTOYO USB-ITN-F CABLE ##############
+############## MITUTOYO USB-ITN-F CABLE ##########
 SUBSYSTEM=="usb", ATTRS{idVendor}=="0fe7",\
 ATTRS{idProduct}=="4001", MODE="0660", GROUP="plugdev"
+
+############## TI HUB DEVICE #####################
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0451",\
+ATTRS{idProduct}=="8142", MODE="0664", GROUP="plugdev"
+
 
 # vim:ft=udevrules

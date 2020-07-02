@@ -18,7 +18,7 @@ try:
 except ImportError:
     __version__ = -1
 
-log = logging.getLogger(__name__)
+log = logging.getLogger(__name__.replace('environment', 'environ'))
 
 LOG_INIT_STRING = " ===== Log Created ===== "
 _LOG_CONFIGURED = False
