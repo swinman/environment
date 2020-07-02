@@ -129,7 +129,7 @@ endfunction
 function! LightColorscheme()
     if has("gui")
         try
-            colorscheme nuvola2
+            colorscheme summer
             set colorcolumn=
         catch /^Vim\%((\a\+)\)\=:E185/
             colorscheme default

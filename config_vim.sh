@@ -29,6 +29,11 @@ config_vim() {
         echo "adding \"$text\" to $target"
         echo "$text" >> $target
     fi
+    mkdir -p ~/.vim/colors
+    CDIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/colorvim/colors"
+    for fn in $(ls $CDIR/*.vim); do
+        ln -s $fn ~/.vim/colors
+    done
 }
 
 get_vim_addons() {
@@ -83,12 +88,7 @@ get_vim_addons() {
         echo "Access failed, attempting as public user: "
         get_git_repo git://github.com/swinman/taghighlight.git $VBUND/taghighlight
     fi
-    echo "Attempting to access private repo: "
-    get_git_repo git@github.com:swinman/colorvim.git $VBUND/colorvim
-    if ! [ $? = 0 ]; then
-        echo "Access failed, attempting as public user: "
-        get_git_repo git://github.com/swinman/colorvim.git $VBUND/colorvim
-    fi
+
     if [ -e $VIMDIR/bundle/neocomplcache ]; then
         mkdir -p $VIMDIR/unused
         mv $VIMDIR/bundle/neocomplcache $VIMDIR/unused
