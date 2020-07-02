@@ -32,7 +32,12 @@ config_vim() {
     mkdir -p ~/.vim/colors
     CDIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/colorvim/colors"
     for fn in $(ls $CDIR/*.vim); do
-        ln -s $fn ~/.vim/colors
+        FB=$(basename $fn)
+        if [ -L ~/.vim/colors/$FB ]; then
+            echo "color file $FB already exists"
+        else
+            ln -s $fn ~/.vim/colors
+        fi
     done
 }
 
