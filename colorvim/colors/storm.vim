@@ -159,7 +159,7 @@ hi OverLength       guibg=DeepPink4     ctermbg=53
 hi SignColumn       guibg=Grey42        ctermbg=242
 hi SignColumn       guifg=Aqua          ctermfg=14
 
-hi ColorColumn      guibg=DarkRed       ctermbg=88
+hi ColorColumn      guibg=Grey15        ctermbg=235
 "                                                                       2}}}
 "   d. Search, Visual, MatchParen                                       {{{2
 "       NOTES                                                           {{{3

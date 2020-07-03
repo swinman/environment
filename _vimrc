@@ -127,27 +127,19 @@ endfunction
 
 " ------------------ ChangeColorScheme --------------------------         {{{2
 function! LightColorscheme()
-    if has("gui")
-        try
-            colorscheme summer
-            set colorcolumn=
-        catch /^Vim\%((\a\+)\)\=:E185/
-            colorscheme default
-            set colorcolumn=80
-        endtry
-    endif
+    try
+        colorscheme summer
+    catch /^Vim\%((\a\+)\)\=:E185/
+        colorscheme default
+    endtry
 endfunction
 
 function! DarkColorscheme()
-    if has("gui")
-        try
-            set colorcolumn=
-            colorscheme storm
-        catch /^Vim\%((\a\+)\)\=:E185/
-            colorscheme darkblue
-            set colorcolumn=80
-        endtry
-    endif
+    try
+        colorscheme storm
+    catch /^Vim\%((\a\+)\)\=:E185/
+        colorscheme darkblue
+    endtry
 endfunction
 
 function! ChangeColorScheme()
@@ -529,6 +521,7 @@ set lazyredraw    " don't redraw in macros "
 set ttyfast       " improves redrawing "
 set nowrap        " vim handles long lines by letting them off the screen "
 set textwidth=79  " wrap text at 80 char
+set colorcolumn=80
 set columns=85
 set lines=50
 set foldmethod=indent
