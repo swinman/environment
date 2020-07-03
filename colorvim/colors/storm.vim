@@ -1,7 +1,7 @@
 " Vim color file: ------------------------------------
 "                --------- s t o r m . v i m ----------
 "                 ------------------------------------
-" i. SETUP                                                              {{{1
+" 0. SETUP                                                              {{{1
 "                                                                       {{{2
 
 if version > 580
@@ -41,6 +41,13 @@ hi Normal           guifg=White         ctermfg=15
 hi Title            gui=BOLD            cterm=BOLD
 hi Title            guifg=IndianRed     ctermfg=167
 
+hi TabLine          gui=UNDERLINE       cterm=UNDERLINE     term=UNDERLINE
+hi TabLine          guifg=White         ctermfg=15
+hi TabLine          guibg=Grey42        ctermbg=242
+
+hi TabLineSel       gui=BOLD            cterm=BOLD          term=BOLD
+hi TabLineFill      gui=REVERSE         cterm=REVERSE       term=REVERSE
+
 hi StatusLine       gui=BOLD            cterm=BOLD
 hi StatusLine       guifg=Grey80        ctermfg=252
 hi StatusLine       guibg=Grey15        ctermbg=235
@@ -49,20 +56,41 @@ hi StatusLineNC     gui=NONE            cterm=NONE
 hi StatusLineNC     guibg=Grey10        ctermbg=234
 hi StatusLineNC     guifg=Grey50        ctermfg=244
 
-hi Cursor           guifg=LightSlateGrey     ctermfg=103
-hi Cursor           guibg=Khaki1        ctermbg=228
+hi StatusLineTerm   gui=BOLD            cterm=BOLD      term=BOLD,REVERSE
+hi StatusLineTerm   guibg=PaleGreen1    ctermbg=121
+hi StatusLineTerm   guifg=Black         ctermfg=0
 
-hi lCursor          gui=REVERSE         cterm=REVERSE
-hi lCursor          guibg=NONE          ctermbg=NONE
-hi lCursor          guifg=NONE          ctermfg=NONE
+hi StatusLineTermNC term=REVERSE
+hi StatusLineTermNC guibg=PaleGreen1    ctermbg=121
+hi StatusLineTermNC guifg=Black         ctermfg=0
 
+hi ToolbarLine      term=UNDERLINE
+hi ToolbarLine      guibg=Grey42        ctermbg=242
+
+hi ToolbarButton    gui=BOLD            cterm=BOLD
+hi ToolbarButton    guibg=LightGrey     ctermbg=7
+hi ToolbarButton    guifg=Black         ctermfg=0
+
+" none of this seems to do anything
+"hi Cursor           guifg=LightSlateGrey     ctermfg=103
+"hi Cursor           guibg=Khaki1        ctermbg=228
+"
+"hi iCursor          gui=REVERSE         cterm=REVERSE
+"hi iCursor          guibg=Red           ctermbg=9
+"hi iCursor          guifg=NONE          ctermfg=NONE
+"
+"hi lCursor          gui=None            cterm=None
+"hi lCursor          guibg=Lime          ctermbg=10
+"hi lCursor          guifg=Black         ctermfg=0
+"
 hi CursorLine       gui=None            cterm=None
 hi CursorLine       guibg=Grey39        ctermbg=241
 
 hi CursorLineNr     gui=BOLD            cterm=BOLD
 hi CursorLineNr     guifg=Yellow        ctermfg=11
-"hi CursorIM
-"hi CursorColumn
+
+hi CursorColumn   term=reverse ctermbg=242 guibg=Grey40
+
 "                                                                       2}}}
 "   b. Menus, Pop-ups, Directory, Messages                              {{{2
 "       NOTES                                                           {{{3
@@ -102,6 +130,8 @@ hi Pmenu            guibg=Grey39        ctermbg=241
 
 hi PmenuSel         guibg=Grey30        ctermbg=239
 hi PmenuSel         guifg=LightCoral    ctermfg=210
+
+hi PmenuSbar        ctermbg=248         guibg=Grey66
 
 hi PmenuThumb       guibg=Grey82        ctermbg=252
 hi PmenuThumb       guifg=Grey46        ctermfg=243
@@ -160,6 +190,10 @@ hi SignColumn       guibg=Grey42        ctermbg=242
 hi SignColumn       guifg=Aqua          ctermfg=14
 
 hi ColorColumn      guibg=Grey15        ctermbg=235
+
+hi link QuickFixLine        Search
+
+
 "                                                                       2}}}
 "   d. Search, Visual, MatchParen                                       {{{2
 "       NOTES                                                           {{{3
@@ -190,7 +224,6 @@ hi Visual           guifg=Orange1       ctermfg=214
 
 hi VisualNOS        gui=BOLD,UNDERLINE  cterm=BOLD,UNDERLINE
 
-"hi MatchParen
 hi Braces           guifg=Grey70        ctermfg=249
 
 hi MatchParen       guibg=DarkCyan      ctermbg=36
@@ -237,10 +270,33 @@ hi NonText          gui=BOLD            cterm=BOLD
 hi NonText          guibg=Grey30        ctermbg=239
 hi NonText          guifg=LightSkyBlue1 ctermfg=153
 
+hi link EndOfBuffer     NonText
+
 hi SpecialKey       guifg=DarkOliveGreen3 ctermfg=149
 
 hi Conceal          guibg=Grey66        ctermbg=248
 hi Conceal          guifg=Grey82        ctermfg=252
+
+
+hi SpellBad         gui=undercurl                           term=reverse
+hi SpellBad         guisp=Red
+hi SpellBad                             ctermbg=9
+hi SpellBad                             ctermfg=15
+
+hi SpellCap         gui=undercurl                           term=reverse
+hi SpellCap         guisp=Blue
+hi SpellCap                             ctermbg=12
+hi SpellCap                             ctermfg=15
+
+hi SpellRare        gui=undercurl                           term=reverse
+hi SpellRare        guisp=Magenta
+hi SpellRare                            ctermbg=13
+hi SpellRare                            ctermfg=15
+
+hi SpellLocal       gui=undercurl                           term=underline
+hi SpellLocal       guisp=Cyan
+hi SpellLocal                           ctermbg=14
+hi SpellLocal                           ctermfg=15
 
 "                                                                       2}}}
 "                                                                       1}}}
@@ -261,6 +317,11 @@ hi Comment          guifg=SkyBlue1      ctermfg=117
 "	 Float		a floating point constant: 2.3e10
 "                                                                       3}}}
 hi Constant         guifg=LightCoral       ctermfg=210
+hi link String         Constant
+hi link Character      Constant
+hi link Number         Constant
+hi link Boolean        Constant
+hi link Float          Number
 "                                                                       2}}}
 "   c. Identifier                                                       {{{2
 "       NOTES                                                           {{{3
@@ -288,7 +349,6 @@ hi link Conditional         Statement
 hi link Repeat              Statement
 hi link Label               Statement
 hi link Operator            Statement
-hi Operator         gui=NONE
 hi link Keyword             Statement
 hi link Exception           Statement
 "                                                                       2}}}
@@ -301,6 +361,10 @@ hi link Exception           Statement
 "	 PreCondit	preprocessor #if, #else, #endif, etc.
 "                                                                       3}}}
 hi PreProc          guifg=IndianRed1    ctermfg=203
+hi link Include         PreProc
+hi link Define          PreProc
+hi link Macro           PreProc
+hi link PreCondit       PreProc
 "                                                                       2}}}
 "   f. Type                                                             {{{2
 "       NOTES                                                           {{{3
@@ -326,6 +390,11 @@ hi link Typedef            Type
 "	 Debug		debugging statements
 "                                                                       3}}}
 hi Special          guifg=NavajoWhite1  ctermfg=223
+hi link Tag             Special
+hi link SpecialChar     Special
+hi link Delimiter       Special
+hi link SpecialComment  Special
+hi link Debug           Special
 "                                                                       2}}}
 "   h. Other                                                            {{{2
 "       NOTES                                                           {{{3
@@ -348,19 +417,6 @@ hi Error            guifg=White         ctermfg=15
 hi Todo             gui=BOLD            cterm=BOLD
 hi Todo             guibg=Yellow        ctermbg=11
 hi Todo             guifg=Red1          ctermfg=196
-"                                                                       2}}}
-"   i. HTML                                                             {{{2
-hi htmlLink         gui=UNDERLINE       cterm=UNDERLINE
-"hi htmlLink         guibg=NONE          ctermbg=NONE
-hi htmlLink         guifg=Magenta       ctermfg=201
-
-hi htmlBold                 gui=BOLD                    cterm=BOLD
-hi htmlBoldItalic           gui=BOLD,ITALIC             cterm=BOLD,ITALIC
-hi htmlBoldUnderline        gui=BOLD,UNDERLINE          cterm=BOLD,UNDERLINE
-hi htmlBoldUnderlineItalic  gui=BOLD,UNDERLINE,ITALIC   cterm=BOLD,UNDERLINE,ITALIC
-hi htmlItalic               gui=ITALIC                  cterm=ITALIC
-hi htmlUnderline            gui=UNDERLINE               cterm=UNDERLINE
-hi htmlUnderlineItalic      gui=UNDERLINE,ITALIC        cterm=UNDERLINE,ITALIC
 "                                                                       2}}}
 "                                                                       1}}}
 " 4. CTAGS ADD-ON (TagHL)                                               {{{1
@@ -404,12 +460,26 @@ hi Map              guifg=Gold1         ctermfg=220
 hi Member           guifg=DarkSeaGreen2 ctermfg=157
 hi link Namespace           Keyword
 hi Union            guifg=DarkKhaki     ctermfg=143
+
 hi link pythonOperator      Operator
 hi link pythonFunction      Function
 "hi link pythonBuiltin       Operator
 "hi pythonBuiltin    guifg=NONE
 "                                                                       2}}}
-"   b. vhdl                                                               {{{2
+"   b. HTML                                                             {{{2
+hi htmlLink         gui=UNDERLINE       cterm=UNDERLINE
+"hi htmlLink         guibg=NONE          ctermbg=NONE
+hi htmlLink         guifg=Magenta       ctermfg=201
+
+hi htmlBold                 gui=BOLD                    cterm=BOLD
+hi htmlBoldItalic           gui=BOLD,ITALIC             cterm=BOLD,ITALIC
+hi htmlBoldUnderline        gui=BOLD,UNDERLINE          cterm=BOLD,UNDERLINE
+hi htmlBoldUnderlineItalic  gui=BOLD,UNDERLINE,ITALIC   cterm=BOLD,UNDERLINE,ITALIC
+hi htmlItalic               gui=ITALIC                  cterm=ITALIC
+hi htmlUnderline            gui=UNDERLINE               cterm=UNDERLINE
+hi htmlUnderlineItalic      gui=UNDERLINE,ITALIC        cterm=UNDERLINE,ITALIC
+"                                                                       2}}}
+"   c. vhdl                                                               {{{2
 
 hi link vhdlStatement   Statement
     " vhdlStatement     LIBRARY USE CASE IF
@@ -452,7 +522,7 @@ hi link CTagsType           vhdlType
 
 
 "                                                                         2}}}
-"   c. Additional tags                                                    {{{2
+"   d. Additional tags                                                    {{{2
 "hi link Anchor                  Keyword
 "hi link BlockData               Keyword
 "hi link CommonBlocks            Keyword
