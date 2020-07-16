@@ -658,11 +658,6 @@ let g:UltiSnipsSnippetDirectories = ["snippits","UltiSnips"]
 "let g:syntastic_python_checkers = ['flake8']
 let g:syntastic_python_checkers = ['']
 
-" Ropevim settings
-"let g:ropevim_autoimport_modules = ["os.*", "PyQt4.*"]
-"let g:ropevim_enable_autoimport = 1
-"let g:ropevim_guess_project=1
-
 " ----------------- Personal Functions --------------------------         {{{2
 autocmd BufWritePre * call DelWhiteSpace()
 
