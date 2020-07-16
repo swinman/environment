@@ -79,11 +79,11 @@ hi ToolbarButton    guifg=Black         ctermfg=0
 "hi iCursor          guibg=Red           ctermbg=9
 "hi iCursor          guifg=NONE          ctermfg=NONE
 "
-"hi lCursor          gui=None            cterm=None
+"hi lCursor          gui=NONE            cterm=NONE
 "hi lCursor          guibg=Lime          ctermbg=10
 "hi lCursor          guifg=Black         ctermfg=0
 "
-hi CursorLine       gui=None            cterm=None
+hi CursorLine       gui=NONE            cterm=NONE
 hi CursorLine       guibg=Grey39        ctermbg=241
 
 hi CursorLineNr     gui=BOLD            cterm=BOLD
@@ -329,7 +329,7 @@ hi link Float          Number
 "	 Function	function name (also: methods for classes)
 "                                                                       3}}}
 hi Identifier       gui=NONE            cterm=NONE
-hi Identifier       guifg=PaleGreen     ctermfg=156
+hi Identifier       guifg=LightGreen    ctermfg=119
 hi link Function                Identifier
 "                                                                       2}}}
 "   d. Statement                                                        {{{2
@@ -342,7 +342,7 @@ hi link Function                Identifier
 "	 Keyword	any other keyword
 "	 Exception	try, catch, throw
 "                                                                       3}}}
-hi Statement        gui=Bold            cterm=BOLD
+"hi Statement        gui=BOLD            cterm=BOLD
 hi Statement        guifg=Khaki3        ctermfg=185
 
 hi link Conditional         Statement
@@ -457,14 +457,14 @@ hi GlobalVariable   guifg=NavajoWhite1  ctermfg=223
 hi Import           guifg=Yellow2       ctermfg=190
 hi link LocalVariable       Keyword
 hi Map              guifg=Gold1         ctermfg=220
-hi Member           guifg=DarkSeaGreen2 ctermfg=157
+hi Member           guifg=Aquamarine1   ctermfg=122
+"hi Member           guifg=DarkSeaGreen1 ctermfg=158
 hi link Namespace           Keyword
 hi Union            guifg=DarkKhaki     ctermfg=143
 
 hi link pythonOperator      Operator
 hi link pythonFunction      Function
-"hi link pythonBuiltin       Operator
-"hi pythonBuiltin    guifg=NONE
+hi pythonBuiltin    guifg=SandyBrown    ctermfg=215
 "                                                                       2}}}
 "   b. HTML                                                             {{{2
 hi htmlLink         gui=UNDERLINE       cterm=UNDERLINE

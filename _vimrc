@@ -292,20 +292,6 @@ function! CleanupCode()
 endfunction
 " END: ---------------- CleanupCode -----------------------------         2}}}
 
-" --------------------- ToggleWidth -----------------------------         {{{2
-function! ToggleWidth()
-    if &columns < 120
-        set columns=165
-        if winwidth(winnr()) == &columns
-            exec 'vs'
-        endif
-    else
-        exec "only"
-        set columns=85
-    endif
-endfunction
-" END: ---------------- ToggleWidth -----------------------------         2}}}
-
 " -------------------- GetScreenSize ----------------------------         {{{2
 function! GetScreenSize()
     !xrandr | grep "*" | sed "s/\s*\([^x]*\)x\(\S*\).*/\1x\2/"
@@ -522,8 +508,8 @@ set ttyfast       " improves redrawing "
 set nowrap        " vim handles long lines by letting them off the screen "
 set textwidth=79  " wrap text at 80 char
 set colorcolumn=80
-set columns=85
-set lines=50
+" https://vi.stackexchange.com/questions/12638/why-does-vim-change-the-columns-variable-after-ctrlz-setting-the-width-of-tex
+
 set foldmethod=indent
 set foldlevel=1
 set formatoptions-=t        " DONT auto-wrap lines
@@ -729,7 +715,6 @@ nnoremap <C-n> :NERDTreeToggle<cr>
 " toggle relative line numbers
 map <F2> :call ToggleLineNo()<CR>
 map <F3> <Esc>:call ChangeColorScheme()<CR>
-map <F4> <Esc>:call ToggleWidth()<CR>
 map <F5> <Esc>:call ToggleSpelling()<CR>
 map <F6> <Esc>:call ShowLineExtents()<CR>
 
