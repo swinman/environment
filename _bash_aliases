@@ -15,7 +15,7 @@ export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi?(q)?( ):gvim:ipy:history?(
 alias cd..='cd ..'
 
 alias tdmesg='tail -n 0 -f /var/log/syslog'
-alias math="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases/math.sh/')"
+alias math="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases/helpers/')/math.sh"
 
 alias LS='echo "Remove CAPS LOCK you ass"'
 #tdmesg='tail -f /var/log/{messages,kernel,dmesg,syslog}'
@@ -31,8 +31,9 @@ alias LS='echo "Remove CAPS LOCK you ass"'
 
 # start and quit vi to change the terminal size
 alias vi='vim'
-#alias viq='vi -c q'
-#alias vidq='vi -c call\ ToggleWidth\(\) -c qa'
+
+alias viq="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')helpers/resize.sh 85 50"
+alias vidq="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')helpers/resize.sh 165 50"
 
 # various programs
 alias ipy='ipython -i --no-banner'
@@ -88,6 +89,7 @@ alias grabscreen1='recordmydesktop --no-sound --fps=15 --delay=1 --width=$(($SCR
 alias grabscreen2='recordmydesktop --no-sound --fps=15 --delay=1 --x=$(($SCREENWIDTH/2))'
 alias video='xdg-open '
 
+# change color of command prompt when no display is present
 if [ -z $DISPLAY ]; then
     PS1=$(echo "$PS1" | sed 's/32m/31m/')
 fi
