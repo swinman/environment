@@ -87,11 +87,15 @@ get_vim_addons() {
     get_git_repo $GHURL/gregjurman/vim-nc.git $VBUND/ngc
     #get_git_repo $GHURL/davidhalter/jedi-vim.git $VBUND/jedi-vim --recursive
 
-    echo "Attempting to access private repo: "
-    get_git_repo git@github.com:swinman/taghighlight.git $VBUND/taghighlight
-    if ! [ $? = 0 ]; then
-        echo "Access failed, attempting as public user: "
-        get_git_repo git://github.com/swinman/taghighlight.git $VBUND/taghighlight
+    if [ -n "YES" ]; then
+        get_git_repo $GHURL/vim-scripts/TagHighlight.git $VBUND/taghighlight
+    else
+        echo "Attempting to access private repo: "
+        get_git_repo git@github.com:swinman/taghighlight.git $VBUND/taghighlight
+        if ! [ $? = 0 ]; then
+            echo "Access failed, attempting as public user: "
+            get_git_repo git://github.com/swinman/taghighlight.git $VBUND/taghighlight
+        fi
     fi
 
     if [ -e $VIMDIR/bundle/neocomplcache ]; then

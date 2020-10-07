@@ -49,7 +49,6 @@ if [ -e $TAGHL ]; then
     echo "Make taghighlight files"
     rm -f $SRC_DIR/types_*.taghl
     cd $SRC_DIR && python $TAGHL \
-        --cscope-filename=$SRC_DIR/cscope.out \
         --use-existing-tagfile --ctags-file=$SRC_DIR/tags \
         --source-root=$SRC_DIR
 fi
