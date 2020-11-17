@@ -36,7 +36,7 @@ if hash $CTAGS 2>/dev/null; then
     rm -f $SRC_DIR/tags
     cd $SRC_DIR && $CTAGS -R --exclude="*~" --exclude=".git"
     if [ -f $SRC_DIR/tags ]; then
-        for var in uint8_t uint16_t uint32_t; do
+        for var in bool char int uint8_t uint16_t uint32_t; do
             echo "sed -i \"s/^$var .*//\" $SRC_DIR/tags"
             sed -i "s/^$var\s.*//" $SRC_DIR/tags
         done

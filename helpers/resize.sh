@@ -45,8 +45,6 @@ NO_WMCTRL=$(wmctrl -h > /dev/null 2> /dev/null; echo $?)
 
 #echo "no xterm $NO_XTERM and no wmctrl $NO_WMCTRL"
 
-
-
 #wmctrl -h > /dev/null 2> /dev/null && TMP=$?
 #if [ $? -eq 0 ]; then
 #    alias viq='wmctrl -r :ACTIVE: -e 0,0,0,609,752'
