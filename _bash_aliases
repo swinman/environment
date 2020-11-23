@@ -14,6 +14,9 @@ export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi?(q)?( ):gvim:ipy:history?(
 
 alias cd..='cd ..'
 
+# show downloads in reverse order without owner, links or permissions
+alias dl="ls -gGthr --color=always ~/Downloads | sed 's/^[^ ]* *[0-9]* //'"
+
 alias tdmesg='tail -n 0 -f /var/log/syslog'
 alias math="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases/helpers/')/math.sh"
 
