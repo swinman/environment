@@ -7,6 +7,11 @@ config_rules() {
     echo "Config device plugdev rules"
     echo "Adding device usb ids to plugdev rules"
     sudo cp $SCRIPTPATH/99-uCtools.rules /etc/udev/rules.d/
+
+    #see : https://bugs.launchpad.net/ubuntu/+source/modemmanager/+bug/1827328
+    sudo sed 's/--filter-policy=strict/--filter-policy=paranoid/' -i \
+        /lib/systemd/system/ModemManager.service
+
     echo "Ensuring correct permissions are set"
     for GROUP in plugdev dialout; do
         if [ -z $(grep $GROUP /etc/group)  ]; then
