@@ -13,7 +13,7 @@ get_vim_packages() {
 }
 
 config_vim() {
-    if [ $OS = windows ]; then
+    if [ "${OS}" = "windows" ]; then
         text="source $softwaredir\\environment\\_vimrc"
         target=~/_vimrc
     else
