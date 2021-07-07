@@ -88,7 +88,7 @@ get_vim_addons() {
     #get_git_repo $GHURL/davidhalter/jedi-vim.git $VBUND/jedi-vim --recursive
 
     if [ -n "YES" ]; then
-        get_git_repo $GHURL/vim-scripts/TagHighlight.git $VBUND/taghighlight
+        get_git_repo hg::https://heptapod.host/cgtk/taghighlight $VBUND/taghighlight
     else
         echo "Attempting to access private repo: "
         get_git_repo git@github.com:swinman/taghighlight.git $VBUND/taghighlight

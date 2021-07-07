@@ -11,6 +11,9 @@ get_git_packages() {
     if [ "${OS}" = "linux" ]; then
         sudo apt-get install git -y
         sudo apt-get install xclip -y
+        sudo apt-get install mercurial -y
+        wget https://raw.github.com/felipec/git-remote-hg/master/git-remote-hg -O ~/.local/bin/git-remote-hg
+        chmod ug+x ~/.local/bin/git-remote-hg
     elif [ $OS = windows ]; then
         echo "Download git and install using 'simple context menu' with bash"
         echo "Download from http://git-scm.com/download/win"

@@ -43,6 +43,7 @@ get_python3_packages() {
         #sudo -H pip3 install --upgrade Cython
         sudo apt-get remove python3-pip -y
         sudo apt-get autoremove -y
+        #sudo -H pip3 install mercurial
 
         # TODO check if ubuntu > specific version where pip not necessary
 
