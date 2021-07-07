@@ -664,6 +664,7 @@ if has("win32")
     let g:UltiSnipsSnippetsDir = g:softwaredir . "\\environment\\snippits"
     let &runtimepath.=','.g:softwaredir . "\\environment"
 else
+    let g:UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = g:softwaredir . "/environment/snippits"
     let g:UltiSnipsSnippetsDir = g:softwaredir . "/environment/snippits"
     let &runtimepath.=','.g:softwaredir . "/environment"
 endif
