@@ -1,4 +1,5 @@
 snippet cstart "Template for New C File" !b
+#line 1 "${1:`!p snip.rv = snip.fn[:-2]`}"
 /**** file:       ${1:`!p snip.rv = snip.fn`}
     * created:    ${2:`!p import time
 snip.rv = time.strftime("%Y-%m-%d %H:%M:%S")
