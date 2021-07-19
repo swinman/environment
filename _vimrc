@@ -138,7 +138,7 @@ function! DarkColorscheme()
     try
         colorscheme storm
     catch /^Vim\%((\a\+)\)\=:E185/
-        colorscheme darkblue
+        colorscheme slate
     endtry
 endfunction
 
