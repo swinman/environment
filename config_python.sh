@@ -32,6 +32,8 @@ get_python3_packages() {
         sudo apt-get install libfreetype6-dev -y        # matplotlib
         sudo apt-get install libpng3 -y                 # matplotlib
 
+        sudo apt-get install qt5dxcb-plugin -y          # pyqt5 on 20.04
+
         if [ -n $DISPLAY ]; then
             sudo apt-get install python3-tk -y
         fi
