@@ -57,6 +57,8 @@ get_python3_packages() {
             sudo -H pip3 install pyqt5==5.9.2
         fi
 
+        sudo apt-get install python3-sip -y
+
         activate-global-python-argcomplete --user
     elif [ $OS = windows ]; then
         echo "It's probably easier to type 'gb' over each link from vim"

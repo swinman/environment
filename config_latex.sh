@@ -14,6 +14,7 @@ config_latex() {
     sudo apt-get install latexmk -y   # similar to rubber
     sudo apt-get install texlive-latex-base -y
     sudo apt-get install texlive-latex-extra -y
+    sudo apt-get install texlive-fonts-extra -y
     sudo apt-get install texlive-latex-recommended -y
     sudo apt-get install texlive-science -y
     sudo apt-get install texlive-plain-extra -y
