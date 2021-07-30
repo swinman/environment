@@ -4,6 +4,7 @@ get_vim_packages() {
     if [ "${OS}" = "linux" ]; then
         echo "Getting required vim packages"
         sudo apt-get install vim -y
+        sudo apt-get install vim-gtk3 -y
         sudo apt-get install vim-gnome -y
         sudo apt-get install vim-doc -y
         sudo apt-get install ttf-dejavu -y
