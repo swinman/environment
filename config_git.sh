@@ -12,6 +12,7 @@ get_git_packages() {
         sudo apt-get install git -y
         sudo apt-get install xclip -y
         sudo apt-get install mercurial -y
+        mkdir -p ~/.local/bin
         wget https://raw.github.com/felipec/git-remote-hg/master/git-remote-hg -O ~/.local/bin/git-remote-hg
         chmod ug+x ~/.local/bin/git-remote-hg
     elif [ $OS = windows ]; then

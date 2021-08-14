@@ -48,7 +48,7 @@ fi
 if [ -e $TAGHL ]; then
     echo "Make taghighlight files"
     rm -f $SRC_DIR/types_*.taghl
-    cd $SRC_DIR && python $TAGHL \
+    cd $SRC_DIR && python3 $TAGHL \
         --use-existing-tagfile --ctags-file=$SRC_DIR/tags \
         --source-root=$SRC_DIR
 fi

@@ -33,6 +33,7 @@ get_python3_packages() {
         sudo apt-get install libpng3 -y                 # matplotlib
 
         sudo apt-get install qt5dxcb-plugin -y          # pyqt5 on 20.04
+        sudo apt-get install wheel -y   # enable python3 setup.py bdist_wheel
 
         if [ -n $DISPLAY ]; then
             sudo apt-get install python3-tk -y
