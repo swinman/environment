@@ -62,6 +62,7 @@ convert() {
 }
 
 COUNT=$1
+LEN=${2:-4}
 
 if [ -z $COUNT ]; then
     SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
@@ -76,7 +77,7 @@ if [ -z $COUNT ]; then
 fi
 
 DEBUG=false
-RV=$(convert $COUNT 4)
+RV=$(convert $COUNT $LEN)
 
 
 echo $RV
