@@ -34,7 +34,6 @@ install_packages() {
             sudo apt-get install libc6:i386 -y
             sudo apt-get install libgtk-3-0:i386 -y
             sudo apt-get install libcanberra0:i386 -y
-            sudo apt-get install libpng12-0:i386 -y
             sudo apt-get install libice6:i386 -y
             sudo apt-get install libsm6:i386 -y
             sudo apt-get install libncurses5:i386 -y
@@ -47,12 +46,26 @@ install_packages() {
             sudo apt-get install libxrender1:i386 -y
             sudo apt-get install libxt6:i386 -y
             sudo apt-get install libxtst6:i386 -y
+
+
+        if [ $(lsb_release -a | grep Codename | grep focal | wc -l) -eq 1 ]; then
+            sudo add-apt-repository ppa:linuxuprising/libpng12
+            sudo apt update
+            sudo apt install libpng12-0
+
+            sudo apt-get install libbz2-1.0:i386 -y
+            sudo apt-get install lib32ncurses6 -y
+        else
+            sudo apt-get install libpng12-0:i386 -y
+            sudo apt-get install lib32bz2-1.0 -y
+            sudo apt-get install lib32ncurses5 -y
+        fi
+
+
+
         # iCECube2 related
             sudo apt-get install lib32z1 -y
-            sudo apt-get install lib32ncurses5 -y
-            sudo apt-get install lib32bz2-1.0 -y
             sudo apt-get install libxext6:i386 -y
-            sudo apt-get install libpng12-0:i386 -y
             sudo apt-get install libsm6:i386 -y
             sudo apt-get install libxi6:i386 -y
             sudo apt-get install libxrender1:i386 -y
@@ -120,6 +133,7 @@ tejainece_git_script() {
 check_eth_addr() {
     echo "In order to have a license for lattice you need an eth0 device"
     echo "run ifconfig -a | grep \"^[^ ]\""
+    echo "swap out enp0s31f6 for eth0"
     echo 'SUBSYSTEM=="net", ACTION="add", ATTR{address}=="xx:xx:xx:xx:xx:xx", NAME="eth0"'
 }
 # --------------------- SETUP SCRIPT --------------------- #

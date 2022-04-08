@@ -19,6 +19,7 @@ alias dl="ls -gGthr --color=always ~/Downloads | sed 's/^[^ ]* *[0-9]* //'"
 
 alias tdmesg='tail -n 0 -f /var/log/syslog'
 alias math="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases/helpers/')/math.sh"
+alias mkpass='< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-12}; echo'
 
 alias LS='echo "Remove CAPS LOCK you ass"'
 #tdmesg='tail -f /var/log/{messages,kernel,dmesg,syslog}'

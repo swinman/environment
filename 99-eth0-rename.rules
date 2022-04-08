@@ -1,5 +1,7 @@
 #### RULES move to /etc/udev/rules.d
 #
+# 1) swap out MA:C :AD:DREss for the mac address, use enp0s31f6 or whatever
+#
 # to reload rules:
 #   sudo udevadm control --reload-rules
 #   sudo udevadm trigger
