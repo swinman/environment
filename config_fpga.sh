@@ -47,18 +47,19 @@ install_packages() {
             sudo apt-get install libxt6:i386 -y
             sudo apt-get install libxtst6:i386 -y
 
-
         if [ $(lsb_release -a | grep Codename | grep focal | wc -l) -eq 1 ]; then
             sudo add-apt-repository ppa:linuxuprising/libpng12
             sudo apt update
-            sudo apt install libpng12-0
+            sudo apt install libpng12-0 -y      # maybe need the i386 version!!
 
             sudo apt-get install libbz2-1.0:i386 -y
             sudo apt-get install lib32ncurses6 -y
+
         else
             sudo apt-get install libpng12-0:i386 -y
             sudo apt-get install lib32bz2-1.0 -y
             sudo apt-get install lib32ncurses5 -y
+
         fi
 
 
@@ -78,12 +79,15 @@ install_packages() {
             sudo apt-get install libglib2.0-0:i386 -y
             sudo apt-get install libstdc++6:i386 -y
             sudo apt-get install libelf1:i386
+
         # lattice programmer related
             sudo apt-get install rpm2cpio -y
             sudo apt-get install cpio -y
             sudo apt-get install libelf1:i386 -y
+
         # quartus related
             sudo apt-get install build-essential
+
     fi
 }
 
