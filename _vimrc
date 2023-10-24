@@ -660,6 +660,7 @@ let NERDTreeIgnore = ['\.((jpe?g)|(png)|(PNG)|o|atsuo|docx?|xlsx?|pyc|pdf)$',
 " ---------------------- UltiSnips ------------------------------         {{{2
 "  set header files to filetype c for correct snips
 autocmd BufRead,BufNewFile *.h set filetype=c
+autocmd BufRead,BufNewFile *.npl set filetype=c
 if has("win32")
     let g:UltiSnipsSnippetsDir = g:softwaredir . "\\environment\\snippits"
     let &runtimepath.=','.g:softwaredir . "\\environment"

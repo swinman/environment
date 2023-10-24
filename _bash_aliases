@@ -54,6 +54,7 @@ alias cgrep='grep -r --include="*.[chsCHS]" --include="*.mk" --include=Makefile 
 alias ncgrep='grep -r --include="*.nc"'
 alias texgrep='grep -r --include="*.tex"'
 alias shgrep='grep -r --include="*.sh"'
+alias ngrep='grep -r --include="*.npl" --include="*.inc" --include="*.sfe"'
 
 # Git
 alias gco='git checkout '

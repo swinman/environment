@@ -25,6 +25,10 @@ if hash cscope 2>/dev/null; then
     cd $SRC_DIR && echo "$(find . -name "*.[ch]")" > cscope.files
     cd $SRC_DIR && echo "$(find . -name "*.vhd")" >> cscope.files
     cd $SRC_DIR && echo "$(find . -name "*.py")" >> cscope.files
+# pascal files from nanoplotter
+#    cd $SRC_DIR && echo "$(find . -name "*.npl")" >> cscope.files
+#    cd $SRC_DIR && echo "$(find . -name "*.inc")" >> cscope.files
+#    cd $SRC_DIR && echo "$(find . -name "*.sfe")" >> cscope.files
 
     echo "Make cscope database"
     cd $SRC_DIR && cscope -Rkb -i cscope.files
@@ -34,7 +38,7 @@ if hash $CTAGS 2>/dev/null; then
     echo "Make ctags list"
     echo "ctags is version $(ctags --version)"
     rm -f $SRC_DIR/tags
-    cd $SRC_DIR && $CTAGS -R --exclude="*~" --exclude=".git"
+    cd $SRC_DIR && $CTAGS -R --exclude="*~" --exclude=".git" --langmap=c:+.npl
     if [ -f $SRC_DIR/tags ]; then
         for var in bool char int uint8_t uint16_t uint32_t; do
             echo "sed -i \"s/^$var .*//\" $SRC_DIR/tags"
