@@ -91,6 +91,46 @@ int main() {
 
     mb.byte = 15;
 
+    for (uint8_t lowval=30; lowval<35; lowval++) {
+        printf("set sennum %u (0x%X 0b"BB_STR") by calling 0x%X 0b"BB_STR"\n",
+            lowval, lowval, BTOB(lowval), lowval+' ', BTOB(lowval + ' '));
+    }
+
+    /* WORKS
+    const char set_sennum_cmd = 32;
+    const char max_numsen = 96;
+    const char sensor_check = 0x60;
+    */
+
+    /* FAILS
+    const char set_sennum_cmd = 16;
+    const char max_numsen = 111;
+    const char sensor_check = 0x30;
+    */
+
+    /* TESTING */
+    const char set_sennum_cmd = 64;
+    const char max_numsen = 64;
+    const char sensor_check = 0x40;
+
+    uint8_t sennum;
+    uint8_t cmd;
+    uint8_t failed = 0;
+    for (sennum=0; sennum<max_numsen; sennum++) {
+        cmd = set_sennum_cmd + sennum;
+        if (!(cmd & sensor_check)) {
+            printf("Set sennum %u has a command %u that wont work\n",
+                    sennum, cmd);
+            failed++;
+        }
+    }
+    if (!failed) {
+        printf("Set sennum commands adding %u work by checking (sn | 0x%02X) for up to %u sensors\n\n",
+                set_sennum_cmd, sensor_check, max_numsen);
+    } else {
+        printf("Set sennum commands adding %u and by checking (sn | 0x%02X) FAILS for %u of %u sensors\n\n",
+                set_sennum_cmd, sensor_check, failed, max_numsen);
+    }
 
     make_command();
 
