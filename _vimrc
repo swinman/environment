@@ -102,19 +102,24 @@ endif
 
 " -------------------- DelWhiteSpace ----------------------------         {{{2
 function! DelWhiteSpace()
-    " use  let g:rmwsp = 0 to disable
-    if exists( "g:rmwsp" ) && g:rmwsp == 1 && expand(@%)!~"_vimrc$" && expand(@%)!~"\.diff$"
-        let Lineno = line('.')
-        let Colno = col('.')
-        silent! exec '%s/\s\+$//g'
-        silent! exec '%s/\_s\+\%$//'
-        exe '/\%$'
-        if Lineno < line('.')
-            exe Lineno
-            exe "normal " . Colno . "|"
-        endif
+    let Lineno = line('.')
+    let Colno = col('.')
+    silent! exec '%s/\s\+$//g'
+    silent! exec '%s/\_s\+\%$//'
+    exe '/\%$'
+    if Lineno < line('.')
+        exe Lineno
+        exe "normal " . Colno . "|"
     endif
 endfunction
+
+function! AutoDelWhiteSpace()
+    " add 'let g:auto_rmwsp = 1' to ~/.vimrc to enable
+    if exists( "g:auto_rmwsp" ) && g:auto_rmwsp == 1 && expand(@%)!~"_vimrc$" && expand(@%)!~"\.diff$"
+        call DelWhiteSpace()
+    endif
+endfunction
+
 " END: --------------- DelWhiteSpace ----------------------------         2}}}
 
 " ---------------------- SetFFUnix ------------------------------         {{{2
@@ -678,11 +683,10 @@ let g:UltiSnipsSnippetDirectories = ["snippits","UltiSnips"]
 let g:syntastic_python_checkers = ['']
 
 " ----------------- Personal Functions --------------------------         {{{2
-autocmd BufWritePre * call DelWhiteSpace()
-
-if getcwd()=~"drift" || getcwd()=~"stopsen" || getcwd()=~"environment" || getcwd()=~"liverchip" || getcwd()=~"walke" || getcwd()=~"lucid"
-    let g:rmwsp = 1
-    " use unlet g:rmwsp or let g:rmwsp=0 to remove this functionality
+autocmd BufWritePre * call AutoDelWhiteSpace()
+if !exists( "g:auto_rmwsp" )
+    " add 'let g:auto_rmwsp = 1' to ~/.vimrc to enable
+    let g:auto_rmwsp = 0
 endif
 
 call DarkColorscheme()
