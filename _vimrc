@@ -627,6 +627,7 @@ autocmd FileType markdown setlocal formatoptions+=t spell
 autocmd FileType markdown setlocal foldmethod=marker
 autocmd FileType gitcommit setlocal formatoptions+=t spell tw=72
 autocmd FileType ngc setlocal foldmethod=marker
+autocmd FileType js setlocal noexpandtab
 
 " add SpellGoodWordsStart and SpellGoodWordsEnd to dictionary
 silent spellgood! SpellGoodWordsStart
