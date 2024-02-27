@@ -37,6 +37,10 @@ config_git() {
         git config --global push.default simple
     fi
     echo "   linking core excludes file"
+    if [ -z "$softwaredir" ]; then
+        >&2 echo "softwaredir not set!"
+        exit -1
+    fi
     git config --global core.excludesfile "$softwaredir/environment/_gitignore"
     read -p "Full user name (default is no change): " username
     if [ -n "$username" ]; then

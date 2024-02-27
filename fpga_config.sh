@@ -63,6 +63,9 @@ alias iCEcube2=$ICEDIR/iCEcube2
 
 export PATH=$PATH:$toolsdir/flopoco
 
+export PATH=$PATH:$toolsdir
+export PATH=$PATH:$toolsdir/arm-none-eabi/bin
+
 #ln -s -T proj_ice/stopsen_impl/stopsen.srr log.log
 #ln -s -T ~/.config/LatticeSemi/programmer.log programmer.log
 

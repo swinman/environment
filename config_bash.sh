@@ -65,10 +65,11 @@ init_software_dir() {
     if ! [ -d $TOOLSDIR ]; then
         echo "Adding directory $TOOLSDIR"
         mkdir -p $TOOLSDIR
-	if ! [ "$OS" = "windows" ]; then
-		echo "Adding $TOOLSDIR to .pam_environment PATH"
-		echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR >> ~/.pam_environment
-	fi
+# note - pam_environment is no longer supported, moved this to fpga_config
+#	if ! [ "$OS" = "windows" ]; then
+#		echo "Adding $TOOLSDIR to .pam_environment PATH"
+#		echo PATH\ DEFAULT=$\{PATH}:$TOOLSDIR >> ~/.pam_environment
+#	fi
     fi
 }
 

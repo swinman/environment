@@ -18,7 +18,7 @@
 
 install_packages() {
     if [ "$OS" = "linux" ]; then
-        if [ $(lsb_release -a | grep Codename | grep focal | wc -l) -eq 1 ]; then
+        if [ $(lsb_release -a | grep Codename | egrep "focal|jammy" | wc -l) -eq 1 ]; then
             sudo dpkg --add-architecture i386
             sudo apt-get update
 
@@ -30,7 +30,7 @@ install_packages() {
             sudo apt install gcc-10-base:i386 -y
 
             # packages only in our script
-            if [ 0 ]; then
+            if [ 0 -eq 1 ]; then
                 sudo apt install expat:i386 -y
                 sudo apt install fontconfig:i386 -y
                 sudo apt install g++-multilib -y
@@ -50,7 +50,7 @@ install_packages() {
             fi
 
             # packages in both scripts
-            if [ 1 ]; then
+            if [ 1 -eq 1 ]; then
                 sudo apt install lib32stdc++6 -y
                 sudo apt install libc6:i386 -y
                 sudo apt install libexpat1:i386 -y
@@ -62,7 +62,7 @@ install_packages() {
             fi
 
             # packages in their script
-            if [ 0 ]; then
+            if [ 0 -eq 1 ]; then
                 sudo apt install lib32stdc++6 -y
                 sudo apt install libfontconfig1:i386 -y
                 sudo apt install libgcc-s1:i386 -y
@@ -77,16 +77,30 @@ install_packages() {
                 sudo apt install libxrandr2:i386 -y
             fi
 
-            # THIS IS IMPORTANT
-            if [ 0 ]; then # Step 3: Install 32-bit libpng12 with modified paths
-                wget vhdlwhiz.com/wp-content/uploads/2020/05/\
-                    libpng12-0_1.2.54-1ubuntu1b_i386.deb
 
+            # you have to do this first, then remove it, otherwise you get an
+            # eror about usrmerge conflicts with libpng12-0
+            if [ $(lsb_release -a | grep Codename | grep focal | wc -l) -eq 1 ]; then
+                sudo add-apt-repository ppa:linuxuprising/libpng12
+                sudo apt update
+                # DON'T DO THIS -- it prevents vhdlwhiz install
+                sudo apt install libpng12-0 -y      # need i386 instead
+
+                sudo apt-get install libbz2-1.0:i386 -y
+                sudo apt-get install lib32ncurses6 -y
+
+                sudo apt-get remove libpng12-0 -y
+            fi
+
+
+            # THIS IS IMPORTANT
+            if [ 0 -eq 1 ]; then # Step 3: Install 32-bit libpng12 with modified paths
+                wget vhdlwhiz.com/wp-content/uploads/2020/05/libpng12-0_1.2.54-1ubuntu1b_i386.deb
                 sudo dpkg -i libpng12-0_1.2.54-1ubuntu1b_i386.deb && rm libpng12-0_1.2.54-1ubuntu1b_i386.deb
             fi
 
             # not necessary, we change to eth0 elsewhere
-            if [ 0 ]; then # Step 4a: Make a backup of the GRUB config
+            if [ 0 -eq 1 ]; then # Step 4a: Make a backup of the GRUB config
                 sudo cp /etc/default/grub /etc/default/grub_original
 
                 # Update 2020-08-10:
@@ -105,38 +119,26 @@ install_packages() {
 
                 # Step 4d: Update the GRUB config and reboot
                 sudo update-grub
-                sudo reboot
+#                sudo reboot
 
                 # Step 4e: Check that the network name is now "eth0"
                 ip link show
             fi
 
             # install from whl -- but use the latest
-            if [ 0 ]; then   # Step 5: Unpack and install Lattice iCEcube2
+            if [ 0 -eq 1 ]; then   # Step 5: Unpack and install Lattice iCEcube2
                 cd
                 tar zxf ./iCEcube2setup_Sep_12_2017_1708.tgz
                 chmod +x iCEcube2setup_Sep_12_2017_1708
                 ./iCEcube2setup_Sep_12_2017_1708
             fi
 
-            # IMPORTANT after install - but needs adjusting for date etc
-            if [ 0 ]; then # Step 6a: Replace #!/bin/sh shebang with #!/bin/bash recursively
-                find ~/lscc/iCEcube2.2017.08/synpbase/bin/ \
-                    -type f -exec sed -i '1s/#\!\/bin\/sh/#\!\/bin\/bash/g' {} \;
-
-                # Step 6b: Replace some occurrences of /bin/sh with /bin/bash
-                find ~/lscc/iCEcube2.2017.08/synpbase/lib/ \
-                    -type f -exec sed -i 's/\/bin\/sh /\/bin\/bash /g' {} \;
-                find ~/lscc/iCEcube2.2017.08/synpbase/lib/ \
-                    -type f -exec sed -i "s/'\/bin\/sh'/'\/bin\/bash'/g" {} \;
-            fi
-
-            if [ 0 ]; then # Step 7: Start iCEcube2
+            if [ 0 -eq 1 ]; then # Step 7: Start iCEcube2
                 ~/lscc/iCEcube2.2017.08/iCEcube2
             fi
         fi
 
-        if [ 0 ]; then      # OLD tejainece method
+        if [ 0 -eq 1 ]; then      # OLD tejainece method
             sudo apt-get install gcc-multilib -y
             sudo apt-get install g++-multilib -y
             sudo apt-get install lib32z1 -y
@@ -179,7 +181,7 @@ install_packages() {
             fi
         fi
 
-        if [ 1 ]; then # iCECube2 related
+        if [ 1 -eq 1 ]; then # iCECube2 related
             sudo apt-get install lib32z1 -y
             sudo apt-get install libxext6:i386 -y
             sudo apt-get install libsm6:i386 -y
@@ -196,15 +198,29 @@ install_packages() {
             sudo apt-get install libelf1:i386
         fi
 
-        if [ 1 ]; then # lattice programmer related
+        if [ 1 -eq 1 ]; then # lattice programmer related
             sudo apt-get install rpm2cpio -y
             sudo apt-get install cpio -y
             sudo apt-get install libelf1:i386 -y
         fi
 
-        if [ 1 ]; then # quartus related
+        if [ 1 -eq 1 ]; then # quartus related
             sudo apt-get install build-essential
         fi
+    fi
+}
+
+# IMPORTANT after install - but needs adjusting for date etc
+fix_lscc_icecube_scripts() {
+    if [ 1 -eq 1 ]; then # Step 6a: Replace #!/bin/sh shebang with #!/bin/bash recursively
+        find ~/tools/lscc/iCEcube2.20*/synpbase/bin/ \
+            -type f -exec sed -i '1s/#\!\/bin\/sh/#\!\/bin\/bash/g' {} \;
+
+        # Step 6b: Replace some occurrences of /bin/sh with /bin/bash
+        find ~/tools/lscc/iCEcube2.20*/synpbase/lib/ \
+            -type f -exec sed -i 's/\/bin\/sh /\/bin\/bash /g' {} \;
+        find ~/tools/lscc/iCEcube2.20*/synpbase/lib/ \
+            -type f -exec sed -i "s/'\/bin\/sh'/'\/bin\/bash'/g" {} \;
     fi
 }
 
@@ -262,6 +278,7 @@ check_eth_addr() {
 
 echo "==================== config_fpga.sh ===================="
 install_packages;
+fix_lscc_icecube_scripts;
 #config_icecube2;
 #tejainece_git_script;
 
