@@ -81,7 +81,8 @@ get_gcc_arm() {
     if [ "$OS" = "linux" ]; then
         if [ ! -d $toolsdir/arm-none-eabi ]; then
             if [ ! -f $toolsdir/arm-gnu-toolchain-*-linux.any.x86_64.tar.gz ]; then
-                wget -P $toolsdir "https://s3.us-east-2.amazonaws.com/files.lucidsci.com/arm-gnu-toolchain-6.3.1.508-linux.any.x86_64.tar.gz"
+                aws s3 cp "s3://dev-tool-packages.lucidsci.com/arm-gnu-toolchain-6.3.1.508-linux.any.x86_64.tar.gz" $toolsdir
+#                wget -P $toolsdir "https://s3.us-east-2.amazonaws.com/files.lucidsci.com/arm-gnu-toolchain-6.3.1.508-linux.any.x86_64.tar.gz"
 #                wget -P $toolsdir "https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en603996"
             fi
             if [ -f $toolsdir/arm-gnu-toolchain-*-linux.any.x86_64.tar.gz ]; then
