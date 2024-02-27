@@ -19,6 +19,10 @@ get_packages() {
     sudo apt-get install libc6 -y
     sudo apt-get install libncurses5 -y
     sudo apt-get install gtkterm -y
+
+    # for making BOSSA
+    sudo apt-get install libwxgtk3.0-gtk3-dev -y
+    sudo apt-get install libreadline-dev -y
 }
 
 install_tools() {
