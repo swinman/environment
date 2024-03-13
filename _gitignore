@@ -61,4 +61,15 @@ Icon?
 ehthumbs.db
 Thumbs.db
 
+# LaTex files #
+###############
+*.rubbercache
+*.aux
+*.out
+*.pdf
+*.bbl
+*.blg
+*.lof
+*.lot
+
 # vim:ft=gitignore
