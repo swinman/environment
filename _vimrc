@@ -64,7 +64,7 @@ filetype plugin indent on
 
 " END: =================== SETUP ================================         1}}}
 
-" commands to put backup files (ending in ~) in tmp directory 
+" commands to put backup files (ending in ~) in tmp directory
 set swapfile
 set backupdir=/tmp
 
@@ -106,7 +106,7 @@ function! DelWhiteSpace()
     let Colno = col('.')
     silent! exec '%s/\s\+$//g'
     silent! exec '%s/\_s\+\%$//'
-    exe '/\%$'
+    exec '/\%$'
     if Lineno < line('.')
         exe Lineno
         exe "normal " . Colno . "|"

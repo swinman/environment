@@ -88,6 +88,7 @@ get_vim_addons() {
     get_git_repo $GHURL/tpope/vim-surround.git $VBUND/vim-surround
     get_git_repo $GHURL/SirVer/ultisnips.git $VBUND/ultisnips
     get_git_repo $GHURL/gregjurman/vim-nc.git $VBUND/ngc
+    get_git_repo $GHURL/swinman/taghighlight.git $VBUND/taghighlight
     #get_git_repo $GHURL/davidhalter/jedi-vim.git $VBUND/jedi-vim --recursive
 
     if [ -n "YES" ]; then
