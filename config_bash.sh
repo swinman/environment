@@ -46,7 +46,7 @@ check_os() {
 }
 
 set_common_dir() {
-    if [ $OS = windows ]; then
+    if [ $OS = FALSE_windows ]; then
         SOFTWAREDIR=$USERPROFILE\\Documents\\software
         TOOLSDIR=$USERPROFILE\\tools
     else
@@ -131,7 +131,7 @@ add_bash_alias() {
     fi
     if [ "$OS" = "windows" ]; then
         echo "adding cd to softwaredir for windows"
-        echo 'cd $softwaredir' >> $BRC
+        echo 'cd $HOME' >> $BRC
         echo "" >> $BRC
     fi
     echo $endline >> $BRC
