@@ -13,17 +13,12 @@ export LM_LICENSE_FILE=~/tools/lscc/license-ice.dat
 ICEDIRs=$(find $toolsdir/lscc/iCEcube2* -maxdepth 0 -type d)
 #export ICEDIR=$(echo $ICEDIRs | sed 's/\([^ ]*\).* \(.*\)/\1/')  # first
 export ICEDIR=$(echo $ICEDIRs | sed 's/\([^ ]*\).* \(.*\)/\2/')  # last
-if [ -d "$toolsdir/altera" ]; then
-    ALTERADIRs=$(find $toolsdir/altera/* -maxdepth 0 -type d)
-    ALTERADIR=$(echo $ALTERADIRs | sed 's/\([^ ]*\).* \(.*\)/\2/')
+ALTERADIR=""
+if [ -d "$toolsdir/intelFPGA" ]; then
+    INTELDIRs=$(find $toolsdir/intelFPGA/* -maxdepth 0 -type d)
+    INTELDIR=$(echo $INTELDIRs | sed 's/\([^ ]*\).* \(.*\)/\2/')
 else
-    ALTERADIR=""
-    if [ -d "$toolsdir/intelFPGA_lite" ]; then
-        INTELDIRs=$(find $toolsdir/intelFPGA_lite/* -maxdepth 0 -type d)
-        INTELDIR=$(echo $INTELDIRs | sed 's/\([^ ]*\).* \(.*\)/\2/')
-    else
-        echo "modelsim not installed"
-    fi
+    echo "modelsim not installed"
 fi
 
 export LD_LIBRARY_PATH=
@@ -44,10 +39,7 @@ export PATH=$PATH:$DIAMOND_DIR/bin/lin:$DIAMOND_DIR/ispfpga/bin/lin
 export PATH=$PATH:$ICEDIR/synpbase/linux/lib
 export PATH=$PATH:$toolsdir/arm-none-eabi/bin
 
-if [ -n "$ALTERADIR" ]; then
-    alias vsim="$ALTERADIR/modelsim_ase/linux/vsim"
-    alias quartus="$ALTERADIR/quartus/bin/quartus"
-elif [ -n "$INTELDIR" ]; then
+if [ -n "$INTELDIR" ]; then
     alias vsim="$INTELDIR/modelsim_ase/linux/vsim"
 fi
 

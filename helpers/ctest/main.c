@@ -4,6 +4,36 @@
 #include <stdarg.h>
 #include <string.h>
 
+
+
+unsigned char get_3bit_crc(unsigned int value, unsigned short int crc) {
+    /* crc check - use crc with the remainder expecting 0 */
+    const unsigned long int POLY = 0xB; // 0b1011;
+
+    if (value >= (1<<13)) {
+        printf("value 0x%X 0b"BB_STR" "BB_STR" is too large!\n",
+                value, BTOB((value & 0xff00) >> 8), BTOB(value & 0xff));
+        return 255;
+    }
+
+    if (crc >= 8) {
+        printf("crc %u is too large!!!", crc);
+        return 255;
+    }
+
+    value = (value << 3) + crc;
+    for (unsigned char bit=15; bit > 2; bit--) {
+        if (value & (1<<bit)) {
+//            printf("crc with value 0b "BB_STR" "BB_STR"\n",
+//                    BTOB((value & 0xff00)>>8), BTOB(value & 0xff));
+//            printf("bit %u is 1, doing xor with 0x%lX\n", bit, (POLY << (bit-4)));
+            value ^= (POLY << (bit-3));
+        }
+    }
+
+    return (unsigned char) (0x7 & value);
+}
+
 void place_str(const char* str_ptr) {
     str_ptr = "World";
 }
@@ -90,6 +120,14 @@ int main() {
     str = get_ptr();
 
     mb.byte = 15;
+
+    unsigned short int val, crc, crc_check;
+
+
+    val = 0b0111101101;
+    crc = get_3bit_crc(val, 0);
+    crc_check = get_3bit_crc(val, crc);
+    printf("crc of 0x%X is 0x%X -- check is %u\n", val, crc, crc_check);
 
     for (uint8_t lowval=30; lowval<35; lowval++) {
         printf("set sennum %u (0x%X 0b"BB_STR") by calling 0x%X 0b"BB_STR"\n",

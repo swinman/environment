@@ -16,6 +16,8 @@ cscope.files
 .ropeproject*
 .spyderproject*
 
+.aider*
+
 # Backup Files #
 ################
 *~
