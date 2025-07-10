@@ -134,6 +134,15 @@ int main() {
             lowval, lowval, BTOB(lowval), lowval+' ', BTOB(lowval + ' '));
     }
 
+    uint8_t i;
+    char c;
+
+    for (i=0; i<26; i++) {
+        c = 'a' + i;
+        printf("%c", c);
+    }
+    printf("\n");
+
     /* WORKS
     const char set_sennum_cmd = 32;
     const char max_numsen = 96;
