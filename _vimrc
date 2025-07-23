@@ -633,12 +633,17 @@ autocmd FileType markdown setlocal foldmethod=marker
 autocmd FileType gitcommit setlocal formatoptions+=t spell tw=72
 autocmd FileType ngc setlocal foldmethod=marker
 autocmd FileType js setlocal noexpandtab
-
-" add SpellGoodWordsStart and SpellGoodWordsEnd to dictionary
-silent spellgood! SpellGoodWordsStart
-silent spellgood! SpellGoodWordsEnd
-
 " END: ------------ File Type Specific --------------------------         2}}}
+
+" ---------------------- Spelling -------------------------------         {{{2
+" add SpellGoodWordsStart and SpellGoodWordsEnd to dictionary
+for lline in readfile(expand('<sfile>:p:h') . '/_spellvim')
+    for word in split(lline, '\W\+')
+        silent execute ':spellgood! ' . word
+    endfor
+endfor
+" END: ----------------- Spelling -------------------------------         2}}}
+
 " END: =============== VIM SETTINGS =============================         1}}}
 
 " =================== PLUGIN SETTINGS ===========================         {{{1
