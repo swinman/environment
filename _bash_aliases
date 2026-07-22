@@ -18,10 +18,21 @@ alias cd..='cd ..'
 alias dl="ls -gGthr --color=always ~/Downloads | sed 's/^[^ ]* *[0-9]* //'"
 alias vs="eog \"$(ls ~/Pictures/Screenshots/* | tail -1)\""
 
+alias asl="aws sso login"
+
 alias tdmesg='tail -n 0 -f /var/log/syslog'
 alias math="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases/helpers/')/math.sh"
 alias tepoc="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases/helpers/')/tepoc.sh"
 alias mkpass='< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-12}; echo'
+
+# view a markdown file in the terminal.  the reader tweaks matter:
+#   -smart     keep -- and ' literal.  pandoc otherwise rewrites them as en
+#              dashes and curly quotes, which corrupts every command line in
+#              the doc (git clone --recursive became git clone -recursive)
+#   -raw_html  escape <placeholder> text so it is displayed.  left on, pandoc
+#              passes it through as html and lynx silently eats it as an
+#              unknown tag, so <branch-or-commit> vanished from the page
+md() { pandoc -f markdown-smart-raw_html -t html "$1" | lynx -stdin; }
 
 alias LS='echo "Remove CAPS LOCK you ass"'
 #tdmesg='tail -f /var/log/{messages,kernel,dmesg,syslog}'
@@ -53,26 +64,21 @@ alias miniterm='pyserial-miniterm -e'
 
 alias pygrep='grep -r --include="*.py" --include="*.pyw" --include="*.ipynb"'
 alias vgrep='grep -r --include="*.vhd" --include="*.v" --include="*.inc"'
-alias cgrep='grep -r --include="*.[chsCHS]" --include="*.mk" --include=Makefile --include="*.[chsCHS][Pp][pP]"'
+alias cgrep='grep -r --include="*.[chsCHS]" --include="*.mk" --include="*.ld" --include=Makefile* --include="*.[chsCHS][Pp][Pp]"'
 alias ncgrep='grep -r --include="*.nc"'
 alias texgrep='grep -r --include="*.tex"'
 alias shgrep='grep -r --include="*.sh"'
 alias ngrep='grep -r --include="*.npl" --include="*.inc" --include="*.sfe"'
 
 # Git
-alias gco='git checkout '
-alias gci='git commit '
 alias gis='git status '
 alias gba='git branch -a '
-alias gsh='git show '
 alias gs='echo no'
 alias gdf='git diff '
 alias gdw='git diff --word-diff'
 alias gdc='git diff --cached'
-alias gad='git add '
-alias gpu='git push '
 alias glb='git log --graph --oneline'
-alias glop="git log --pretty=format:'%C(yellow)%h|%Cred%ad|%Cblue%an|%Cgreen%d %Creset%s' --date=short | column -ts'|' | less -r"
+alias gld="git log --pretty=format:'%C(yellow)%h|%Cred%ad|%Cblue%an|%Cgreen%d %Creset%s' --date=short | column -ts'|' | less -r"
 function g1c() { git diff $@~ $@ ;}
 function gcbb() { git clone git@bitbucket.org:$1/$2 ;}
 function gcgh() { git clone git@github.com:$1/$2 ;}
