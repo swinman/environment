@@ -17,6 +17,7 @@ config_latex() {
     sudo apt-get install texlive-fonts-extra -y
     sudo apt-get install texlive-latex-recommended -y
     sudo apt-get install texlive-science -y
+    sudo apt-get install cm-super -y
     sudo apt-get install texlive-plain-extra -y
     sudo apt-get install texlive-generic-extra -y
     if [ "$(lsb_release -r | sed "s/.*\s\+\(.*\)/\1/")" = "12.04" ]; then
