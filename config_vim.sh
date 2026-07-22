@@ -12,6 +12,7 @@ get_vim_packages() {
         sudo apt-get install cscope -y
         sudo apt-get install curl -y
         sudo apt-get install xterm -y   # for resize command
+        sudo apt-get install lynx -y    # for markdown view
     fi
 }
 
@@ -32,8 +33,12 @@ config_vim() {
         echo "adding \"$text\" to $target"
         echo "$text" >> $target
     fi
+    # this directory, resolved absolutely so the links below do not depend
+    # on where the script was called from
+    EDIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+
     mkdir -p ~/.vim/colors
-    CDIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/colorvim/colors"
+    CDIR="$EDIR/colorvim/colors"
     for fn in $(ls $CDIR/*.vim); do
         FB=$(basename $fn)
         if [ -L ~/.vim/colors/$FB ]; then
@@ -42,6 +47,20 @@ config_vim() {
             ln -s $fn ~/.vim/colors
         fi
     done
+
+    # link the whole after tree rather than file by file: vim finds
+    # after/syntax/<ft>.vim by searching runtimepath, and ~/.vim/after is a
+    # runtimepath entry in its own right, sourced last so it can override
+    # the stock runtime syntax files.  the source directory is after_vim and
+    # not vim so that tabbing "vim" still completes vim_config.sh
+    if [ -L ~/.vim/after ]; then
+        echo "after directory already linked"
+    elif [ -e ~/.vim/after ]; then
+        echo "WARNING: ~/.vim/after exists and is not a link, leaving it alone"
+        echo "         move its contents to $EDIR/after_vim and remove it"
+    else
+        ln -s $EDIR/after_vim ~/.vim/after
+    fi
 }
 
 get_vim_addons() {

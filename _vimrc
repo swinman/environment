@@ -568,7 +568,7 @@ if has("gui_running")
     set guioptions+=g   " grey menu items instead of not showing them
     set guioptions-=t   " remove tearoff menu items
 "    set guitablabel=%-0.12t%M
-"    set listchars=tab:?\ ,eol:¬         " Invisibles using the Textmate style
+"    set listchars=tab:?\ ,eol:ï¿½         " Invisibles using the Textmate style
     if has("gui_win32")
         set guifont=Consolas:h10:cANSI
     else
@@ -634,6 +634,22 @@ autocmd FileType gitcommit setlocal formatoptions+=t spell tw=72
 autocmd FileType ngc setlocal foldmethod=marker
 autocmd FileType js setlocal noexpandtab
 " END: ------------ File Type Specific --------------------------         2}}}
+
+" ---------------------- Markdown -------------------------------         {{{2
+" syntax highlight the contents of ``` fenced blocks.  Must be set before
+" syntax/markdown.vim loads, so it lives here and not in after/syntax.
+let g:markdown_fenced_languages = ['c', 'cpp', 'python', 'sh', 'bash=sh',
+            \'make', 'vim', 'json', 'yaml', 'diff']
+
+" do not mark the * and _ emphasis delimiters concealable
+let g:markdown_syntax_conceal = 0
+
+" the rest of the markdown fixes are in ~/.vim/after/syntax/markdown.vim.
+" the code colour is a "hi def link" there, which a colorscheme change wipes,
+" so put it back whenever the scheme is switched (see the F3 mapping)
+autocmd ColorScheme * hi def link markdownCode String
+            \| hi def link markdownCodeBlock String
+" END: ----------------- Markdown -------------------------------         2}}}
 
 " ---------------------- Spelling -------------------------------         {{{2
 " add SpellGoodWordsStart and SpellGoodWordsEnd to dictionary
