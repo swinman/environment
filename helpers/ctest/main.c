@@ -5,6 +5,15 @@
 #include <string.h>
 
 
+/* see gdb
+ * gnu debugger
+ *
+ * make && gdb hello
+ * gdb hello
+ *
+ * */
+
+
 
 unsigned char get_3bit_crc(unsigned int value, unsigned short int crc) {
     /* crc check - use crc with the remainder expecting 0 */

@@ -1,3 +1,3 @@
 
 main.o : main.c
-	gcc -o hello main.c
+	gcc -g -o hello main.c
