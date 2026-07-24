@@ -41,6 +41,7 @@ import contextlib
 import io
 import os
 import re
+import select
 import shutil
 import string
 import subprocess
@@ -49,13 +50,40 @@ import sys
 import serial.tools.list_ports
 from serial.tools.list_ports_common import ListPortInfo
 
-# Optional: enables the single-keypress interactive picker (arrows / j-k, no
-# Enter).  Absent -> the code falls back to the plain input() prompt, so this
-# stays a soft dependency.
+# termios and tty are posix-only -- the single-keypress picker needs them for
+# raw terminal access.  Where they are missing (Windows) or there is no
+# controlling tty, the code falls back to the plain input() prompt.
 try:
-    import readchar
+    import termios
+    import tty
+    RAW_TTY = True
 except ImportError:
-    readchar = None
+    RAW_TTY = False
+
+# Key encodings returned by read_key(); a lone ESC is "\x1b", arrow keys are the
+# full escape sequence, Ctrl-] (miniterm's exit char) is "\x1d".
+KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT = "\x1b[A", "\x1b[B", "\x1b[C", "\x1b[D"
+KEY_ENTER = ("\r", "\n")
+KEY_BACKSPACE = ("\x7f", "\b")
+KEY_ESC = "\x1b"
+
+
+def read_key(esc_delay: float = 0.04) -> str:
+    """Read one keypress from stdin, which must already be in cbreak mode.
+
+    A lone ESC comes back as "\x1b"; an escape sequence (arrow key) comes back
+    whole.  They share the ESC prefix, so a short select() timeout after ESC is
+    what tells a bare ESC from the start of a sequence -- a plain read-one-key
+    call cannot, since both begin with ESC.
+    """
+    fd = sys.stdin.fileno()
+    ch = os.read(fd, 1).decode("latin-1", "ignore")
+    if ch != "\x1b":
+        return ch
+    seq = ch
+    while len(seq) < 5 and select.select([fd], [], [], esc_delay)[0]:
+        seq += os.read(fd, 1).decode("latin-1", "ignore")
+    return seq
 
 # Device paths matching this are the noisy on-board ttyS* UARTs: collapsed
 # behind one line until the user expands them.  Matched against p.device only
@@ -189,11 +217,11 @@ def scan_ports() -> tuple[list[ListPortInfo], list[ListPortInfo]]:
 def choose() -> str | None:
     """Return a chosen device path, or None to abort.
 
-    Uses the single-keypress interactive picker when readchar is importable and
-    both streams are a terminal; otherwise falls back to the input() prompt.
+    Uses the single-keypress interactive picker on a posix terminal; otherwise
+    falls back to the input() prompt.
     """
     interesting, hidden = scan_ports()
-    if readchar is not None and sys.stdin.isatty() and sys.stdout.isatty():
+    if RAW_TTY and sys.stdin.isatty() and sys.stdout.isatty():
         return choose_interactive(interesting, hidden)
     return choose_prompt(interesting, hidden)
 
@@ -235,7 +263,7 @@ def choose_prompt(interesting: list[ListPortInfo],
         print(f"{WARN}  no such port: {reply}{RESET}")
 
 
-# --- single-keypress interactive picker (used when readchar is available) ---
+# --- single-keypress interactive picker (used on a posix terminal) ---
 
 MenuItem = tuple[str, int, ListPortInfo | None]
 
@@ -338,7 +366,7 @@ def prompt_lines(typed: str) -> list[str]:
     """The pinned foot: a key hint and the number entry field."""
     return [
         "",
-        f"{MUTED}j/k move   digits jump   Enter/l/s select   q quit{RESET}",
+        f"{MUTED}j/k move   digits jump   l/s/Enter select   q/Esc quit{RESET}",
         f"{BOLD}--- port #: {RESET}{typed}_",
     ]
 
@@ -384,17 +412,19 @@ def choose_interactive(interesting: list[ListPortInfo],
                        hidden: list[ListPortInfo]) -> str | None:
     """Single-keypress picker with a number field.  Arrows / j-k move the
     highlight and fill the field; digits jump (auto-expanding ttyS* as needed);
-    Enter or l/Right opens (or expands the ttyS* row); h/Left collapses; s
-    expands; q / 0 / Esc / Ctrl-] quit.
+    l/s/Enter (or Right) select the current row -- opening a port or expanding
+    the ttyS* row; h/Left collapses; q / 0 / Esc / Ctrl-] quit.
     """
-    key = readchar.key
-    quit_keys = ("q", "Q", key.ESC, "\x1d")          # \x1d == Ctrl-]
+    quit_keys = ("q", "Q", KEY_ESC, "\x1d")           # \x1d == Ctrl-]
     n_interesting = len(interesting)
     expanded = not interesting                        # nothing else -> expand now
     sel = 0                                           # start on "quit"
     typed = ""
     drawn = 0                                          # lines in the last frame
 
+    fd = sys.stdin.fileno()
+    old_term = termios.tcgetattr(fd)
+    tty.setcbreak(fd)                                 # unbuffered, no echo, keep Ctrl-C
     sys.stdout.write("\033[?25l")                     # hide cursor
     try:
         while True:
@@ -411,19 +441,19 @@ def choose_interactive(interesting: list[ListPortInfo],
             drawn = len(frame)
 
             try:
-                press = readchar.readkey()
+                press = read_key()
             except KeyboardInterrupt:
                 return None
 
             if press in quit_keys:
                 return None
-            elif press in (key.UP, "k"):
+            elif press in (KEY_UP, "k"):
                 sel = max(0, sel - 1)
                 typed = typed_for(items[sel])
-            elif press in (key.DOWN, "j"):
+            elif press in (KEY_DOWN, "j"):
                 sel = min(len(items) - 1, sel + 1)
                 typed = typed_for(items[sel])
-            elif press in (key.LEFT, "h") and expanded and hidden:
+            elif press in (KEY_LEFT, "h") and expanded and hidden:
                 expanded = False
                 sel = n_interesting + 1               # back onto the expander
                 typed = ""
@@ -436,13 +466,13 @@ def choose_interactive(interesting: list[ListPortInfo],
                 found = item_number(items, num)
                 if found is not None:
                     sel = found
-            elif press in (key.BACKSPACE, "\x7f", "\b"):
+            elif press in KEY_BACKSPACE:
                 typed = typed[:-1]
                 if typed:
                     found = item_number(items, int(typed))
                     if found is not None:
                         sel = found
-            elif press in (key.ENTER, "\r", "\n", key.RIGHT, "l", "s"):
+            elif press in (*KEY_ENTER, KEY_RIGHT, "l", "s"):
                 target = sel
                 if typed:
                     found = item_number(items, int(typed))
@@ -459,6 +489,7 @@ def choose_interactive(interesting: list[ListPortInfo],
                 elif port is not None:
                     return port.device
     finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_term)
         sys.stdout.write("\033[?25h")                 # restore cursor
         sys.stdout.flush()
         print()
