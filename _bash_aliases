@@ -59,7 +59,8 @@ alias ipy='ipython -i --no-banner'
 alias py3='ipython3 -i --no-banner'
 alias py='python -c'
 
-alias miniterm="python $(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')miniterm_wrapper.py"
+#alias miniterm="python $(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')miniterm_wrapper.py --collapse 'ttyS'"
+alias miniterm="python $(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')miniterm_wrapper.py --collapse 'phantom ttyS=^/dev/ttyS(?!4\$)\d+\$'"
 
 alias pygrep='grep -r --include="*.py" --include="*.pyw" --include="*.ipynb"'
 alias vgrep='grep -r --include="*.vhd" --include="*.v" --include="*.inc"'

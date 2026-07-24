@@ -13,6 +13,13 @@ the picker would list), or passing -h/--help skips the picker;
 otherwise the picker runs and its choice becomes the port.  Any other arguments
 pass through to miniterm (e.g. a trailing baud rate: `... /dev/ttyACM0 115200`).
 
+Fold noisy port families out of the picker with `--collapse` (repeat it, one
+bucket each): "--collapse LABEL=REGEX", or a bare preset name -- "--collapse
+ttyS" folds /dev/ttyS*.  These options are consumed here and not passed on to
+miniterm; put them in your alias, e.g.:
+
+    alias miniterm='python /path/to/miniterm_wrapper.py --collapse ttyS'
+
 Replaces miniterm's plain "--- Enter port index or full name:" prompt with a
 listing that shows the useful details (product, manufacturer, VID:PID, USB
 location) for the ports you actually care about, while collapsing the pile of
@@ -93,7 +100,9 @@ def read_key(esc_delay: float = 0.04) -> str:
 # with the pattern, so nothing hardcodes "/dev/ttyS".  Matched against p.device
 # only (see the module docstring for why a grep-style "not ttyS" pattern fails).
 COLLAPSED_BUCKETS = [
-    ("/dev/ttyS*", re.compile(r"^/dev/ttyS\d+$")),
+    # ttyS4 is this machine's one real 16550 UART (setserial shows the rest as
+    # "unknown"), so exclude it from the fold -- it shows as an interesting port.
+#    ("/dev/ttyS* (except ttyS4)", re.compile(r"^/dev/ttyS(?!4$)\d+$")),
 ]
 
 
@@ -104,6 +113,27 @@ def collapsed_bucket(device: str) -> int | None:
         if pattern.match(device):
             return i
     return None
+
+
+# Bare `--collapse <name>` presets, so the common folds need no regex.
+COLLAPSE_PRESETS = {
+    "ttyS": ("/dev/ttyS*", re.compile(r"^/dev/ttyS\d+$")),
+}
+
+
+def parse_bucket(spec: str) -> tuple[str, "re.Pattern[str]"]:
+    """Turn a --collapse value into a (label, compiled pattern) bucket rule.
+
+    "LABEL=REGEX" -> that label and regex; a bare preset name (e.g. "ttyS") ->
+    its built-in rule; anything else -> a bare regex (label = the regex).
+    """
+    if "=" in spec:
+        label, _, pattern = spec.partition("=")
+        return (label, re.compile(pattern))
+    if spec in COLLAPSE_PRESETS:
+        return COLLAPSE_PRESETS[spec]
+    return (spec, re.compile(spec))
+
 
 # Passed to miniterm on every launch (matches the `miniterm -e` alias).
 MINITERM_DEFAULT_ARGS = ["-e"]
@@ -603,7 +633,20 @@ def port_given(args: list[str]) -> bool:
 
 
 def main() -> int:
-    args = sys.argv[1:]
+    # Pull our own --collapse options out first (repeatable; one bucket each,
+    # so they never swallow the port), leaving the rest for miniterm.  Given
+    # any, they replace the module-level COLLAPSED_BUCKETS default.
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--collapse", action="append", default=[], metavar="SPEC")
+    opts, args = parser.parse_known_args()
+    if opts.collapse:
+        global COLLAPSED_BUCKETS
+        try:
+            COLLAPSED_BUCKETS = [parse_bucket(spec) for spec in opts.collapse]
+        except re.error as exc:
+            print(f"{WARN}bad --collapse regex: {exc}{RESET}")
+            return 2
+
     # Bare "python" (not sys.executable's full path) keeps the echoed command
     # short; PATH resolves it to the same interpreter that launched this script.
     base = ["python", "-m", "serial.tools.miniterm"]
