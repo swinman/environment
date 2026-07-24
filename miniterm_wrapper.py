@@ -24,8 +24,8 @@ count a port as a match if the regex hits ANY of its fields -- device, name, OR
 hwid.  A negative pattern like ^(?!.*ttyS).*$ therefore only excludes on the
 device field; a ttyS port's description/hwid are "n/a", which contain no
 "ttyS", so the OR matches those fields and the port slips back into the list.
-Matching HIDDEN_PORT_RE against p.device alone is unambiguous and actually
-keeps the ttyS ports out.
+Matching the COLLAPSED_BUCKETS patterns against p.device alone is unambiguous
+and actually keeps the ttyS ports out.
 
 The product/vendor/serial shown for each port come straight from the device's
 own USB string descriptors (pyserial reads them from sysfs, populated by the
@@ -85,10 +85,25 @@ def read_key(esc_delay: float = 0.04) -> str:
         seq += os.read(fd, 1).decode("latin-1", "ignore")
     return seq
 
-# Device paths matching this are the noisy on-board ttyS* UARTs: collapsed
-# behind one line until the user expands them.  Matched against p.device only
-# (see the module docstring for why a grep-style "not ttyS" pattern fails).
-HIDDEN_PORT_RE = re.compile(r"/dev/ttyS\d+$")
+# Ordered buckets of ports to fold away, each shown as one collapsible line
+# labelled with its name.  A port is claimed by the FIRST bucket whose pattern
+# matches p.device (so a later, broader pattern never double-counts it), and a
+# bucket only appears in the picker if it claimed at least one port.  Extend
+# this list to fold new noisy port families out of the way -- the label travels
+# with the pattern, so nothing hardcodes "/dev/ttyS".  Matched against p.device
+# only (see the module docstring for why a grep-style "not ttyS" pattern fails).
+COLLAPSED_BUCKETS = [
+    ("/dev/ttyS*", re.compile(r"^/dev/ttyS\d+$")),
+]
+
+
+def collapsed_bucket(device: str) -> int | None:
+    """Index of the first COLLAPSED_BUCKETS entry matching `device`, else None
+    (None meaning the port is interesting and shown normally)."""
+    for i, (_, pattern) in enumerate(COLLAPSED_BUCKETS):
+        if pattern.match(device):
+            return i
+    return None
 
 # Passed to miniterm on every launch (matches the `miniterm -e` alias).
 MINITERM_DEFAULT_ARGS = ["-e"]
@@ -114,11 +129,11 @@ else:
 
 
 def natural_key(port: ListPortInfo) -> tuple[bool, str, list[int]]:
-    """Sort key so ttyS9 sorts before ttyS10, shown ports ahead of hidden."""
+    """Sort key so ttyS9 sorts before ttyS10, shown ports ahead of collapsed."""
     dev = port.device
-    hidden = bool(HIDDEN_PORT_RE.match(dev))
+    collapsed = collapsed_bucket(dev) is not None
     nums = [int(n) for n in re.findall(r"\d+", dev)]
-    return (hidden, re.sub(r"\d+", "", dev), nums)
+    return (collapsed, re.sub(r"\d+", "", dev), nums)
 
 
 def printable(text: str | None) -> str:
@@ -169,9 +184,10 @@ def describe(port: ListPortInfo) -> list[tuple[str, str, bool]]:
     return rows
 
 
-def render(interesting: list[ListPortInfo], hidden: list[ListPortInfo],
-           show_hidden: bool) -> list[str]:
-    """Print the menu; return the ordered device list matching the indices."""
+def render(interesting: list[ListPortInfo], buckets: list["Bucket"],
+           show_all: bool) -> list[str]:
+    """Print the menu; return the ordered device list matching the indices.
+    Fallback (non-tty) path: `show_all` expands every bucket at once."""
     print()
     print(f"{BOLD}Serial ports{RESET}")
 
@@ -186,32 +202,56 @@ def render(interesting: list[ListPortInfo], hidden: list[ListPortInfo],
             colour = ACCENT if is_serial else VALUE
             print(f"        {LABEL}{header:>{width}}{RESET} : {colour}{value}{RESET}")
 
-    if hidden and not show_hidden:
-        print(f"\n  {MUTED}[ {len(hidden)} /dev/ttyS* ports hidden"
-              f" -- type 's' to show ]{RESET}")
-    elif hidden:
-        print(f"\n  {MUTED}on-board serial ports (ttyS*){RESET}")
-        for port in hidden:
-            idx = len(ordered) + 1
-            ordered.append(port.device)
-            print(f"  {MUTED}{idx:2d}  {port.device}{RESET}")
+    for label, ports in buckets:
+        if show_all:
+            print(f"\n  {MUTED}{label}{RESET}")
+            for port in ports:
+                idx = len(ordered) + 1
+                ordered.append(port.device)
+                print(f"  {MUTED}{idx:2d}  {port.device}{RESET}")
+        else:
+            # Reserve the numbers while collapsed so an index still resolves.
+            ordered.extend(port.device for port in ports)
+            print(f"\n  {MUTED}[ {len(ports)} {label} ports hidden"
+                  f" -- 's' to show ]{RESET}")
 
-    if not interesting and not hidden:
+    if not interesting and not buckets:
         print(f"\n  {MUTED}(no serial ports found){RESET}")
     return ordered
 
 
-def scan_ports() -> tuple[list[ListPortInfo], list[ListPortInfo]]:
-    """Return (interesting, hidden) port lists in the order the picker shows.
+Bucket = tuple[str, list[ListPortInfo]]     # (label, ports) collapse group
 
-    Interesting ports come first, then the on-board ttyS* ports; the picker's
-    index numbers -- and the `miniterm <n>` shortcut -- run straight down this
-    combined order.
+
+def scan_ports() -> tuple[list[ListPortInfo], list[Bucket]]:
+    """Return (interesting, buckets) in the order the picker shows.
+
+    Interesting ports come first, then each non-empty COLLAPSED_BUCKETS group
+    (as (label, ports)) in order.  The picker's index numbers -- and the
+    `miniterm <n>` shortcut -- run straight down interesting ports then every
+    bucket's ports.
     """
     ports = sorted(serial.tools.list_ports.comports(), key=natural_key)
-    interesting = [p for p in ports if not HIDDEN_PORT_RE.match(p.device)]
-    hidden = [p for p in ports if HIDDEN_PORT_RE.match(p.device)]
-    return interesting, hidden
+    interesting: list[ListPortInfo] = []
+    grouped: list[list[ListPortInfo]] = [[] for _ in COLLAPSED_BUCKETS]
+    for port in ports:
+        bi = collapsed_bucket(port.device)
+        if bi is None:
+            interesting.append(port)
+        else:
+            grouped[bi].append(port)
+    buckets = [(COLLAPSED_BUCKETS[i][0], grouped[i])
+               for i in range(len(COLLAPSED_BUCKETS)) if grouped[i]]
+    return interesting, buckets
+
+
+def ordered_devices(interesting: list[ListPortInfo],
+                    buckets: list[Bucket]) -> list[str]:
+    """Flat device-path list in picker/number order: interesting then buckets."""
+    devices = [p.device for p in interesting]
+    for _, ports in buckets:
+        devices += [p.device for p in ports]
+    return devices
 
 
 def choose() -> str | None:
@@ -220,21 +260,21 @@ def choose() -> str | None:
     Uses the single-keypress interactive picker on a posix terminal; otherwise
     falls back to the input() prompt.
     """
-    interesting, hidden = scan_ports()
+    interesting, buckets = scan_ports()
     if RAW_TTY and sys.stdin.isatty() and sys.stdout.isatty():
-        return choose_interactive(interesting, hidden)
-    return choose_prompt(interesting, hidden)
+        return choose_interactive(interesting, buckets)
+    return choose_prompt(interesting, buckets)
 
 
 def choose_prompt(interesting: list[ListPortInfo],
-                  hidden: list[ListPortInfo]) -> str | None:
+                  buckets: list["Bucket"]) -> str | None:
     """Fallback picker: type an index or full port name, Enter to confirm."""
-    show_hidden = not interesting  # nothing else to show -> expand right away
+    show_all = not interesting  # nothing else to show -> expand right away
 
     while True:
-        ordered = render(interesting, hidden, show_hidden)
+        ordered = render(interesting, buckets, show_all)
         prompt = ("\n--- Enter port index or full name"
-                  + ("" if show_hidden or not hidden else ", 's' to show ttyS*")
+                  + ("" if show_all or not buckets else ", 's' to show hidden")
                   + ", 'q' to quit: ")
         try:
             reply = input(prompt).strip()
@@ -246,8 +286,8 @@ def choose_prompt(interesting: list[ListPortInfo],
             continue
         if reply.lower() in ("q", "quit", "0"):
             return None
-        if reply.lower() == "s" and hidden and not show_hidden:
-            show_hidden = True
+        if reply.lower() == "s" and buckets and not show_all:
+            show_all = True
             continue
         if reply.isdigit():
             i = int(reply)
@@ -265,42 +305,71 @@ def choose_prompt(interesting: list[ListPortInfo],
 
 # --- single-keypress interactive picker (used on a posix terminal) ---
 
-MenuItem = tuple[str, int, ListPortInfo | None]
+# Each row is (kind, number, port, bucket):
+#   kind    "quit" | "port" | "hidden" | "expander"
+#   number  display index for quit/port/hidden; -1 for an expander
+#   port    ListPortInfo for "port"/"hidden", else None
+#   bucket  bucket index for "hidden"/"expander", else None
+MenuItem = tuple[str, int, ListPortInfo | None, int | None]
 
 
-def menu_items(interesting: list[ListPortInfo], hidden: list[ListPortInfo],
-               expanded: bool) -> list[MenuItem]:
-    """Flat list of selectable rows as (kind, number, port).
+def menu_items(interesting: list[ListPortInfo], buckets: list["Bucket"],
+               expanded: set[int]) -> list[MenuItem]:
+    """Flat list of selectable rows.
 
-    kind is "quit", "port" (interesting, full detail), "hidden" (compact ttyS),
-    or "expander" (the collapsed-ttyS line).  Numbering runs down the
-    interesting ports then the hidden ports, matching scan_ports() order.
+    Numbering runs down interesting ports then every bucket's ports (matching
+    scan_ports() order) and stays fixed regardless of which buckets are open: a
+    collapsed bucket still reserves its ports' numbers, so expanding it never
+    renumbers anything.  A bucket in `expanded` shows its ports; otherwise it
+    shows a single "expander" row.
     """
-    items: list[MenuItem] = [("quit", 0, None)]
+    items: list[MenuItem] = [("quit", 0, None, None)]
     number = 0
     for port in interesting:
         number += 1
-        items.append(("port", number, port))
-    if hidden and not expanded:
-        items.append(("expander", 0, None))
-    elif hidden:
-        for port in hidden:
-            number += 1
-            items.append(("hidden", number, port))
+        items.append(("port", number, port, None))
+    for bi, (_, ports) in enumerate(buckets):
+        if bi in expanded:
+            for port in ports:
+                number += 1
+                items.append(("hidden", number, port, bi))
+        else:
+            number += len(ports)             # reserve numbers so expand is stable
+            items.append(("expander", -1, None, bi))
     return items
 
 
 def item_number(items: list[MenuItem], num: int) -> int | None:
     """Index of the selectable item whose display number is `num`, else None."""
-    for i, (kind, number, _) in enumerate(items):
+    for i, (kind, number, _port, _bi) in enumerate(items):
         if number == num and kind in ("quit", "port", "hidden"):
+            return i
+    return None
+
+
+def bucket_of_number(num: int, n_interesting: int,
+                     buckets: list["Bucket"]) -> int | None:
+    """Which bucket the port numbered `num` belongs to (None if interesting or
+    out of range) -- used to auto-expand the right bucket on a typed jump."""
+    lo = n_interesting
+    for bi, (_, ports) in enumerate(buckets):
+        if lo < num <= lo + len(ports):
+            return bi
+        lo += len(ports)
+    return None
+
+
+def item_at(items: list[MenuItem], kind: str, bi: int) -> int | None:
+    """Index of the first item of the given kind belonging to bucket `bi`."""
+    for i, (k, _n, _p, b) in enumerate(items):
+        if k == kind and b == bi:
             return i
     return None
 
 
 def typed_for(item: MenuItem) -> str:
     """Number-field text matching a highlighted item ("" for the expander)."""
-    kind, number, _ = item
+    kind, number, _port, _bi = item
     return str(number) if kind in ("quit", "port", "hidden") else ""
 
 
@@ -318,9 +387,9 @@ def menu_row(selected: bool, number: int, body: str, colour: str,
 
 def item_lines(item: MenuItem, selected: bool) -> list[str]:
     """Lines for one item: the main row plus detail rows for interesting ports.
-    The expander is rendered by build_frame, which has the hidden count.
+    The expander is rendered by build_frame, which has the bucket label/count.
     """
-    kind, number, port = item
+    kind, number, port, _bi = item
     if kind == "quit":
         return [menu_row(selected, 0, "quit", MUTED)]
     if kind == "hidden":
@@ -371,12 +440,12 @@ def prompt_lines(typed: str) -> list[str]:
     ]
 
 
-def build_frame(items: list[MenuItem], sel: int, typed: str, n_hidden: int,
-                rows: int) -> list[str]:
+def build_frame(items: list[MenuItem], sel: int, typed: str,
+                buckets: list["Bucket"], rows: int) -> list[str]:
     """Assemble one on-screen frame: a pinned title, a single scrolling list of
-    ALL options (quit, interesting ports, ttyS*) that follows the selection,
-    and the pinned prompt foot -- kept within the terminal height so the foot
-    never scrolls off.
+    ALL options (quit, interesting ports, per-bucket collapse lines / ports)
+    that follows the selection, and the pinned prompt foot -- kept within the
+    terminal height so the foot never scrolls off.
     """
     usable = max(1, rows - 1)
     title = f"{BOLD}Serial ports{RESET}"
@@ -386,9 +455,8 @@ def build_frame(items: list[MenuItem], sel: int, typed: str, n_hidden: int,
     focus = 0                                # body index of the selected row
     port_rows: list[int] = []                # body index of each port's main row
     prev_kind = None
-    for i, item in enumerate(items):
-        kind = item[0]
-        # Blank line between entries, but keep the ttyS* block tight.
+    for i, (kind, _number, _port, bi) in enumerate(items):
+        # Blank line between entries, but keep a bucket's ports block tight.
         if not (kind == "hidden" and prev_kind == "hidden"):
             body.append("")
         prev_kind = kind
@@ -397,27 +465,29 @@ def build_frame(items: list[MenuItem], sel: int, typed: str, n_hidden: int,
         if kind in ("port", "hidden"):       # counted by the scroll markers
             port_rows.append(len(body))
         if kind == "expander":
-            text = f"[ {n_hidden} /dev/ttyS* ports hidden -- Enter/l or s ]"
+            label, ports = buckets[bi]
+            text = f"[ {len(ports)} {label} ports hidden -- l/s or Enter ]"
             body.append(menu_row(i == sel, 0, text, MUTED, plain=True))
         else:
-            body += item_lines(item, i == sel)
+            body += item_lines(items[i], i == sel)
 
-    expanded = any(kind == "hidden" for kind, _, _ in items)
-    below_extra = ", h to collapse" if expanded else ""
+    any_expanded = any(kind == "hidden" for kind, _n, _p, _b in items)
+    below_extra = ", h to collapse" if any_expanded else ""
     view_h = max(1, usable - 1 - len(foot))  # 1 line reserved for the title
     return [title] + window_rows(body, focus, view_h, port_rows, below_extra) + foot
 
 
 def choose_interactive(interesting: list[ListPortInfo],
-                       hidden: list[ListPortInfo]) -> str | None:
+                       buckets: list["Bucket"]) -> str | None:
     """Single-keypress picker with a number field.  Arrows / j-k move the
-    highlight and fill the field; digits jump (auto-expanding ttyS* as needed);
-    l/s/Enter (or Right) select the current row -- opening a port or expanding
-    the ttyS* row; h/Left collapses; q / 0 / Esc / Ctrl-] quit.
+    highlight and fill the field; digits jump (auto-expanding the right bucket);
+    l/s/Enter (or Right) select the current row -- opening a port or expanding a
+    collapse line; h/Left collapses the bucket you are in; q / 0 / Esc / Ctrl-]
+    quit.
     """
     quit_keys = ("q", "Q", KEY_ESC, "\x1d")           # \x1d == Ctrl-]
     n_interesting = len(interesting)
-    expanded = not interesting                        # nothing else -> expand now
+    expanded: set[int] = set() if interesting else set(range(len(buckets)))
     sel = 0                                           # start on "quit"
     typed = ""
     drawn = 0                                          # lines in the last frame
@@ -428,9 +498,9 @@ def choose_interactive(interesting: list[ListPortInfo],
     sys.stdout.write("\033[?25l")                     # hide cursor
     try:
         while True:
-            items = menu_items(interesting, hidden, expanded)
+            items = menu_items(interesting, buckets, expanded)
             sel = max(0, min(sel, len(items) - 1))
-            frame = build_frame(items, sel, typed, len(hidden),
+            frame = build_frame(items, sel, typed, buckets,
                                 shutil.get_terminal_size().lines)
             # Redraw in place: step back over the previous frame and clear from
             # there down, leaving scrollback above the picker untouched.
@@ -453,16 +523,21 @@ def choose_interactive(interesting: list[ListPortInfo],
             elif press in (KEY_DOWN, "j"):
                 sel = min(len(items) - 1, sel + 1)
                 typed = typed_for(items[sel])
-            elif press in (KEY_LEFT, "h") and expanded and hidden:
-                expanded = False
-                sel = n_interesting + 1               # back onto the expander
+            elif press in (KEY_LEFT, "h") and items[sel][0] == "hidden":
+                bi = items[sel][3]                    # collapse the bucket we are in
+                expanded.discard(bi)
+                items = menu_items(interesting, buckets, expanded)
+                back = item_at(items, "expander", bi)
+                if back is not None:
+                    sel = back
                 typed = ""
             elif press.isdigit():
                 typed = (typed + press).lstrip("0") or "0"
                 num = int(typed)
-                if not expanded and hidden and num > n_interesting:
-                    expanded = True
-                    items = menu_items(interesting, hidden, expanded)
+                bi = bucket_of_number(num, n_interesting, buckets)
+                if bi is not None and bi not in expanded:
+                    expanded.add(bi)                  # jump auto-expands its bucket
+                    items = menu_items(interesting, buckets, expanded)
                 found = item_number(items, num)
                 if found is not None:
                     sel = found
@@ -479,13 +554,16 @@ def choose_interactive(interesting: list[ListPortInfo],
                     if found is None:
                         continue                      # typed number out of range
                     target = found
-                kind, _, port = items[target]
+                kind, _num, port, bi = items[target]
                 if kind == "quit":
                     return None
                 if kind == "expander":
-                    expanded = True
-                    sel = n_interesting + 1
-                    typed = str(n_interesting + 1)
+                    expanded.add(bi)
+                    items = menu_items(interesting, buckets, expanded)
+                    first = item_at(items, "hidden", bi)
+                    if first is not None:
+                        sel = first
+                        typed = typed_for(items[sel])
                 elif port is not None:
                     return port.device
     finally:
@@ -541,8 +619,7 @@ def main() -> int:
     # are a job for the picker.  Resolve to a device path here, then fall
     # through to the normal "port named on the command line" handling.
     if args and re.fullmatch(r"[1-3]", args[0]):
-        interesting, hidden = scan_ports()
-        devices = [p.device for p in interesting] + [p.device for p in hidden]
+        devices = ordered_devices(*scan_ports())
         index = int(args[0])
         if not 1 <= index <= len(devices):
             print(f"{WARN}no port #{index} (found {len(devices)}){RESET}")
