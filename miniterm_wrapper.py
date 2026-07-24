@@ -26,6 +26,14 @@ device field; a ttyS port's description/hwid are "n/a", which contain no
 "ttyS", so the OR matches those fields and the port slips back into the list.
 Matching HIDDEN_PORT_RE against p.device alone is unambiguous and actually
 keeps the ttyS ports out.
+
+The product/vendor/serial shown for each port come straight from the device's
+own USB string descriptors (pyserial reads them from sysfs, populated by the
+kernel from what the firmware reports).  They are NOT the names `lsusb` prints
+by default, which come from the usb.ids database looked up by VID:PID.  So a
+device whose firmware reports different strings than usb.ids lists for its
+VID:PID reads differently here than in lsusb's default output; `lsusb -v` shows
+both (idVendor/idProduct from usb.ids vs iManufacturer/iProduct descriptors).
 """
 
 import argparse
@@ -33,12 +41,21 @@ import contextlib
 import io
 import os
 import re
+import shutil
 import string
 import subprocess
 import sys
 
 import serial.tools.list_ports
 from serial.tools.list_ports_common import ListPortInfo
+
+# Optional: enables the single-keypress interactive picker (arrows / j-k, no
+# Enter).  Absent -> the code falls back to the plain input() prompt, so this
+# stays a soft dependency.
+try:
+    import readchar
+except ImportError:
+    readchar = None
 
 # Device paths matching this are the noisy on-board ttyS* UARTs: collapsed
 # behind one line until the user expands them.  Matched against p.device only
@@ -170,8 +187,20 @@ def scan_ports() -> tuple[list[ListPortInfo], list[ListPortInfo]]:
 
 
 def choose() -> str | None:
-    """Interactive picker. Returns a device path, or None to abort."""
+    """Return a chosen device path, or None to abort.
+
+    Uses the single-keypress interactive picker when readchar is importable and
+    both streams are a terminal; otherwise falls back to the input() prompt.
+    """
     interesting, hidden = scan_ports()
+    if readchar is not None and sys.stdin.isatty() and sys.stdout.isatty():
+        return choose_interactive(interesting, hidden)
+    return choose_prompt(interesting, hidden)
+
+
+def choose_prompt(interesting: list[ListPortInfo],
+                  hidden: list[ListPortInfo]) -> str | None:
+    """Fallback picker: type an index or full port name, Enter to confirm."""
     show_hidden = not interesting  # nothing else to show -> expand right away
 
     while True:
@@ -204,6 +233,227 @@ def choose() -> str | None:
         if os.path.exists("/dev/" + reply):
             return "/dev/" + reply
         print(f"{WARN}  no such port: {reply}{RESET}")
+
+
+# --- single-keypress interactive picker (used when readchar is available) ---
+
+MenuItem = tuple[str, int, ListPortInfo | None]
+
+
+def menu_items(interesting: list[ListPortInfo], hidden: list[ListPortInfo],
+               expanded: bool) -> list[MenuItem]:
+    """Flat list of selectable rows as (kind, number, port).
+
+    kind is "quit", "port" (interesting, full detail), "hidden" (compact ttyS),
+    or "expander" (the collapsed-ttyS line).  Numbering runs down the
+    interesting ports then the hidden ports, matching scan_ports() order.
+    """
+    items: list[MenuItem] = [("quit", 0, None)]
+    number = 0
+    for port in interesting:
+        number += 1
+        items.append(("port", number, port))
+    if hidden and not expanded:
+        items.append(("expander", 0, None))
+    elif hidden:
+        for port in hidden:
+            number += 1
+            items.append(("hidden", number, port))
+    return items
+
+
+def item_number(items: list[MenuItem], num: int) -> int | None:
+    """Index of the selectable item whose display number is `num`, else None."""
+    for i, (kind, number, _) in enumerate(items):
+        if number == num and kind in ("quit", "port", "hidden"):
+            return i
+    return None
+
+
+def typed_for(item: MenuItem) -> str:
+    """Number-field text matching a highlighted item ("" for the expander)."""
+    kind, number, _ = item
+    return str(number) if kind in ("quit", "port", "hidden") else ""
+
+
+def menu_row(selected: bool, number: int, body: str, colour: str,
+             plain: bool = False) -> str:
+    """One main row: ">>> " gutter + bold device when selected, otherwise the
+    normal colour so the listing stays readable as a device inventory, not just
+    a selector.  Gutters are equal width so rows line up either way.
+    """
+    core = body if plain else f"{number:>2}  {body}"
+    if selected:
+        return f">>> {BOLD}{core}{RESET}"
+    return f"    {colour}{core}{RESET}"
+
+
+def item_lines(item: MenuItem, selected: bool) -> list[str]:
+    """Lines for one item: the main row plus detail rows for interesting ports.
+    The expander is rendered by build_frame, which has the hidden count.
+    """
+    kind, number, port = item
+    if kind == "quit":
+        return [menu_row(selected, 0, "quit", MUTED)]
+    if kind == "hidden":
+        return [menu_row(selected, number, port.device, MUTED)]
+    if kind == "port":
+        lines = [menu_row(selected, number, port.device, DEVICE)]
+        rows = describe(port)
+        width = max((len(h) for h, _, _ in rows), default=0)
+        for header, value, is_serial in rows:
+            colour = ACCENT if is_serial else VALUE
+            lines.append(
+                f"        {LABEL}{header:>{width}}{RESET} : {colour}{value}{RESET}")
+        return lines
+    return []
+
+
+def window_rows(rows_list: list[str], focus: int, height: int,
+                below_extra: str = "") -> list[str]:
+    """Slice `rows_list` to `height` lines keeping row index `focus` in view.
+    When content is scrolled, the first/last visible line is replaced with a
+    "-- N more above/below --" marker so it is clear more exists off-window;
+    `below_extra` (e.g. ", h to collapse") is appended to the below marker.
+    """
+    total = len(rows_list)
+    if total <= height:
+        return rows_list
+    start = max(0, min(focus - height // 2, total - height))
+    end = start + height
+    view = rows_list[start:end]
+    if start > 0:
+        view[0] = f"    {MUTED}-- {start} more above --{RESET}"
+    if end < total:
+        view[-1] = f"    {MUTED}-- {total - end} more below{below_extra} --{RESET}"
+    return view
+
+
+def prompt_lines(typed: str) -> list[str]:
+    """The pinned foot: a key hint and the number entry field."""
+    return [
+        "",
+        f"{MUTED}j/k move   digits jump   Enter/l/s select   q quit{RESET}",
+        f"{BOLD}--- port #: {RESET}{typed}_",
+    ]
+
+
+def build_frame(items: list[MenuItem], sel: int, typed: str, n_hidden: int,
+                rows: int) -> list[str]:
+    """Assemble one on-screen frame: a pinned title, a single scrolling list of
+    ALL options (quit, interesting ports, ttyS*) that follows the selection,
+    and the pinned prompt foot -- kept within the terminal height so the foot
+    never scrolls off.
+    """
+    usable = max(1, rows - 1)
+    title = f"{BOLD}Serial ports{RESET}"
+    foot = prompt_lines(typed)
+
+    body: list[str] = []                     # the scrolling option rows
+    focus = 0                                # body index of the selected row
+    prev_kind = None
+    for i, item in enumerate(items):
+        kind = item[0]
+        # Blank line between entries, but keep the ttyS* block tight.
+        if not (kind == "hidden" and prev_kind == "hidden"):
+            body.append("")
+        prev_kind = kind
+        if i == sel:
+            focus = len(body)
+        if kind == "expander":
+            text = f"[ {n_hidden} /dev/ttyS* ports hidden -- Enter/l or s ]"
+            body.append(menu_row(i == sel, 0, text, MUTED, plain=True))
+        else:
+            body += item_lines(item, i == sel)
+
+    expanded = any(kind == "hidden" for kind, _, _ in items)
+    below_extra = ", h to collapse" if expanded else ""
+    view_h = max(1, usable - 1 - len(foot))  # 1 line reserved for the title
+    return [title] + window_rows(body, focus, view_h, below_extra) + foot
+
+
+def choose_interactive(interesting: list[ListPortInfo],
+                       hidden: list[ListPortInfo]) -> str | None:
+    """Single-keypress picker with a number field.  Arrows / j-k move the
+    highlight and fill the field; digits jump (auto-expanding ttyS* as needed);
+    Enter or l/Right opens (or expands the ttyS* row); h/Left collapses; s
+    expands; q / 0 / Esc / Ctrl-] quit.
+    """
+    key = readchar.key
+    quit_keys = ("q", "Q", key.ESC, "\x1d")          # \x1d == Ctrl-]
+    n_interesting = len(interesting)
+    expanded = not interesting                        # nothing else -> expand now
+    sel = 0                                           # start on "quit"
+    typed = ""
+    drawn = 0                                          # lines in the last frame
+
+    sys.stdout.write("\033[?25l")                     # hide cursor
+    try:
+        while True:
+            items = menu_items(interesting, hidden, expanded)
+            sel = max(0, min(sel, len(items) - 1))
+            frame = build_frame(items, sel, typed, len(hidden),
+                                shutil.get_terminal_size().lines)
+            # Redraw in place: step back over the previous frame and clear from
+            # there down, leaving scrollback above the picker untouched.
+            if drawn:
+                sys.stdout.write(f"\033[{drawn}A")
+            sys.stdout.write("\033[0J" + "\n".join(frame) + "\n")
+            sys.stdout.flush()
+            drawn = len(frame)
+
+            try:
+                press = readchar.readkey()
+            except KeyboardInterrupt:
+                return None
+
+            if press in quit_keys:
+                return None
+            elif press in (key.UP, "k"):
+                sel = max(0, sel - 1)
+                typed = typed_for(items[sel])
+            elif press in (key.DOWN, "j"):
+                sel = min(len(items) - 1, sel + 1)
+                typed = typed_for(items[sel])
+            elif press in (key.LEFT, "h") and expanded and hidden:
+                expanded = False
+                sel = n_interesting + 1               # back onto the expander
+                typed = ""
+            elif press.isdigit():
+                typed = (typed + press).lstrip("0") or "0"
+                num = int(typed)
+                if not expanded and hidden and num > n_interesting:
+                    expanded = True
+                    items = menu_items(interesting, hidden, expanded)
+                found = item_number(items, num)
+                if found is not None:
+                    sel = found
+            elif press in (key.BACKSPACE, "\x7f", "\b"):
+                typed = typed[:-1]
+                if typed:
+                    found = item_number(items, int(typed))
+                    if found is not None:
+                        sel = found
+            elif press in (key.ENTER, "\r", "\n", key.RIGHT, "l", "s"):
+                target = sel
+                if typed:
+                    found = item_number(items, int(typed))
+                    if found is None:
+                        continue                      # typed number out of range
+                    target = found
+                kind, _, port = items[target]
+                if kind == "quit":
+                    return None
+                if kind == "expander":
+                    expanded = True
+                    sel = n_interesting + 1
+                    typed = str(n_interesting + 1)
+                elif port is not None:
+                    return port.device
+    finally:
+        sys.stdout.write("\033[?25h")                 # restore cursor
+        sys.stdout.flush()
+        print()
 
 
 def port_given(args: list[str]) -> bool:
