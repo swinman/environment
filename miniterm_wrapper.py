@@ -310,23 +310,28 @@ def item_lines(item: MenuItem, selected: bool) -> list[str]:
 
 
 def window_rows(rows_list: list[str], focus: int, height: int,
-                below_extra: str = "") -> list[str]:
-    """Slice `rows_list` to `height` lines keeping row index `focus` in view.
-    When content is scrolled, the first/last visible line is replaced with a
-    "-- N more above/below --" marker so it is clear more exists off-window;
-    `below_extra` (e.g. ", h to collapse") is appended to the below marker.
+                port_rows: list[int], below_extra: str = "") -> list[str]:
+    """Slice `rows_list` to at most `height` lines keeping row index `focus` in
+    view.  When content is scrolled, a "-- N more above/below --" marker line is
+    added (its own line, not overlaying content) where N counts the *ports* (row
+    indices in `port_rows`) scrolled out of view -- not raw lines.  `below_extra`
+    (e.g. ", h to collapse") is appended to the below marker.
     """
     total = len(rows_list)
     if total <= height:
         return rows_list
-    start = max(0, min(focus - height // 2, total - height))
-    end = start + height
-    view = rows_list[start:end]
-    if start > 0:
-        view[0] = f"    {MUTED}-- {start} more above --{RESET}"
-    if end < total:
-        view[-1] = f"    {MUTED}-- {total - end} more below{below_extra} --{RESET}"
-    return view
+    inner = max(1, height - 2)               # leave room for up to two markers
+    start = max(0, min(focus - inner // 2, total - inner))
+    end = start + inner
+    above = sum(1 for r in port_rows if r < start)
+    below = sum(1 for r in port_rows if r >= end)
+    out = []
+    if start > 0 and above:
+        out.append(f"    {MUTED}-- {above} more above --{RESET}")
+    out += rows_list[start:end]
+    if end < total and below:
+        out.append(f"    {MUTED}-- {below} more below{below_extra} --{RESET}")
+    return out
 
 
 def prompt_lines(typed: str) -> list[str]:
@@ -351,6 +356,7 @@ def build_frame(items: list[MenuItem], sel: int, typed: str, n_hidden: int,
 
     body: list[str] = []                     # the scrolling option rows
     focus = 0                                # body index of the selected row
+    port_rows: list[int] = []                # body index of each port's main row
     prev_kind = None
     for i, item in enumerate(items):
         kind = item[0]
@@ -360,6 +366,8 @@ def build_frame(items: list[MenuItem], sel: int, typed: str, n_hidden: int,
         prev_kind = kind
         if i == sel:
             focus = len(body)
+        if kind in ("port", "hidden"):       # counted by the scroll markers
+            port_rows.append(len(body))
         if kind == "expander":
             text = f"[ {n_hidden} /dev/ttyS* ports hidden -- Enter/l or s ]"
             body.append(menu_row(i == sel, 0, text, MUTED, plain=True))
@@ -369,7 +377,7 @@ def build_frame(items: list[MenuItem], sel: int, typed: str, n_hidden: int,
     expanded = any(kind == "hidden" for kind, _, _ in items)
     below_extra = ", h to collapse" if expanded else ""
     view_h = max(1, usable - 1 - len(foot))  # 1 line reserved for the title
-    return [title] + window_rows(body, focus, view_h, below_extra) + foot
+    return [title] + window_rows(body, focus, view_h, port_rows, below_extra) + foot
 
 
 def choose_interactive(interesting: list[ListPortInfo],
