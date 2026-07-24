@@ -1,13 +1,21 @@
 #!/usr/bin/env python
 """Front end for pyserial's miniterm with a nicer port picker.
 
+Setup: this is a standalone script (needs pyserial).  To use it as your
+`miniterm` command, add an alias to your shell rc (~/.bashrc, ~/.bash_aliases,
+~/.zshrc, ...):
+
+    alias miniterm='python /path/to/miniterm_wrapper.py'
+
+Run it directly as `python miniterm_wrapper.py [miniterm args...]`.  Naming a
+port (`... /dev/ttyACM0`) or passing -h/--help skips the picker; otherwise the
+picker runs and its choice becomes the port.  Any other arguments pass through
+to miniterm (e.g. a trailing baud rate: `... /dev/ttyACM0 115200`).
+
 Replaces miniterm's plain "--- Enter port index or full name:" prompt with a
 listing that shows the useful details (product, manufacturer, VID:PID, USB
 location) for the ports you actually care about, while collapsing the pile of
 on-board /dev/ttyS* ports behind a single line you can expand on demand.
-
-Any arguments given to this script are forwarded to miniterm after the chosen
-port, so `miniterm_wrapper.py 115200 --rtscts` works as expected.
 
 Why the hiding is done by matching p.device directly rather than a "not ttyS"
 regex through list_ports.grep(): pyserial's grep (and miniterm's own picker)
@@ -19,6 +27,9 @@ Matching HIDDEN_PORT_RE against p.device alone is unambiguous and actually
 keeps the ttyS ports out.
 """
 
+import argparse
+import contextlib
+import io
 import os
 import re
 import string
@@ -41,13 +52,15 @@ MINITERM_DEFAULT_ARGS = ["-e"]
 # light and dark terminal themes -- tweak these if your palette differs.
 #   DEVICE : the port path            LABEL : field names
 #   VALUE  : field values            ACCENT : serial number (matters most)
+# SGR code reference (the "\033[<n>m" numbers below):
+#   https://en.wikipedia.org/wiki/ANSI_escape_code#Select_Graphic_Rendition_parameters
 if sys.stdout.isatty():
     BOLD = "\033[1m"
     DEVICE = "\033[1;32m"   # bold green
     LABEL = "\033[36m"      # cyan
     VALUE = "\033[0m"       # terminal default
     ACCENT = "\033[1;33m"   # bold yellow
-    MUTED = "\033[90m"      # bright black / grey
+    MUTED = "\033[37m"      # white / light grey (dimmer than default, still legible)
     WARN = "\033[33m"       # yellow
     RESET = "\033[0m"
 else:
@@ -162,7 +175,7 @@ def choose() -> str | None:
 
         if not reply:
             continue
-        if reply.lower() in ("q", "quit"):
+        if reply.lower() in ("q", "quit", "0"):
             return None
         if reply.lower() == "s" and hidden and not show_hidden:
             show_hidden = True
@@ -181,13 +194,56 @@ def choose() -> str | None:
         print(f"{WARN}  no such port: {reply}{RESET}")
 
 
+def port_given(args: list[str]) -> bool:
+    """True if the command line already names a port, so the picker is skipped.
+
+    Uses argparse's parse_known_args() to ignore every miniterm flag and the
+    baud rate and pull out just the port positional.  parse_known_args cannot
+    tell that an *unrecognized* option takes a value, so the value-taking
+    options are declared here -- otherwise `--rts 1` would hand "1" to the port
+    positional.  Bare flags left undeclared are ignored harmlessly.
+
+    A lone "-" is miniterm's own "list the ports" request, so it counts as no
+    port and the picker still runs.
+    """
+    parser = argparse.ArgumentParser(add_help=False)
+    for opt in ("--parity", "--rts", "--dtr", "--encoding", "--eol",
+                "--exit-char", "--menu-char"):
+        parser.add_argument(opt)
+    parser.add_argument("-f", "--filter", action="append")
+    parser.add_argument("port", nargs="?")
+    try:
+        # parse_known_args exits on a malformed option (e.g. a value option
+        # with no value); let miniterm be the one to report that, and just
+        # fall back to the picker here.
+        with contextlib.redirect_stderr(io.StringIO()):
+            namespace, _ = parser.parse_known_args(args)
+    except SystemExit:
+        return False
+    return namespace.port not in (None, "-")
+
+
 def main() -> int:
-    port = choose()
-    if port is None:
-        return 1
-    cmd = ([sys.executable, "-m", "serial.tools.miniterm"]
-           + MINITERM_DEFAULT_ARGS + [port] + sys.argv[1:])
-    print(f"{MUTED}>>> {' '.join(cmd)}{RESET}")
+    args = sys.argv[1:]
+    # Bare "python" (not sys.executable's full path) keeps the echoed command
+    # short; PATH resolves it to the same interpreter that launched this script.
+    base = ["python", "-m", "serial.tools.miniterm"]
+
+    # -h/--help: let miniterm print its own help, no picker.
+    if "-h" in args or "--help" in args:
+        return subprocess.call(base + args)
+
+    if port_given(args):
+        # A port was named on the command line -- hand off untouched.
+        cmd = base + MINITERM_DEFAULT_ARGS + args
+    else:
+        port = choose()
+        if port is None:
+            return 1
+        rest = [a for a in args if a != "-"]    # drop miniterm's list request
+        cmd = base + MINITERM_DEFAULT_ARGS + [port] + rest
+
+    print(f"{MUTED}>>> {' '.join(cmd)}{RESET}\n")
     return subprocess.call(cmd)
 
 
