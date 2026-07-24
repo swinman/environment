@@ -41,3 +41,18 @@ syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\S\@
 "    (headings, link text) instead of forcing Normal.
 syn match markdownPlaceholder "<[A-Za-z_][A-Za-z0-9_./ -]*>" transparent contains=NONE
 syn cluster markdownInline add=markdownPlaceholder
+
+" 6) an indented line is only a code block if a blank line precedes it.  The
+"    runtime rule is "4 spaces or a tab at line start", with no awareness of
+"    lists or paragraphs (its own comment there says "TODO: real nesting"),
+"    so the hanging indent of a wrapped list item and the lazy continuation
+"    of a paragraph both render in the code colour.  That was invisible until
+"    fix 1 above gave markdownCodeBlock a highlight group.  Anchoring the
+"    region on the preceding blank line - with a lookahead for the indented
+"    line that follows - is commonmark's actual rule, and separates real
+"    indented code from continuation text.  The blank line carries the start
+"    of the region but displays nothing.  A lookahead rather than a
+"    lookbehind, so there is no regex cost.  The one case it drops is an
+"    indented block on line 1, which has no preceding blank line.
+syn clear markdownCodeBlock
+syn region markdownCodeBlock start="^\s*$\n\%(\%( \{4,}\|\t\)\S\)\@=" end="^\%(\%( \{4,}\|\t\)\|\s*$\)\@!" keepend
