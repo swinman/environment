@@ -8,9 +8,10 @@ Setup: this is a standalone script (needs pyserial).  To use it as your
     alias miniterm='python /path/to/miniterm_wrapper.py'
 
 Run it directly as `python miniterm_wrapper.py [miniterm args...]`.  Naming a
-port (`... /dev/ttyACM0`) or passing -h/--help skips the picker; otherwise the
-picker runs and its choice becomes the port.  Any other arguments pass through
-to miniterm (e.g. a trailing baud rate: `... /dev/ttyACM0 115200`).
+port (`... /dev/ttyACM0`), a list number 1-3 (`... 1` opens the first device
+the picker would list), or passing -h/--help skips the picker;
+otherwise the picker runs and its choice becomes the port.  Any other arguments
+pass through to miniterm (e.g. a trailing baud rate: `... /dev/ttyACM0 115200`).
 
 Replaces miniterm's plain "--- Enter port index or full name:" prompt with a
 listing that shows the useful details (product, manufacturer, VID:PID, USB
@@ -155,11 +156,22 @@ def render(interesting: list[ListPortInfo], hidden: list[ListPortInfo],
     return ordered
 
 
-def choose() -> str | None:
-    """Interactive picker. Returns a device path, or None to abort."""
+def scan_ports() -> tuple[list[ListPortInfo], list[ListPortInfo]]:
+    """Return (interesting, hidden) port lists in the order the picker shows.
+
+    Interesting ports come first, then the on-board ttyS* ports; the picker's
+    index numbers -- and the `miniterm <n>` shortcut -- run straight down this
+    combined order.
+    """
     ports = sorted(serial.tools.list_ports.comports(), key=natural_key)
     interesting = [p for p in ports if not HIDDEN_PORT_RE.match(p.device)]
     hidden = [p for p in ports if HIDDEN_PORT_RE.match(p.device)]
+    return interesting, hidden
+
+
+def choose() -> str | None:
+    """Interactive picker. Returns a device path, or None to abort."""
+    interesting, hidden = scan_ports()
     show_hidden = not interesting  # nothing else to show -> expand right away
 
     while True:
@@ -232,6 +244,21 @@ def main() -> int:
     # -h/--help: let miniterm print its own help, no picker.
     if "-h" in args or "--help" in args:
         return subprocess.call(base + args)
+
+    # A digit 1-3 as the first argument selects that entry from the port list
+    # (as numbered by the picker), skipping the prompt: `miniterm 1` opens the
+    # first device.  1-3 covers every realistic device count; 0 and 4+ fall
+    # through so miniterm reports them as an unknown port, and bigger counts
+    # are a job for the picker.  Resolve to a device path here, then fall
+    # through to the normal "port named on the command line" handling.
+    if args and re.fullmatch(r"[1-3]", args[0]):
+        interesting, hidden = scan_ports()
+        devices = [p.device for p in interesting] + [p.device for p in hidden]
+        index = int(args[0])
+        if not 1 <= index <= len(devices):
+            print(f"{WARN}no port #{index} (found {len(devices)}){RESET}")
+            return 1
+        args = [devices[index - 1]] + args[1:]
 
     if port_given(args):
         # A port was named on the command line -- hand off untouched.
