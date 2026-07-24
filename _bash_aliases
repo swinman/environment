@@ -67,6 +67,9 @@ alias miniterm="python $(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')minite
 # that can shadow system libs for unrelated programs.
 alias uctools="source $(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')fpga_config.sh"
 
+# add ctags; taghighlights to a repo
+alias vitags="$(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')vim_config.sh"
+
 alias pygrep='grep -r --include="*.py" --include="*.pyw" --include="*.ipynb"'
 alias vgrep='grep -r --include="*.vhd" --include="*.v" --include="*.inc"'
 alias cgrep='grep -r --include="*.[chsCHS]" --include="*.mk" --include="*.ld" --include=Makefile* --include="*.[chsCHS][Pp][Pp]"'
