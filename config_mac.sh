@@ -32,6 +32,9 @@ get_core_packages() {
     brew install pipx
     brew install uv
     brew install awscli
+    # what the `md` alias pipes through to read markdown in the terminal
+    brew install pandoc
+    brew install lynx
 }
 
 get_embedded_tools() {
@@ -120,14 +123,8 @@ config_ssh() {
     echo "Then add it under GitHub > Settings > SSH keys, and Bitbucket > Personal settings > SSH keys."
 }
 
-config_vim_clipboard_check() {
-    if vim --version | grep -q "+clipboard"; then
-        echo "vim has +clipboard - system pasteboard available via \"* and \"+ registers"
-    else
-        echo "WARNING: this vim build lacks +clipboard. Re-check 'brew install vim'"
-        echo "(brew's default build normally includes it; a minimal/system vim won't)."
-    fi
-}
+# the vim build check moved to config_vim.sh's check_vim_features, which also
+# reports +python3 and +termguicolors rather than only +clipboard
 
 # --------------------- SETUP SCRIPT --------------------- #
 
@@ -142,7 +139,6 @@ if [ "$OS" = "mac" ]; then
     config_zsh_completion
     config_pyenv
     config_directories
-    config_vim_clipboard_check
     config_ssh
 fi
 

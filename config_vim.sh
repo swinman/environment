@@ -1,154 +1,174 @@
-#!/bin/bash
+#!/bin/sh
+#
+# config_vim.sh - vim packages, config links and plugins.
+#
+# Plugins load from vim 8's native package directory, ~/.vim/pack/plugins/
+# start, instead of pathogen.  vim puts every directory found there on
+# runtimepath by itself, which is all pathogen was doing.  An existing
+# ~/.vim/bundle tree and autoload/pathogen.vim are moved into ~/.vim/unused
+# rather than deleted.
+
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
+. "$ENVDIR/config_common.sh"
+
+if [ "$OS" = "windows" ]; then
+    VIMDIR=$HOME/vimfiles
+    VIMRC=$HOME/_vimrc
+else
+    VIMDIR=$HOME/.vim
+    VIMRC=$HOME/.vimrc
+fi
+PACKDIR=$VIMDIR/pack/plugins/start
+UNUSED=$VIMDIR/unused
+GH=https://github.com
+
+# --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 
 get_vim_packages() {
-    if [ "${OS}" = "linux" ]; then
+    if [ "$OS" = "linux" ]; then
         echo "Getting required vim packages"
         sudo apt-get install vim -y
+        # vim-gtk3 is not about gvim: Ubuntu's plain vim package is built
+        # -clipboard, and this is how terminal vim gets the "* and "+ registers
         sudo apt-get install vim-gtk3 -y
-        sudo apt-get install vim-gnome -y
         sudo apt-get install vim-doc -y
-        sudo apt-get install ttf-dejavu -y
-        sudo apt-get install exuberant-ctags -y
-        sudo apt-get install cscope -y
+        # universal-ctags replaces exuberant-ctags, which has been unmaintained
+        # since 2009 and mis-parses enough modern C and python to send
+        # jump-to-definition to the wrong place
+        sudo apt-get install universal-ctags -y
         sudo apt-get install curl -y
-        sudo apt-get install xterm -y   # for resize command
-        sudo apt-get install lynx -y    # for markdown view
+        # not vim dependencies: pandoc and lynx are what the `md` alias uses to
+        # read markdown in the terminal.  They live here because this is the
+        # only script that installs packages on linux.
+        sudo apt-get install pandoc -y
+        sudo apt-get install lynx -y
+    elif [ "$OS" = "mac" ]; then
+        echo "Getting required vim packages"
+        # brew vim rather than Apple's /usr/bin/vim, which is built -python3
+        # -lua -perl -ruby.  config_mac.sh installs vim too; doing it here as
+        # well is deliberate so this script stands alone, and brew install is a
+        # no-op when the formula is already present.
+        brew install vim
+        brew install universal-ctags
     fi
 }
 
-config_vim() {
-    if [ "${OS}" = "windows" ]; then
-        text="source $softwaredir\\environment\\_vimrc"
-        target=~/_vimrc
-    else
-        text="source $softwaredir/environment/_vimrc"
-        target=~/.vimrc
-    fi
-    mkdir -p ~/.tmp
-    echo "Checking if $target has \"$text\""
-    # change \ to . for grep to avoid matching the slash
-    text2=$(echo "$text" | sed 's|\\|.|g')
-    has=$(grep "$text2" $target | wc -l)
-    if [ $has = 0 ]; then
-        echo "adding \"$text\" to $target"
-        echo "$text" >> $target
-    fi
-    # this directory, resolved absolutely so the links below do not depend
-    # on where the script was called from
-    EDIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-
-    mkdir -p ~/.vim/colors
-    CDIR="$EDIR/colorvim/colors"
-    for fn in $(ls $CDIR/*.vim); do
-        FB=$(basename $fn)
-        if [ -L ~/.vim/colors/$FB ]; then
-            echo "color file $FB already exists"
+check_vim_features() {
+    echo "Checking vim build: $(command -v vim)"
+    echo "  $(vim --version | head -1)"
+    for feat in clipboard termguicolors python3; do
+        if vim --version | grep -q -- "+$feat"; then
+            echo "  +$feat"
         else
-            ln -s $fn ~/.vim/colors
+            echo "  -$feat"
         fi
     done
+    if ! vim --version | grep -q -- '+python3'; then
+        echo "  NOTE: -python3 means UltiSnips cannot run against this vim."
+        echo "        snipMate is the pure-vimscript alternative if snippets"
+        echo "        turn out to be missed."
+    fi
+    if ! vim --version | grep -q -- '+clipboard'; then
+        echo "  WARNING: -clipboard, so \"* and \"+ will not reach the system"
+        echo "           pasteboard."
+    fi
+}
 
-    # link the whole after tree rather than file by file: vim finds
+config_vim_files() {
+    echo "Linking vim config from $ENVDIR"
+
+    # $VIMRC sources the repo copy rather than being a symlink to it, so
+    # machine-local settings can be added after the source line.
+    line="source $ENVDIR/_vimrc"
+    [ -e "$VIMRC" ] || touch "$VIMRC"
+    # -F: fixed string, so windows backslashes need no escaping dance
+    if grep -qF "$line" "$VIMRC"; then
+        echo "  $VIMRC already sources the repo _vimrc"
+    else
+        echo "$line" >> "$VIMRC"
+        echo "  added \"$line\" to $VIMRC"
+    fi
+
+    mkdir -p "$VIMDIR/colors"
+    for src in "$ENVDIR"/colorvim/colors/*.vim; do
+        [ -e "$src" ] || continue
+        _cv=$(basename "$src")
+        link_config "colorvim/colors/$_cv" "$VIMDIR/colors/$_cv"
+    done
+
+    # Link the whole after tree rather than file by file: vim finds
     # after/syntax/<ft>.vim by searching runtimepath, and ~/.vim/after is a
-    # runtimepath entry in its own right, sourced last so it can override
-    # the stock runtime syntax files.  the source directory is after_vim and
-    # not vim so that tabbing "vim" still completes vim_config.sh
-    if [ -L ~/.vim/after ]; then
-        echo "after directory already linked"
-    elif [ -e ~/.vim/after ]; then
-        echo "WARNING: ~/.vim/after exists and is not a link, leaving it alone"
-        echo "         move its contents to $EDIR/after_vim and remove it"
-    else
-        ln -s $EDIR/after_vim ~/.vim/after
+    # runtimepath entry in its own right, sourced last so it can override the
+    # stock runtime syntax files.  The source directory is after_vim and not
+    # after so that tabbing "vim" still completes vim_config.sh.
+    link_config after_vim "$VIMDIR/after"
+}
+
+config_vim_dirs() {
+    # _vimrc keeps swap, backup and undo files here rather than next to the
+    # source being edited.  vim's default 'directory' starts with ".", so
+    # without this the swap files land in whatever repo is open.
+    mkdir -p "$VIMDIR/backup" "$VIMDIR/swap" "$VIMDIR/undo"
+    echo "Backup, swap and undo directories ready under $VIMDIR"
+}
+
+retire_pathogen() {
+    if [ -e "$VIMDIR/autoload/pathogen.vim" ] || [ -d "$VIMDIR/bundle" ]; then
+        echo "Retiring pathogen; plugins now load from pack/plugins/start"
+        retire_path "$VIMDIR/bundle" "$UNUSED"
+        retire_path "$VIMDIR/autoload/pathogen.vim" "$UNUSED"
     fi
 }
 
-get_vim_addons() {
-    echo "Getting vim add-on packages"
-    # get vim packages, including pathogen
-    if [ $OS = windows ]; then
-        VIMDIR=~/vimfiles
-    else
-        VIMDIR=~/.vim
-    fi
-    VBUND=$VIMDIR/bundle
-    GHURL=https://github.com
+get_vim_plugins() {
+    echo "Getting vim plugins into $PACKDIR"
+    mkdir -p "$PACKDIR"
 
-    if ! [ -d $VIMDIR/autoload ]; then
-        mkdir -p $VIMDIR/autoload
-    fi
-    if ! [ -d $VBUND ]; then
-        mkdir -p $VBUND
-    fi
-    if ! [ -e $VIMDIR/autoload/pathogen.vim ]; then
-        curl -LSso $VIMDIR/autoload/pathogen.vim \
-            https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
-    fi
+    clone_or_pull "$GH/tpope/vim-fugitive.git"   "$PACKDIR/vim-fugitive"
+    clone_or_pull "$GH/tpope/vim-surround.git"   "$PACKDIR/vim-surround"
+    clone_or_pull "$GH/jiangmiao/auto-pairs.git" "$PACKDIR/auto-pairs"
+    # scrooloose/nerdtree moved to preservim/nerdtree
+    clone_or_pull "$GH/preservim/nerdtree.git"   "$PACKDIR/nerdtree"
+    # G-code syntax, for reading .nc and .ngc files
+    clone_or_pull "$GH/gregjurman/vim-nc.git"    "$PACKDIR/vim-nc"
+    # ALE replaces syntastic, which linted synchronously and froze vim while
+    # the checker ran
+    clone_or_pull "$GH/dense-analysis/ale.git"   "$PACKDIR/ale"
+    # Official git mirror of the mercurial repo at heptapod.host/cgtk/
+    # taghighlight, so neither mercurial nor git-remote-hg is needed - and an
+    # hg:: remote tangles git tab completion.  The mirror can lag upstream.
+    clone_or_pull "$GH/abudden/taghighlight-automirror.git" \
+        "$PACKDIR/taghighlight"
 
-    #undo directory for persistent undo history
-    if ! [ -d $VIMDIR/undo ]; then
-        mkdir -p $VIMDIR/undo
-    fi
+    # Dropped deliberately, and retired with ~/.vim/bundle above:
+    #   pathogen      - vim 8 native packages do this
+    #   syntastic     - replaced by ALE
+    #   vim-sensible  - vim 8's own defaults cover it, and _vimrc sets these
+    #                   options explicitly anyway
+    #   ultisnips     - needs +python3; revisit if snippets are missed
+    #   jedi-vim      - was already commented out
+    #   neocomplcache - was already being moved to ~/.vim/unused
+    #   swinman/taghighlight - the fork is behind upstream, nothing local in it
 
-    # set windows driver vim filetype to dosini
+    # windows .inf driver files as dosini
     VIMFT=$VIMDIR/filetype.vim
-    echo "if exists('did_load_filetypes')" > $VIMFT
-    echo "    finish" >> $VIMFT
-    echo "endif" >> $VIMFT
-    echo "augroup filetypedetect" >> $VIMFT
-    echo "autocmd BufNewFile,BufRead *.inf setf dosini" >> $VIMFT
-    echo "augroup END" >> $VIMFT
-
-    get_git_repo $GHURL/jiangmiao/auto-pairs.git $VBUND/auto-pairs
-    get_git_repo $GHURL/scrooloose/nerdtree.git $VBUND/nerdtree
-    get_git_repo $GHURL/scrooloose/syntastic.git $VBUND/syntastic
-    get_git_repo $GHURL/tpope/vim-sensible.git $VBUND/vim-sensible
-    get_git_repo $GHURL/tpope/vim-fugitive.git $VBUND/vim-fugitive
-    get_git_repo $GHURL/tpope/vim-surround.git $VBUND/vim-surround
-    get_git_repo $GHURL/SirVer/ultisnips.git $VBUND/ultisnips
-    get_git_repo $GHURL/gregjurman/vim-nc.git $VBUND/ngc
-    get_git_repo $GHURL/swinman/taghighlight.git $VBUND/taghighlight
-    #get_git_repo $GHURL/davidhalter/jedi-vim.git $VBUND/jedi-vim --recursive
-
-    if [ -n "YES" ]; then
-        get_git_repo hg::https://heptapod.host/cgtk/taghighlight $VBUND/taghighlight
-    else
-        echo "Attempting to access private repo: "
-        get_git_repo git@github.com:swinman/taghighlight.git $VBUND/taghighlight
-        if ! [ $? = 0 ]; then
-            echo "Access failed, attempting as public user: "
-            get_git_repo git://github.com/swinman/taghighlight.git $VBUND/taghighlight
-        fi
-    fi
-
-    if [ -e $VIMDIR/bundle/neocomplcache ]; then
-        mkdir -p $VIMDIR/unused
-        mv $VIMDIR/bundle/neocomplcache $VIMDIR/unused
-    fi
+    echo "if exists('did_load_filetypes')" > "$VIMFT"
+    echo "    finish" >> "$VIMFT"
+    echo "endif" >> "$VIMFT"
+    echo "augroup filetypedetect" >> "$VIMFT"
+    echo "autocmd BufNewFile,BufRead *.inf setf dosini" >> "$VIMFT"
+    echo "augroup END" >> "$VIMFT"
 }
 
-get_git_repo() {
-    local repourl=$1
-    local folder=$2
-    local flag=$3
-    if ! [ -d $folder ]; then
-        echo "Clone $repourl to $folder with flag '$flag'"
-        git clone $3 $repourl $folder
-    else
-        echo "Synch $folder"
-        git --git-dir=$folder/.git --work-tree=$folder/ pull
-    fi
-}
+# --------------------- SETUP SCRIPT --------------------- #
 
-run_full_script() {
-    get_vim_packages;
-    # set .vimrc in home/username to point to vimrc in $softwaredir/environment/_vimrc
-    config_vim;
-    # get vim add-ons (this requires git)
-    get_vim_addons;
-}
-
-# --------------------- RUN SCRIPT --------------------- #
 echo "==================== config_vim.sh  ===================="
-run_full_script;
+
+get_vim_packages
+check_vim_features
+config_vim_files
+config_vim_dirs
+retire_pathogen
+get_vim_plugins
+
 echo "=============== END: config_vim.sh  ===================="
