@@ -1,0 +1,88 @@
+# zsh prompt.  Sourced from _aliases when $ZSH_VERSION is set.
+#
+# This lives in its own file rather than inside a guard in _aliases because a
+# runtime guard does not stop bash from *parsing* the block, and zsh pattern
+# tests and array subscripts are parse errors there.  One `. _prompt_zsh` line
+# is trivially parseable by both shells; everything in here can be zsh-only.
+#
+# Colors come from colorvim/colors/storm.vim so the shell and vim agree:
+#   user@host   LightGreen  #90ee90   (storm Identifier)
+#   path        SkyBlue1    #87ceff   (storm Directory, which is the cwd group)
+#   git branch  Khaki3      #cdc673   (storm Statement)
+#   venv        SandyBrown  #ff9e64   (storm pythonBuiltin)
+#   over ssh    IndianRed1  #ff6a6a   (storm PreProc)
+# These are storm's gui values.  Terminal vim uses its cterm values instead
+# unless 'set termguicolors' is added to _vimrc, so the two differ slightly
+# until then.  Needs a truecolor terminal and zsh >= 5.7 for %F{#rrggbb}.
+#
+# Layout is two lines: context above, a bare prompt character at column 0, so
+# the command being typed always starts at the left edge no matter how long the
+# context grows.  Once a command is accepted the prompt collapses to a
+# transient one-line form, so scrollback and repeated bare <enter> do not cost
+# two lines each.
+
+autoload -Uz vcs_info add-zsh-hook add-zle-hook-widget
+
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:git:*' formats       ' %F{#cdc673}(%b)%f'
+zstyle ':vcs_info:git:*' actionformats ' %F{#cdc673}(%b|%a)%f'
+
+# ${vcs_info_msg_0_} and ${_prompt_venv} must stay unexpanded until each
+# prompt is drawn.  Escapes inside the substituted values are still processed.
+setopt PROMPT_SUBST
+
+# Stop virtualenv's activate from prepending its own (name) to PS1.  The venv
+# is rendered as a segment below instead, so it cannot end up shown twice.
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
+# .../ plus the last three components once the path is deeper than three.
+# bash does the same thing with PROMPT_DIRTRIM=3.
+_prompt_path='%F{#87ceff}%(4~|.../%3~|%~)%f'
+
+# Red host when this shell arrived over ssh - the accurate mac equivalent of
+# the linux "$DISPLAY is empty" test, since $DISPLAY is never set on mac.
+# $SSH_CONNECTION cannot change within a shell, so this is resolved once.
+if [[ -n $SSH_CONNECTION ]]; then
+    _prompt_hostcolor='#ff6a6a'
+else
+    _prompt_hostcolor='#90ee90'
+fi
+
+# Recomputed per prompt: a venv can be activated or deactivated mid-session.
+_prompt_venv=''
+_prompt_set_venv() {
+    _prompt_venv=''
+    [[ -n $VIRTUAL_ENV ]] || return
+    local n=${VIRTUAL_ENV_PROMPT:-${VIRTUAL_ENV:t}}
+    # VIRTUAL_ENV_PROMPT is sometimes already decorated as "(name) "
+    n=${n//[()]/}
+    n=${n## }
+    n=${n%% }
+    # A directory literally named .venv or venv says nothing useful; the
+    # project directory above it is the name worth showing.
+    if [[ $n == .venv || $n == venv || $n == env || $n == .env ]]; then
+        n=${VIRTUAL_ENV:h:t}
+    fi
+    _prompt_venv="%F{#ff9e64}(${n})%f "
+}
+
+PROMPT_FULL='${_prompt_venv}'"%F{$_prompt_hostcolor}%n@%m%f:$_prompt_path"'${vcs_info_msg_0_}'$'\n''%(!.#.$) '
+
+# The transient form drops the host name and both parenthesised segments and
+# keeps the path, so accepted commands stay identifiable in scrollback.
+PROMPT_TRANSIENT="$_prompt_path "'%(!.#.$) '
+
+PROMPT=$PROMPT_FULL
+
+_prompt_full() { PROMPT=$PROMPT_FULL }
+_prompt_transient() { PROMPT=$PROMPT_TRANSIENT; zle reset-prompt }
+zle -N _prompt_transient
+
+# add-zsh-hook and add-zle-hook-widget both refuse duplicates, so re-sourcing
+# this file is safe.
+add-zsh-hook precmd vcs_info
+add-zsh-hook precmd _prompt_set_venv
+add-zsh-hook precmd _prompt_full
+add-zle-hook-widget line-finish _prompt_transient
+
+# vim:ft=zsh

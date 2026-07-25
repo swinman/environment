@@ -58,6 +58,10 @@ every run rather than appending duplicates:
   parts are guarded on `$ZSH_VERSION`, platform-specific parts on `$OS`. Note
   that a runtime guard does not stop the other shell from *parsing* the block,
   so zsh-only syntax inside a `$ZSH_VERSION` test must still be valid bash.
+- The prompt is the exception to that: `_prompt_zsh` and `_prompt_bash` are
+  separate files, sourced by `_aliases` according to the shell, because each
+  needs syntax the other cannot parse. Both draw the same two-line shape and
+  the same colors; only zsh gets the transient form.
 
 ## Running it
 
@@ -81,8 +85,12 @@ rc-file edits are guarded or rewritten in place, and `mkdir` calls use `-p`.
   `summer`'s `cterm` values do not match its `gui` intent and only look right
   in gvim.
 - `_aliases` - the language-scoped grep helpers (`pygrep`, `cgrep`, `vgrep`,
-  ...), git shorthands, `md` for reading markdown in the terminal, and the
-  prompt. Prompt colors are taken from `storm.vim` so the shell and vim agree.
+  ...), git shorthands, `md` for reading markdown in the terminal.
+- `_prompt_zsh` / `_prompt_bash` - two-line prompt showing venv, host,
+  truncated path and git branch, with the command line itself starting at
+  column 0. Colors are taken from `storm.vim` so the shell and vim agree. Under
+  zsh the prompt collapses to a one-line transient form once a command is
+  accepted, so scrollback stays compact.
 - `miniterm_wrapper.py` - serial console wrapper with port collapsing.
 - `helpers/` - small single-purpose scripts (`resize.sh`, `math.sh`,
   `tepoc.sh`, `colordump.sh`, `grab_headers.sh`).

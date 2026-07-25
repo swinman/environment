@@ -147,49 +147,19 @@ elif command -v xdpyinfo >/dev/null 2>&1 && xdpyinfo -v >/dev/null 2>&1; then
 fi
 
 # --------------------- prompt --------------------- #
-# Colors come from colorvim/colors/storm.vim, so the shell and vim agree:
-#   user@host  LightGreen  #90ee90   (storm Identifier)
-#   path       SkyBlue1    #87ceff   (storm Directory - literally the cwd group)
-#   git branch Khaki3      #cdc673   (storm Statement)
-#   over ssh   IndianRed1  #ff6a6a   (storm PreProc)
-# These are storm's gui values, which is what gvim shows.  Terminal vim uses
-# storm's cterm values instead (119/117) unless 'set termguicolors' is added
-# to _vimrc, so the two differ slightly today - mostly in the green.
-# Needs a truecolor terminal and zsh >= 5.7 for %F{#rrggbb}.
+# Two-line prompt in either shell: context above, a bare prompt character at
+# column 0, so the command being typed always starts at the left edge however
+# long the venv / path / branch context grows.  Colors come from
+# colorvim/colors/storm.vim so the shell and vim agree.
 #
-# Guarded on the shell, not on $OS: prompt escapes are zsh syntax, and
-# nothing about them is mac-specific.
+# Each shell's implementation is a separate file rather than a guarded block
+# here.  A runtime guard does not stop the other shell from *parsing* the
+# block, and both use syntax the other cannot parse: zsh pattern tests and
+# subscripts, bash's \[ \] width markers.  These two lines are safe in both.
 if [ -n "$ZSH_VERSION" ]; then
-    autoload -Uz vcs_info add-zsh-hook
-    zstyle ':vcs_info:*' enable git
-    zstyle ':vcs_info:git:*' formats       ' %F{#cdc673}(%b)%f'
-    zstyle ':vcs_info:git:*' actionformats ' %F{#cdc673}(%b|%a)%f'
-    # add-zsh-hook refuses to add a duplicate, so re-sourcing this file is
-    # safe.  Doing it by hand with precmd_functions+=() needs a ${a[(I)x]}
-    # subscript to dedupe, and bash cannot parse that - the $ZSH_VERSION test
-    # keeps bash from *running* this block but bash still has to parse it, so
-    # everything in here must stay syntactically valid bash.
-    add-zsh-hook precmd vcs_info
-
-    # ${vcs_info_msg_0_} must stay unexpanded until each prompt is drawn
-    setopt PROMPT_SUBST
-
-    # red user@host when this shell arrived over ssh.  This is the accurate
-    # mac equivalent of the linux "$DISPLAY is empty" test below - $DISPLAY
-    # is an X11 concept and is never set on mac.
-    if [ -n "$SSH_CONNECTION" ]; then
-        _prompt_host='%F{#ff6a6a}%n@%m%f'
-    else
-        _prompt_host='%F{#90ee90}%n@%m%f'
-    fi
-    PROMPT="${_prompt_host}:%F{#87ceff}%~%f"'${vcs_info_msg_0_}'"%# "
-    unset _prompt_host
-fi
-
-# change color of command prompt when no display is present
-# $DISPLAY is an X11 concept - not meaningful on mac, so linux only
-if [ "$OS" != "mac" ] && [ -z "$DISPLAY" ]; then
-    PS1=$(echo "$PS1" | sed 's/32m/31m/')
+    [ -f "$ENVDIR/_prompt_zsh" ] && . "$ENVDIR/_prompt_zsh"
+else
+    [ -f "$ENVDIR/_prompt_bash" ] && . "$ENVDIR/_prompt_bash"
 fi
 
 # vim:ft=sh
