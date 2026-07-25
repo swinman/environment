@@ -150,6 +150,17 @@ get_vim_plugins() {
     #   neocomplcache - was already being moved to ~/.vim/unused
     #   swinman/taghighlight - the fork is behind upstream, nothing local in it
 
+    # pathogen#helptags() rebuilt these on every vim startup.  vim does not do
+    # it for packages, so generate them once here instead.  Each doc directory
+    # is passed explicitly rather than using :helptags ALL, which would depend
+    # on runtimepath being populated in a throwaway vim.
+    echo "  generating plugin help tags"
+    for doc in "$PACKDIR"/*/doc; do
+        [ -d "$doc" ] || continue
+        vim -es -u NONE -c "helptags $doc" -c 'q' >/dev/null 2>&1 ||
+            echo "  WARNING: helptags failed for $doc"
+    done
+
     # windows .inf driver files as dosini
     VIMFT=$VIMDIR/filetype.vim
     echo "if exists('did_load_filetypes')" > "$VIMFT"

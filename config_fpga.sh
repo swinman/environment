@@ -195,7 +195,7 @@ install_packages() {
             sudo apt-get install libfontconfig1:i386 -y
             sudo apt-get install libglib2.0-0:i386 -y
             sudo apt-get install libstdc++6:i386 -y
-            sudo apt-get install libelf1:i386
+            sudo apt-get install libelf1:i386 -y
         fi
 
         if [ 1 -eq 1 ]; then # lattice programmer related
@@ -205,7 +205,7 @@ install_packages() {
         fi
 
         if [ 1 -eq 1 ]; then # quartus related
-            sudo apt-get install build-essential
+            sudo apt-get install build-essential -y
         fi
     fi
 }

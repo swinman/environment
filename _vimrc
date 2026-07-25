@@ -49,15 +49,21 @@
 "
 " END: ------------------- TODO ---------------------------------         2}}}
 
-" ------------------ PATHOGEN SETTINGS --------------------------         {{{2
-filetype off
-" style recommended by python-mode
-call pathogen#infect()
-call pathogen#helptags()
+" ------------------ PACKAGES -----------------------------------         {{{2
+" Plugins live in ~/.vim/pack/plugins/start and vim puts them on runtimepath
+" itself, so there is no plugin manager to call here.  This replaced
+" pathogen#infect() and pathogen#helptags(); config_vim.sh retires the old
+" bundle tree into ~/.vim/unused.
+"
+" The 'filetype off' / 'filetype on' dance around the infect() call was a
+" pathogen requirement and is not needed for packages.
+"
+" pathogen#helptags() rebuilt help tags on every startup.  vim does not do
+" that for packages, so config_vim.sh runs :helptags ALL once after cloning
+" instead - same result without paying for it every time vim opens.
 syntax enable
-filetype on
 filetype plugin indent on
-" END: ------------- PATHOGEN SETTINGS --------------------------         2}}}
+" END: ------------- PACKAGES -----------------------------------         2}}}
 
 " NOTE: to output python command to the buffer use
 " :.!py -c "import uuid; print uuid.uuid1()"

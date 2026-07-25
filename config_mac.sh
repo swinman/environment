@@ -50,6 +50,25 @@ get_terminal() {
     echo "(gives you Alt/Meta bindings for vim/readline like on Linux)"
 }
 
+config_brew_path() {
+    # /etc/paths.d/homebrew puts /opt/homebrew/bin on PATH, but macOS's
+    # path_helper appends paths.d entries *after* /etc/paths, so it lands
+    # behind /usr/bin.  Everything brew installs is then shadowed by Apple's
+    # copy: `vim` resolves to Apple's 9.1 (-python3) rather than brew's 9.2
+    # (+python3), and `git` to /usr/bin/git rather than the brew one.
+    #
+    # brew shellenv prepends instead.  It goes in ~/.zprofile because that is
+    # read after /etc/zprofile has already run path_helper, so this wins.
+    ZPROFILE=~/.zprofile
+    BREWLINE='eval "$('$(command -v brew || echo /opt/homebrew/bin/brew)' shellenv)"'
+    if [ "$(grep -F 'brew shellenv' $ZPROFILE 2>/dev/null)" = "" ]; then
+        echo "$BREWLINE" >> $ZPROFILE
+        echo "Added brew shellenv to $ZPROFILE (puts brew ahead of /usr/bin)"
+    else
+        echo "brew shellenv already present in $ZPROFILE"
+    fi
+}
+
 config_gnu_tools_path() {
     # BSD userland ships by default on macOS (sed/grep/date/etc behave
     # differently than the GNU tools Ubuntu uses). Put GNU versions first
@@ -132,6 +151,7 @@ echo "======================== config_mac.sh ========================"
 
 if [ "$OS" = "mac" ]; then
     check_homebrew
+    config_brew_path
     get_core_packages
     get_terminal
     get_embedded_tools
