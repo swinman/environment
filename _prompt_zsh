@@ -66,11 +66,16 @@ _prompt_set_venv() {
     _prompt_venv="%F{#ff9e64}(${n})%f "
 }
 
-PROMPT_FULL='${_prompt_venv}'"%F{$_prompt_hostcolor}%n@%m%f:$_prompt_path"'${vcs_info_msg_0_}'$'\n''%(!.#.$) '
+# %# is zsh's native prompt character: % for a normal user, # for root.  bash
+# uses \$ for the same thing, and _prompt_bash keeps that.  The two are left
+# deliberately different rather than forced to match: both keep the # root
+# warning, so the normal-user glyph costs nothing to differ and is free
+# information about which shell this is.
+PROMPT_FULL='${_prompt_venv}'"%F{$_prompt_hostcolor}%n@%m%f:$_prompt_path"'${vcs_info_msg_0_}'$'\n''%# '
 
 # The transient form drops the host name and both parenthesised segments and
 # keeps the path, so accepted commands stay identifiable in scrollback.
-PROMPT_TRANSIENT="$_prompt_path "'%(!.#.$) '
+PROMPT_TRANSIENT="$_prompt_path "'%# '
 
 PROMPT=$PROMPT_FULL
 
