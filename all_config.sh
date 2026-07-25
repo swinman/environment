@@ -44,7 +44,33 @@ update_default_programs() {
 }
 
 # --------------------- SETUP SCRIPT --------------------- #
-source ./config_bash.sh
+# sourced, not executed: config_shell.sh's check_os exports $OS, which every
+# branch below reads.  It is safe to run first on mac now that its rc editing
+# no longer needs GNU sed (see the write-temp-then-replace note in there).
+. ./config_shell.sh
+
+if [ "$OS" = "mac" ]; then
+    # ----------------------------------------------------------------- #
+    # mac: bare bones only.
+    #
+    # Everything below this block is apt-get based and battle tested on
+    # ubuntu only, so mac deliberately does NOT fall through to it.  Add
+    # one script at a time here as each is audited and ported, so this
+    # grows into a full mac setup without ever risking a half-ported run.
+    #
+    # not yet ported: config_git, config_vim, config_python, config_latex,
+    #                 config_avr_arm, config_fpga, config_claude
+    # not applicable: config_udev (linux device rules), update_default_programs
+    # ----------------------------------------------------------------- #
+    time ./config_mac.sh
+    echo
+    echo "==================== all_config.sh: mac ===================="
+    echo "Ran: config_shell.sh, config_mac.sh"
+    echo "Open a new terminal (or 'exec zsh') to pick up ~/.zshrc changes."
+    echo "==========================================================="
+    exit 0
+fi
+
 read -p "Would you like to set up latex? [y/N]" add_latex
 if [ "$OS" = "linux" ]; then
     read -p "Add chromium as the default browser? [N/y]" add_chromium

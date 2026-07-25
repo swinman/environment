@@ -1,4 +1,10 @@
 #!/bin/sh
+#
+# config_shell.sh - was config_bash.sh.  Renamed because it configures the
+# login shell's rc file, whichever shell that is: bash on the linux boxes,
+# zsh on mac (the default there since Catalina).  The aliases it sources are
+# kept shell-agnostic rather than forked per shell, so there is nothing
+# bash-specific left to justify the old name.
 
 # to run this dd below line (minus #) into "r, then use @r
 #! chmod 755 %; %
@@ -53,6 +59,7 @@ set_common_dir() {
         SOFTWAREDIR=$HOME/software
         TOOLSDIR=$HOME/tools
     fi
+    ENVIRONMENTDIR=$SOFTWAREDIR/environment
 }
 
 init_software_dir() {
@@ -73,9 +80,10 @@ init_software_dir() {
     fi
 }
 
-add_bash_alias() {
+add_shell_rc() {
+    # the rc file the login shell actually reads
     if [ "$OS" = "mac" ]; then
-        BRC=~/.bash_profile
+        BRC=~/.zshrc
     else
         BRC=~/.bashrc
     fi
@@ -84,9 +92,16 @@ add_bash_alias() {
         touch $BRC
     fi
 
-    sed -i 's/#\(force_color_prompt=yes\)/\1/' $BRC
+    # Ubuntu's stock .bashrc ships this line commented out; uncomment it.
+    # zsh has no such setting and mac colors come from CLICOLOR, so linux
+    # only - which also keeps this GNU-sed call off the mac path.
+    if [ "$OS" = "linux" ]; then
+        sed -i 's/#\(force_color_prompt=yes\)/\1/' $BRC
+    fi
 
-    aliases='$softwaredir/environment/_bash_aliases'
+    # one shell-agnostic aliases file for both shells and both OSes -
+    # _bash_aliases was renamed to _aliases, there is no per-shell copy.
+    aliases='$ENVDIR/_aliases'
     startline="##### START DO NOT EDIT BETWEEN THESE BRACKETS #####"
     infoline="# Below lines were added by environment/config script"
     endline="##### END DO NOT EDIT BETWEEN THESE BRACKETS #####"
@@ -98,7 +113,13 @@ add_bash_alias() {
     if [ -n "$sno" ] && [ -n "$eno" ]; then
 	if [ $sno -ge 0 ] && [ $eno -gt $sno ]; then
             echo "Removing lines $sno to $eno from $BRC"
-	    sed -i -e "$sno,$eno d" $BRC
+	    # not sed -i: BSD sed (mac) reads -i's argument as a backup
+	    # suffix, so `sed -i -e ...` dies with "unescaped newline inside
+	    # substitute pattern" there.  write-temp-then-replace is portable,
+	    # and `cat tmp > $BRC` rewrites in place so perms survive.
+	    sed -e "$sno,$eno d" $BRC > $BRC.tmp \
+		&& cat $BRC.tmp > $BRC \
+		&& rm -f $BRC.tmp
 	fi
     fi
 
@@ -112,7 +133,13 @@ add_bash_alias() {
     echo $infoline >> $BRC
     echo "Adding \$OS variable"
     echo "export OS=$OS" >> $BRC
-    echo "Adding \$softwaredir and \$toolsdir variables"
+    echo "Adding \$ENVDIR variable"
+    echo "export ENVDIR=\"$ENVIRONMENTDIR\"" >> $BRC
+    # $softwaredir exists mainly because it used to be put on PYTHONPATH so
+    # imports resolved out of ~/software.  Per-project venvs make that both
+    # unnecessary and undesirable, so new code should use $ENVDIR instead.
+    # Still exported because older scripts in here read it.
+    echo "Adding \$softwaredir and \$toolsdir variables (legacy - prefer \$ENVDIR)"
     echo "export softwaredir=\"$SOFTWAREDIR\"" >> $BRC
     echo "export toolsdir=\"$TOOLSDIR\"" >> $BRC
     echo "" >> $BRC
@@ -121,12 +148,9 @@ add_bash_alias() {
     echo "    . $aliases" >> $BRC
     echo "fi" >> $BRC
     echo "" >> $BRC
-    if [ "$OS" = "mac" ]; then
-        echo "adding git autocomplete for mac"
-        echo "if [ -f $HOME/git-completion.bash ]; then" >> $BRC
-        echo "    source $HOME/git-completion.bash" >> $BRC
-        echo "fi" >> $BRC
-    fi
+    # the old mac branch sourced ~/git-completion.bash here.  That was for
+    # mac-on-bash; zsh gets git completion from brew's zsh-completions via
+    # the FPATH/compinit lines config_mac.sh checks for, so it is dropped.
     if [ "$OS" = "windows" ]; then
         echo "adding cd to softwaredir for windows"
         echo 'cd $HOME' >> $BRC
@@ -136,6 +160,10 @@ add_bash_alias() {
 }
 
 ensure_req_globals() {
+    if [ -z "$ENVDIR" ]; then
+        echo "exporting ENVDIR"
+        export ENVDIR=$ENVIRONMENTDIR
+    fi
     if [ -z "$softwaredir" ]; then
         echo "exporting softwaredir"
         export softwaredir=$SOFTWAREDIR
@@ -152,10 +180,10 @@ windows=windows
 mac=mac
 linux=linux
 
-echo "==================== config_bash.sh ===================="
+echo "==================== config_shell.sh ===================="
 check_os;
 set_common_dir;
 init_software_dir;
-add_bash_alias;
+add_shell_rc;
 ensure_req_globals;
-echo "================= END: config_bash.sh =================="
+echo "================= END: config_shell.sh =================="
