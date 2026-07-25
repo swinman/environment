@@ -25,5 +25,6 @@
     ]
   },
   "tui": "fullscreen",
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "theme": "dark"
 }
