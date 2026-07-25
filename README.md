@@ -92,8 +92,10 @@ rc-file edits are guarded or rewritten in place, and `mkdir` calls use `-p`.
   zsh the prompt collapses to a one-line transient form once a command is
   accepted, so scrollback stays compact.
 - `miniterm_wrapper.py` - serial console wrapper with port collapsing.
-- `helpers/` - small single-purpose scripts (`resize.sh`, `math.sh`,
-  `tepoc.sh`, `colordump.sh`, `grab_headers.sh`).
+- `helpers/` - small single-purpose scripts (`math.sh`, `tepoc.sh`,
+  `colordump.sh`, `grab_headers.sh`).
+- `tsize` / `viq` / `vidq` in `_aliases` - resize the terminal window with one
+  XTWINOPS escape, which works on mac and linux and over ssh.
 - `_claude_*` - Claude Code settings and global preferences, symlinked into
   `~/.claude` by `config_claude.sh`.
 

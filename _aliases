@@ -19,11 +19,14 @@
 # --------------------- history ignore --------------------- #
 # bash: HISTIGNORE is a colon-separated glob list
 # zsh:  HISTORY_IGNORE is one extended-glob pattern
+# The vi pattern covers vi, viq and vidq but not vim: the old zsh form
+# vi(q)#( )# was "vi" plus any number of q, so it never matched vidq, and the
+# old bash form vi?(q)?( ) had the same gap.
 if [ -n "$ZSH_VERSION" ]; then
     setopt EXTENDED_GLOB
-    export HISTORY_IGNORE='(&|ls|[bf]g|exit|gis|gdf|gdw|gba|vi(q)#( )#|gvim|ipy|history( )#)'
+    export HISTORY_IGNORE='(&|ls|[bf]g|exit|gis|gdf|gdw|gba|vi((d|)q|)( )#|gvim|ipy|history( )#)'
 else
-    export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi?(q)?( ):gvim:ipy:history?( ):'
+    export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi?(?(d)q)?( ):gvim:ipy:history?( ):'
 fi
 
 alias cd..='cd ..'
@@ -64,12 +67,37 @@ md() { pandoc -f markdown-smart-raw_html -t html "$1" | lynx -stdin; }
 
 alias LS='echo "Remove CAPS LOCK you ass"'
 
-# start and quit vi to change the terminal size
-# TODO: helpers/resize.sh is still the linux version - if it shells out to
-# xdotool/wmctrl it does nothing on mac and needs an osascript rewrite.
 alias vi='vim'
-alias viq="$ENVDIR/helpers/resize.sh 85 50"
-alias vidq="$ENVDIR/helpers/resize.sh 165 50"
+
+# --------------------- terminal size --------------------- #
+# XTWINOPS "CSI 8 ; rows ; cols t" asks the terminal emulator to resize its
+# window.  Confirmed working in Terminal.app and on linux, and it travels over
+# ssh, because the sequence is interpreted by the emulator rather than by the
+# shell that printed it.
+#
+# This replaced helpers/resize.sh, which took two very different routes to the
+# same place: wmctrl + xprop + xwininfo with a hardcoded 609x752 pixel geometry
+# under X11, and otherwise a `vim -c "set columns=..." -c q` round trip
+# followed by xterm's `resize` binary.  One printf covers both platforms.
+#
+# Note the argument order: the escape takes rows first, but these take cols
+# first, which is how viq and vidq have always been called.
+#
+# Inside tmux or screen the multiplexer owns the geometry, so this does not
+# work there - use the multiplexer's own resize commands instead.
+tsize() {
+    printf '\033[8;%d;%dt' "${2:-50}" "${1:-85}"
+}
+viq()  { tsize 85 50; }
+vidq() { tsize 165 50; }
+
+# zsh tracks SIGWINCH itself, and bash has done so by default since 5.0, but
+# older bash keeps reporting the pre-resize $COLUMNS/$LINES without this.
+[ -n "$BASH_VERSION" ] && shopt -s checkwinsize 2>/dev/null
+
+# vim resizes the same way from inside: <F4> calls ToggleWidth() in _vimrc,
+# which flips &columns between 85 and 165 and vsplits, so a resize no longer
+# needs ctrl-z / viq / fg.
 
 # a function, not an alias: as an alias the $(cat) ran at source time, so
 # every new shell printed a "No such file" error when the key was absent.
