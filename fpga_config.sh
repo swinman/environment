@@ -7,6 +7,22 @@
 #######################################################################
 #######################################################################
 
+# No-op on mac.  Everything below is the x86 Linux iCEcube2 / Diamond flow -
+# LSE and sbt_backend are Linux ELF, the licensing is FlexLM node-locked, and
+# LD_LIBRARY_PATH is ignored by macOS anyway (it uses DYLD_LIBRARY_PATH).  The
+# find on line one of the body also fails outright, since $toolsdir/lscc does
+# not exist here.  FPGA builds happen on a remote machine instead; see TODO.md.
+#
+# arm-none-eabi is no longer a reason to source this on mac either: the
+# gcc-arm-embedded cask puts it on PATH directly.
+#
+# `return` when sourced, which is the normal path via the uctools alias, and
+# `exit` when run directly.
+if [ "$OS" = "mac" ]; then
+    echo "fpga_config.sh: linux only, skipping (FPGA builds run remotely)"
+    return 0 2>/dev/null || exit 0
+fi
+
 export LM_LICENSE_FILE=~/tools/lscc/license-ice.dat
 #export LM_LICENSE_FILE=$LM_LICENSE_FILE:~/tools/altera/14.0/license.dat
 
