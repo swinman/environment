@@ -61,9 +61,11 @@ check_vim_features() {
         fi
     done
     if ! vim --version | grep -q -- '+python3'; then
-        echo "  NOTE: -python3 means UltiSnips cannot run against this vim."
-        echo "        snipMate is the pure-vimscript alternative if snippets"
-        echo "        turn out to be missed."
+        echo "  WARNING: -python3, so the installed UltiSnips will not load."
+        echo "           On mac this usually means Apple's /usr/bin/vim is"
+        echo "           ahead of brew's on PATH; config_mac.sh's"
+        echo "           config_brew_path fixes that.  snipMate is the"
+        echo "           pure-vimscript alternative if it cannot be fixed."
     fi
     if ! vim --version | grep -q -- '+clipboard'; then
         echo "  WARNING: -clipboard, so \"* and \"+ will not reach the system"
@@ -136,13 +138,18 @@ get_vim_plugins() {
     # hg:: remote tangles git tab completion.  The mirror can lag upstream.
     clone_or_pull "$GH/abudden/taghighlight-automirror.git" \
         "$PACKDIR/taghighlight"
+    # Needs +python3, which is why this was held back until brew's vim was
+    # ahead of Apple's on PATH.  _vimrc already carries the UltiSnips block:
+    # it appends $softwaredir/environment to runtimepath and sets
+    # g:UltiSnipsSnippetDirectories to ["snippits","UltiSnips"], so the repo's
+    # snippits/ is found by runtimepath search without any symlink.
+    clone_or_pull "$GH/SirVer/ultisnips.git"     "$PACKDIR/ultisnips"
 
     # Dropped deliberately, and retired with ~/.vim/bundle above:
     #   pathogen      - vim 8 native packages do this
     #   syntastic     - replaced by ALE
     #   vim-sensible  - vim 8's own defaults cover it, and _vimrc sets these
     #                   options explicitly anyway
-    #   ultisnips     - needs +python3; revisit if snippets are missed
     #   jedi-vim      - was already commented out
     #   neocomplcache - was already being moved to ~/.vim/unused
     #   swinman/taghighlight - the fork is behind upstream, nothing local in it
