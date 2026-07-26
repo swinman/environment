@@ -43,7 +43,10 @@ else
     alias vs='eog "$(ls ~/Pictures/Screenshots/* | tail -1)"'
 fi
 
-alias asl="aws sso login && aws-pip"
+# Just the SSO login.  The private-index login that used to be chained on here
+# is site-specific, so it is configured outside this repo and run separately
+# when a private index is actually needed.
+alias asl="aws sso login"
 
 # live log tail.  mac has no /var/log/syslog; unified logging replaced it.
 if [ "$OS" = "mac" ]; then
