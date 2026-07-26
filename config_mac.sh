@@ -27,20 +27,38 @@ get_core_packages() {
     brew install coreutils
     brew install gnu-sed
     brew install grep
-    brew install zsh-completions
-    brew install pyenv
-    brew install pipx
+    #brew install zsh-completions
     brew install uv
     brew install awscli
-    # what the `md` alias pipes through to read markdown in the terminal
-    brew install pandoc
-    brew install lynx
+    # Deliberately not installed:
+    #   pyenv, pipx  - uv and uvx cover both jobs, and a second python manager
+    #                  with no job is how pyenv ended up inert here: its global
+    #                  was "system", its init was never added to ~/.zshrc, and
+    #                  the 3.12.6 it built was unreachable.
+    #   pandoc, lynx - only the `md` function used them, and that is removed.
 }
 
 get_embedded_tools() {
-    brew install arm-none-eabi-gcc
+    # NOT `brew install arm-none-eabi-gcc`.  That formula is a bare cross
+    # compiler with no C library: there is no arm-none-eabi/ sysroot in its
+    # Cellar at all, and brew core has no newlib formula to add alongside it.
+    # GCC's own stdint.h is a shim that does `#include_next <stdint.h>`
+    # expecting newlib's, so every build dies with the baffling
+    # "stdint.h: No such file or directory" pointing at stdint.h itself.
+    #
+    # The cask is ARM's official prebuilt toolchain and bundles newlib plus a
+    # matched binutils and gdb.  Do not also install arm-none-eabi-binutils:
+    # gcc invokes `as` and `ld` by name off PATH, so an unmatched binutils in
+    # front of the cask's is a source of obscure link failures.
+    #
+    # It installs from a .pkg, so it needs sudo and will prompt for a
+    # password - it cannot run unattended.
+    brew install --cask gcc-arm-embedded
+    # brew aliases `openocd` to the open-ocd formula
     brew install openocd
     brew install --cask segger-jlink
+    # for identifying attached USB devices; mac has no lsusb of its own
+    brew install lsusb
 }
 
 get_terminal() {
@@ -59,23 +77,71 @@ config_brew_path() {
     #
     # brew shellenv prepends instead.  It goes in ~/.zprofile because that is
     # read after /etc/zprofile has already run path_helper, so this wins.
+    #
+    # The line goes at the TOP of the file, never appended to the end.  The
+    # python.org installer writes its own prepend into ~/.zprofile, so
+    # appending brew after it would put /opt/homebrew/bin ahead and silently
+    # move python3 from the framework 3.12 to brew's 3.14 - which conflicts
+    # with the 3.12 the manufacturing environment pins.  Prepending lets every
+    # existing line prepend after brew, so brew wins for vim and git while
+    # python3 stays wherever it already was.
     ZPROFILE=~/.zprofile
     BREWLINE='eval "$('$(command -v brew || echo /opt/homebrew/bin/brew)' shellenv)"'
-    if [ "$(grep -F 'brew shellenv' $ZPROFILE 2>/dev/null)" = "" ]; then
-        echo "$BREWLINE" >> $ZPROFILE
-        echo "Added brew shellenv to $ZPROFILE (puts brew ahead of /usr/bin)"
-    else
+    if [ "$(grep -F 'brew shellenv' $ZPROFILE 2>/dev/null)" != "" ]; then
         echo "brew shellenv already present in $ZPROFILE"
+        return 0
     fi
+    if [ -f $ZPROFILE ]; then
+        cp $ZPROFILE $ZPROFILE.bak.$(date +%Y%m%d%H%M%S)
+        echo "  backed up $ZPROFILE"
+    fi
+    # not sed -i: BSD sed reads -i's argument as a backup suffix, and there is
+    # no portable in-place insert.  write-temp-then-replace matches
+    # config_shell.sh, and `cat tmp > $ZPROFILE` rewrites in place so the
+    # permissions survive.
+    {
+        echo "# brew ahead of /usr/bin (path_helper puts paths.d entries last)."
+        echo "# Keep this above any later PATH prepend, e.g. python.org's."
+        echo "$BREWLINE"
+        echo ""
+        if [ -f $ZPROFILE ]; then cat $ZPROFILE; fi
+    } > $ZPROFILE.tmp \
+        && cat $ZPROFILE.tmp > $ZPROFILE \
+        && rm -f $ZPROFILE.tmp
+    echo "Added brew shellenv at the top of $ZPROFILE"
 }
 
 config_gnu_tools_path() {
     # BSD userland ships by default on macOS (sed/grep/date/etc behave
     # differently than the GNU tools Ubuntu uses). Put GNU versions first
     # in PATH so scripts written against GNU flags keep working.
+    #
+    # Guarded on the gnubin directories actually existing.  `brew --prefix
+    # grep` prints /opt/homebrew/opt/grep whether or not grep is installed, so
+    # the unguarded version wrote a PATH line naming three directories that did
+    # not exist, announced success, and left sed as BSD.  That silent failure is
+    # why `sed -i "s/^$var\s.*//"` in vim_config.sh and `sed 's/\s.*//"` in
+    # firmware makefiles kept misbehaving: BSD sed has no \s class and matches a
+    # literal "s" instead.
+    #
+    # $HOMEBREW_PREFIX is exported by the brew shellenv line that
+    # config_brew_path puts in ~/.zprofile, which is read before ~/.zshrc.
+    # Using it rather than three `brew --prefix` calls saves about 19ms each at
+    # every single shell start.
+    BREWPFX=${HOMEBREW_PREFIX:-$(brew --prefix)}
+    for _gnu in coreutils gnu-sed grep; do
+        if [ ! -d "$BREWPFX/opt/$_gnu/libexec/gnubin" ]; then
+            echo "GNU tools PATH override SKIPPED: $_gnu is not installed"
+            echo "  run get_core_packages first, or: brew install $_gnu"
+            return 1
+        fi
+    done
     ZSHRC=~/.zshrc
-    GNULINE='export PATH="$(brew --prefix coreutils)/libexec/gnubin:$(brew --prefix gnu-sed)/libexec/gnubin:$(brew --prefix grep)/libexec/gnubin:$PATH"'
-    if [ "$(grep -F "$GNULINE" $ZSHRC 2>/dev/null)" = "" ]; then
+    GNULINE='export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$HOMEBREW_PREFIX/opt/grep/libexec/gnubin:$PATH"'
+    # match on the shared substring, so a line written by the older
+    # $(brew --prefix) form is recognised as already present rather than
+    # duplicated alongside the new one
+    if [ "$(grep -F 'libexec/gnubin' $ZSHRC 2>/dev/null)" = "" ]; then
         echo "# GNU coreutils/sed/grep ahead of BSD versions in PATH" >> $ZSHRC
         echo "$GNULINE" >> $ZSHRC
         echo "Added GNU tools PATH override to $ZSHRC"
@@ -153,11 +219,16 @@ if [ "$OS" = "mac" ]; then
     check_homebrew
     config_brew_path
     get_core_packages
-    get_terminal
+    # iTerm2 is not wanted by default.  The function is kept because it also
+    # carries the Option-as-Meta setup note, which is worth having if it is
+    # ever installed on a machine that does want it.
+    #get_terminal
     get_embedded_tools
     config_gnu_tools_path
     config_zsh_completion
-    config_pyenv
+    # pyenv is no longer installed by get_core_packages, so there is nothing
+    # for its init to hook.  Function kept in case pyenv comes back.
+    #config_pyenv
     config_directories
     config_ssh
 fi

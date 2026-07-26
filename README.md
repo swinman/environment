@@ -106,7 +106,7 @@ Ported and exercised on mac:
 | file | notes |
 | --- | --- |
 | `config_shell.sh` | rc block, `$OS` detection, `$ENVDIR` |
-| `config_mac.sh` | brew list, GNU tools ahead of BSD in `PATH`, pyenv |
+| `config_mac.sh` | brew list, brew ahead of `/usr/bin` in `PATH`, GNU tools ahead of BSD, ARM toolchain cask |
 | `config_claude.sh` | installs Claude Code, symlinks `_claude_*` |
 | `_aliases` | mac branches for `vs`, `tdmesg`, screen recording, prompt |
 
