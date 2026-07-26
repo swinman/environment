@@ -29,6 +29,21 @@ else
     export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi?(?(d)q)?( ):gvim:ipy:history?( ):'
 fi
 
+# --------------------- silence the bell --------------------- #
+# zsh beeps by default on completion ambiguity and at the ends of history.
+# bash beeps through readline, whose bell-style is a separate setting, and
+# `bind` only exists in an interactive shell.  vim is handled separately by
+# belloff=all in _vimrc.
+if [ -n "$ZSH_VERSION" ]; then
+    unsetopt beep
+    unsetopt hist_beep
+    unsetopt list_beep
+else
+    case $- in
+        *i*) bind 'set bell-style none' 2>/dev/null ;;
+    esac
+fi
+
 alias cd..='cd ..'
 
 # show downloads in reverse order without owner, links or permissions

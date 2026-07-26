@@ -540,7 +540,9 @@ set foldmethod=indent
 set foldlevel=1
 set formatoptions-=t        " DONT auto-wrap lines
 set title         " set window title
-set visualbell    " turns off bell, turns on flash
+" belloff=all silences the bell outright.  visualbell alone did not: it only
+" swapped the beep for a screen flash, which is still an interruption.
+set belloff=all
 " END: ------------------ Display -------------------------------         2}}}
 
 sy match OverLength /\%81v\+/
