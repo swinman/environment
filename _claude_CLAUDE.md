@@ -20,7 +20,9 @@
 - In .md files, fill prose lines out to the full 80 columns - do not break
   early at ~70. My editor re-flows paragraphs at 80, so short-wrapped text
   makes my edits churn far more lines than intended. This applies to markdown
-  prose only, NOT to code comments (those keep the surrounding file's width).
+  prose only, NOT to code comments (those keep the surrounding file's width),
+  and NOT to markdown tables - let a table row run past 80 if it needs to,
+  since wrapping a row breaks the table.
 - for commit headers - DEFINITELY don't violate the 80 characters rule; in fact
   try to keep the first line of a commit under 50 characters
 - In Python, format strings with f-strings (`f"{x}"`) - never C/printf `%`-style
