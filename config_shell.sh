@@ -148,6 +148,16 @@ add_shell_rc() {
     echo "    . $aliases" >> $BRC
     echo "fi" >> $BRC
     echo "" >> $BRC
+    # Activate the default venv, so `pip install` lands in something
+    # disposable rather than on a system python.  Guarded twice: an already
+    # active venv is never replaced, so a project venv chosen deliberately
+    # wins, and a missing venv is not an error, so this rc block still works
+    # before config_venv.sh has been run.  Path must match its VENVDIR.
+    echo "Adding default venv activation"
+    echo "if [ -z \"\$VIRTUAL_ENV\" ] && [ -f \$HOME/.venvs/dev/bin/activate ]; then" >> $BRC
+    echo "    . \$HOME/.venvs/dev/bin/activate" >> $BRC
+    echo "fi" >> $BRC
+    echo "" >> $BRC
     # the old mac branch sourced ~/git-completion.bash here.  That was for
     # mac-on-bash; zsh gets git completion from brew's zsh-completions via
     # the FPATH/compinit lines config_mac.sh checks for, so it is dropped.
