@@ -208,6 +208,32 @@ config_ssh() {
     echo "Then add it under GitHub > Settings > SSH keys, and Bitbucket > Personal settings > SSH keys."
 }
 
+config_remote_login() {
+    # Incoming ssh, i.e. sshd.  This is the "Remote Login" checkbox in System
+    # Settings > General > Sharing, and it is off by default on macOS.
+    #
+    # Optional and prompted, because enabling a listening service on a laptop
+    # is not something to turn on silently.  Checked first so re-running is a
+    # no-op on a machine where it is already enabled.
+    #
+    # systemsetup needs root, and on recent macOS the calling terminal also
+    # needs Full Disk Access, otherwise it fails with an unhelpful error.
+    if [ "$(sudo -n systemsetup -getremotelogin 2>/dev/null)" = "Remote Login: On" ]; then
+        echo "Remote Login already enabled"
+        return 0
+    fi
+    printf "Enable Remote Login (incoming ssh)? [y/N] "
+    read _rl
+    if [ "$_rl" = "y" ] || [ "$_rl" = "Y" ]; then
+        sudo systemsetup -setremotelogin on
+        sudo systemsetup -getremotelogin
+    else
+        echo "Skipped.  Enable later with:"
+        echo "  sudo systemsetup -setremotelogin on"
+        echo "or System Settings > General > Sharing > Remote Login"
+    fi
+}
+
 # the vim build check moved to config_vim.sh's check_vim_features, which also
 # reports +python3 and +termguicolors rather than only +clipboard
 
@@ -231,6 +257,7 @@ if [ "$OS" = "mac" ]; then
     #config_pyenv
     config_directories
     config_ssh
+    config_remote_login
 fi
 
 echo "======================= END: config_mac.sh ====================="
