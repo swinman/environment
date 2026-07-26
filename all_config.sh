@@ -58,18 +58,17 @@ if [ "$OS" = "mac" ]; then
     # one script at a time here as each is audited and ported, so this
     # grows into a full mac setup without ever risking a half-ported run.
     #
-    # not yet ported: config_git, config_python, config_latex,
-    #                 config_avr_arm, config_fpga
+    # not yet ported: config_git, config_latex, config_avr_arm, config_fpga
     # not applicable: config_udev (linux device rules), update_default_programs
     # ----------------------------------------------------------------- #
     time ./config_mac.sh
     time ./config_vim.sh
     time ./config_claude.sh
-    time ./config_venv.sh
+    time ./config_python.sh
     echo
     echo "==================== all_config.sh: mac ===================="
     echo "Ran: config_shell.sh, config_mac.sh, config_vim.sh, config_claude.sh,"
-    echo "     config_venv.sh"
+    echo "     config_python.sh"
     echo "Open a new terminal (or 'exec zsh') to pick up ~/.zshrc changes."
     echo "==========================================================="
     exit 0

@@ -152,7 +152,7 @@ add_shell_rc() {
     # disposable rather than on a system python.  Guarded twice: an already
     # active venv is never replaced, so a project venv chosen deliberately
     # wins, and a missing venv is not an error, so this rc block still works
-    # before config_venv.sh has been run.  Path must match its VENVDIR.
+    # before config_python.sh has been run.  Path must match its VENVDIR.
     echo "Adding default venv activation"
     echo "if [ -z \"\$VIRTUAL_ENV\" ] && [ -f \$HOME/.venvs/dev/bin/activate ]; then" >> $BRC
     echo "    . \$HOME/.venvs/dev/bin/activate" >> $BRC
