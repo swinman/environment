@@ -85,7 +85,7 @@ rc-file edits are guarded or rewritten in place, and `mkdir` calls use `-p`.
   `summer`'s `cterm` values do not match its `gui` intent and only look right
   in gvim.
 - `_aliases` - the language-scoped grep helpers (`pygrep`, `cgrep`, `vgrep`,
-  ...), git shorthands, `md` for reading markdown in the terminal.
+  ...) and git shorthands.
 - `_prompt_zsh` / `_prompt_bash` - two-line prompt showing venv, host,
   truncated path and git branch, with the command line itself starting at
   column 0. Colors are taken from `storm.vim` so the shell and vim agree. Under

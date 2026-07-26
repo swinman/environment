@@ -56,15 +56,6 @@ alias math="$ENVDIR/helpers/math.sh"
 alias tepoc="$ENVDIR/helpers/tepoc.sh"
 alias mkpass='< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-12}; echo'
 
-# view a markdown file in the terminal.  the reader tweaks matter:
-#   -smart     keep -- and ' literal.  pandoc otherwise rewrites them as en
-#              dashes and curly quotes, which corrupts every command line in
-#              the doc (git clone --recursive became git clone -recursive)
-#   -raw_html  escape <placeholder> text so it is displayed.  left on, pandoc
-#              passes it through as html and lynx silently eats it as an
-#              unknown tag, so <branch-or-commit> vanished from the page
-md() { pandoc -f markdown-smart-raw_html -t html "$1" | lynx -stdin; }
-
 alias LS='echo "Remove CAPS LOCK you ass"'
 
 alias vi='vim'

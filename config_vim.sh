@@ -37,11 +37,8 @@ get_vim_packages() {
         # jump-to-definition to the wrong place
         sudo apt-get install universal-ctags -y
         sudo apt-get install curl -y
-        # not vim dependencies: pandoc and lynx are what the `md` alias uses to
-        # read markdown in the terminal.  They live here because this is the
-        # only script that installs packages on linux.
-        sudo apt-get install pandoc -y
-        sudo apt-get install lynx -y
+        # pandoc and lynx were here only for the `md` markdown reader function,
+        # which has been removed from _aliases, so neither is installed now.
     elif [ "$OS" = "mac" ]; then
         echo "Getting required vim packages"
         # brew vim rather than Apple's /usr/bin/vim, which is built -python3
