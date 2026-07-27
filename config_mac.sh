@@ -30,13 +30,43 @@ get_core_packages() {
     #brew install zsh-completions
     brew install uv
     brew install tmux
-    brew install awscli
+    # awscli is deliberately NOT a brew formula here - see get_aws_cli below.
     # Deliberately not installed:
     #   pyenv, pipx  - uv and uvx cover both jobs, and a second python manager
     #                  with no job is how pyenv ended up inert here: its global
     #                  was "system", its init was never added to ~/.zshrc, and
     #                  the 3.12.6 it built was unreachable.
     #   pandoc, lynx - only the `md` function used them, and that is removed.
+}
+
+get_aws_cli() {
+    # NOT `brew install awscli`.  That formula runs on brew's python@3.14,
+    # whose pyexpat links against the system /usr/lib/libexpat.1.dylib
+    # instead of a bundled copy.  A bottle built on a newer macOS than the
+    # one it is poured onto references expat symbols the local dylib does
+    # not export, and every XML-parsing path then dies at import with a
+    # dlopen "Symbol not found" error.  On 26.2 the missing symbol was
+    # XML_SetAllocTrackerActivationThreshold, added in expat 2.7.2.
+    #
+    # This fails in a way that looks healthy: `aws --version` still prints
+    # fine, because nothing has parsed XML yet.  It only surfaces on a real
+    # API call or on `aws configure sso`.
+    #
+    # Amazon's own pkg is self-contained - it ships its own python and expat
+    # under /usr/local/aws-cli - so brew python churn cannot reach it.  Note
+    # that config_brew_path puts /opt/homebrew/bin ahead of /usr/local/bin,
+    # so a stray `brew install awscli` would shadow this one.
+    #
+    # It installs from a .pkg, so it needs sudo and will prompt for a
+    # password - it cannot run unattended.
+    if command -v aws >/dev/null 2>&1; then
+        echo "aws already present: $(aws --version 2>&1)"
+        return
+    fi
+    _awsdir=$(mktemp -d)
+    curl -fsSL -o "$_awsdir/AWSCLIV2.pkg" "https://awscli.amazonaws.com/AWSCLIV2.pkg"
+    sudo installer -pkg "$_awsdir/AWSCLIV2.pkg" -target /
+    rm -rf "$_awsdir"
 }
 
 get_embedded_tools() {
@@ -246,6 +276,7 @@ if [ "$OS" = "mac" ]; then
     check_homebrew
     config_brew_path
     get_core_packages
+    get_aws_cli
     # iTerm2 is not wanted by default.  The function is kept because it also
     # carries the Option-as-Meta setup note, which is worth having if it is
     # ever installed on a machine that does want it.

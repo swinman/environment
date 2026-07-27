@@ -16,6 +16,12 @@
 # system interpreter is the thing this venv exists to prevent, and per-project
 # requirements files cover what the long package list used to.
 #
+# NOTE : Symbol not found: _XML_Set.. is a brew python3.14 precompiled problem
+# % brew reinstall --build-from-source python@3.14
+# wll compiles against your local SDK stub, so pyexpat never references the
+# missing symbol. Fixes it today; costs a long build, and a future brew upgrade
+# can re-pour the bad bottle and undo it.
+#
 # Deliberately generic - nothing site-specific belongs in this file.
 
 ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
