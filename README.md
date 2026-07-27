@@ -119,7 +119,12 @@ Ported and exercised on mac:
 | `config_shell.sh` | rc block, `$OS` detection, `$ENVDIR` |
 | `config_mac.sh` | brew list, brew ahead of `/usr/bin` in `PATH`, GNU tools ahead of BSD, ARM toolchain cask |
 | `config_claude.sh` | installs Claude Code, symlinks `_claude_*` |
+| `config_git.sh` | config only; git install and ssh keys belong to `config_mac.sh` |
+| `config_vim.sh` | native `pack/plugins/start`, no pathogen, plugins via `clone_or_pull` |
+| `config_python.sh` | one shared venv activated by the rc block, no system `pip` |
 | `_aliases` | mac branches for `vs`, `tdmesg`, screen recording, prompt |
+
+Everything in that table is called from the mac branch of `all_config.sh`.
 
 Not yet ported - still `apt-get` based, and unaudited for whether they are even
 wanted any more. Counts are `apt-get`/`sudo` call sites:
@@ -129,9 +134,6 @@ wanted any more. Counts are `apt-get`/`sudo` call sites:
 | `config_fpga.sh` | 53 | also downloads vendor toolchains |
 | `config_latex.sh` | 34 | |
 | `config_avr_arm.sh` | 21 | mac equivalents are in `config_mac.sh` |
-| `config_python.sh` | 13 | predates venv/uv norms |
-| `config_vim.sh` | 10 | highest value to port next |
-| `config_git.sh` | 3 | |
 | `config_udev.sh` | - | linux device rules, no mac equivalent |
 
 Believed unused:
