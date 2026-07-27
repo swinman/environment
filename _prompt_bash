@@ -21,6 +21,9 @@ _pc_red='\[\e[38;2;255;106;106m\]'
 _pc_blue='\[\e[38;2;135;206;255m\]'
 _pc_khaki='\[\e[38;2;205;198;115m\]'
 _pc_orange='\[\e[38;2;255;158;100m\]'
+# storm Constant, for the prompt character - so it does not read as part of
+# the command typed after it, which it did while both were the Normal white.
+_pc_coral='\[\e[38;2;240;128;128m\]'
 _pc_off='\[\e[39m\]'
 
 # Red host over ssh, or on linux with no $DISPLAY.  The $DISPLAY half preserves
@@ -69,7 +72,7 @@ _prompt_set_bash() {
     [ -n "$g" ] && PS1="${PS1} ${_pc_khaki}(${g})${_pc_off}"
     # second line: bare prompt character at column 0.  \$ renders $ as a normal
     # user and # as root.
-    PS1="${PS1}\n\\\$ "
+    PS1="${PS1}\n${_pc_coral}\\\$${_pc_off} "
 }
 
 # Prepend rather than overwrite: distributions put things in PROMPT_COMMAND

@@ -11,6 +11,9 @@
 #   git branch  Khaki3      #cdc673   (storm Statement)
 #   venv        SandyBrown  #ff9e64   (storm pythonBuiltin)
 #   over ssh    IndianRed1  #ff6a6a   (storm PreProc)
+#   % or #      LightCoral  #f08080   (storm Constant)
+# The prompt character is coloured so it does not read as part of the command
+# typed after it, which it did while both were the Normal white.
 # These are storm's gui values.  Terminal vim uses its cterm values instead
 # unless 'set termguicolors' is added to _vimrc, so the two differ slightly
 # until then.  Needs a truecolor terminal and zsh >= 5.7 for %F{#rrggbb}.
@@ -71,11 +74,13 @@ _prompt_set_venv() {
 # deliberately different rather than forced to match: both keep the # root
 # warning, so the normal-user glyph costs nothing to differ and is free
 # information about which shell this is.
-PROMPT_FULL='${_prompt_venv}'"%F{$_prompt_hostcolor}%n@%m%f:$_prompt_path"'${vcs_info_msg_0_}'$'\n''%# '
+_prompt_char='%F{#f08080}%#%f '
+
+PROMPT_FULL='${_prompt_venv}'"%F{$_prompt_hostcolor}%n@%m%f:$_prompt_path"'${vcs_info_msg_0_}'$'\n'"$_prompt_char"
 
 # The transient form drops the host name and both parenthesised segments and
 # keeps the path, so accepted commands stay identifiable in scrollback.
-PROMPT_TRANSIENT="$_prompt_path "'%# '
+PROMPT_TRANSIENT="$_prompt_path $_prompt_char"
 
 PROMPT=$PROMPT_FULL
 
