@@ -141,10 +141,13 @@ alias ipy='ipython -i --no-banner'
 alias py3='ipython3 -i --no-banner'
 alias py='python -c'
 
-# NOTE: the --collapse regex targets linux /dev/ttyS* naming.  mac serial
-# devices are /dev/tty.usbmodemXXXX or /dev/cu.usbmodemXXXX, so this pattern
-# is a no-op there until it is updated to match.
-alias miniterm="python $ENVDIR/miniterm_wrapper.py --collapse 'phantom ttyS=^/dev/ttyS(?!4\$)\d+\$'"
+# --collapse all folds every known family of phantom ports, so this needs no
+# $OS branch: linux's on-board /dev/ttyS* and mac's bluetooth / debug-console
+# nodes each fold where they exist and are silently absent where they do not.
+# --keep carves ttyS4 back out, the one real 16550 UART on the linux box.  On
+# mac the /dev/tty.* callin twins need no bucket at all -- pyserial reports
+# only the /dev/cu.* callout node, which is the one you want anyway.
+alias miniterm="python $ENVDIR/miniterm_wrapper.py --collapse all --keep '^/dev/ttyS4\$'"
 
 # source the FPGA / uC toolchain env (arm-none-eabi, iCEcube2, Diamond, ...) on
 # demand.  Not auto-sourced into every shell: it sets a global LD_LIBRARY_PATH
