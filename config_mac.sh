@@ -90,6 +90,19 @@ get_embedded_tools() {
     brew install --cask segger-jlink
     # for identifying attached USB devices; mac has no lsusb of its own
     brew install lsusb
+
+    # NOTE : clang probably isn't a good tool for us because we don't use cpp,
+    # only bare c.  not sure what clang does anyway - graph was suggested by
+    # claude instead of clang
+    # clang-uml generates UML diagrams from C/C++ sources; two of the repos
+    # here expect it on PATH.  It reads a compile_commands.json rather than
+    # the sources directly, so a project has to emit one first: cmake with
+    # -DCMAKE_EXPORT_COMPILE_COMMANDS=ON, or `bear -- make` for the
+    # makefile-based firmware trees.
+    #
+    # Note the cost before re-running this on a fresh machine: the formula
+    # depends on brew's keg-only llvm, which is a 1.9GB install of its own.
+    #brew install clang-uml
 }
 
 get_terminal() {
