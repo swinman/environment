@@ -62,9 +62,11 @@ alias py='python -c'
 #alias miniterm="python $(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')miniterm_wrapper.py --collapse 'ttyS'"
 alias miniterm="python $(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')miniterm_wrapper.py --collapse 'phantom ttyS=^/dev/ttyS(?!4\$)\d+\$'"
 
-# source the FPGA / uC toolchain env (arm-none-eabi, iCEcube2, Diamond, ...) on
-# demand.  Not auto-sourced into every shell: it sets a global LD_LIBRARY_PATH
-# that can shadow system libs for unrelated programs.
+# uC / FPGA toolchain env (arm-none-eabi, iCEcube2, Diamond, ...).  Kept in
+# its own file so this one source line turns all of it on / off.  Safe to
+# re-source: the PATH / LD_LIBRARY_PATH appends are guarded by UCTOOLS_ON,
+# so nested shells only re-define the aliases.
+source $(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')fpga_config.sh
 alias uctools="source $(echo ${BASH_SOURCE[0]} | sed 's/_bash_aliases//')fpga_config.sh"
 
 # add ctags; taghighlights to a repo
