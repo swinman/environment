@@ -1,2 +1,12 @@
 *~
 helpers/.ccount
+
+# Local working notes.  Deliberately untracked: they are scratch state about
+# what is in progress on this machine, not part of the environment being set
+# up, and they churned every session while carrying nothing another checkout
+# needs.  Both were removed from history rather than merely untracked.
+TODO.md
+SESSION_NOTES.md
+
+# byte-compiled python, from running miniterm_wrapper.py in place
+__pycache__/
