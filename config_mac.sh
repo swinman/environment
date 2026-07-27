@@ -99,6 +99,33 @@ get_terminal() {
     echo "(gives you Alt/Meta bindings for vim/readline like on Linux)"
 }
 
+config_terminal_app() {
+    # Terminal.app leaves the window open after `exit`, so every finished shell
+    # leaves a dead "[Process completed]" window behind.
+    #
+    # This stays a manual step rather than a `defaults write`: the setting is
+    # per-profile and lives in a nested dict inside com.apple.Terminal's
+    # plist, whose values are serialised NSColor/NSFont blobs, so writing one
+    # key means rewriting the whole profile and risking the rest of it.
+    echo
+    echo "MANUAL STEP: make \`exit\` close the window:"
+    echo "  Terminal > Settings > Profiles > (your profile) > Shell >"
+    echo "  When the shell exits: Close if the shell exited cleanly"
+    echo
+    echo "\"...if the shell exited cleanly\" rather than \"Close the window\", so"
+    echo "a shell that died on a non-zero status leaves its output up to read."
+    echo
+    # Terminal.app auto-marks each prompt line, and cmd-L is "Clear to
+    # Previous Mark".  With the two-line prompt that mark sits on the prompt
+    # character line, so cmd-L clears the context line above it and leaves a
+    # bare %.  ctrl-l is the one that clears properly - _completion_zsh
+    # rebinds it to scroll into the scrollback buffer first, the way the linux
+    # terminals do.
+    echo "NOTE: cmd-L is Terminal's own \"Clear to Previous Mark\" and will eat"
+    echo "the prompt's context line.  Use ctrl-l, or rebind cmd-L under"
+    echo "Terminal > Settings > Profiles > Keyboard."
+}
+
 config_brew_path() {
     # /etc/paths.d/homebrew puts /opt/homebrew/bin on PATH, but macOS's
     # path_helper appends paths.d entries *after* /etc/paths, so it lands
@@ -284,6 +311,7 @@ if [ "$OS" = "mac" ]; then
     get_embedded_tools
     config_gnu_tools_path
     config_zsh_completion
+    config_terminal_app
     # pyenv is no longer installed by get_core_packages, so there is nothing
     # for its init to hook.  Function kept in case pyenv comes back.
     #config_pyenv
