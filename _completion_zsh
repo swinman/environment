@@ -1,0 +1,77 @@
+# zsh completion and key bindings.  Sourced from _aliases when $ZSH_VERSION
+# is set.
+#
+# This lives in its own file for the same reason as _prompt_zsh: a runtime
+# guard does not stop bash from *parsing* the block, and zstyle, bindkey and
+# ${terminfo[...]} are all either unknown commands or parse errors there.
+#
+# compinit is deliberately not run here.  config_mac.sh writes it into
+# ~/.zshrc along with brew's zsh-completions on FPATH, and that block runs
+# before _aliases is sourced, so the completion system is already up by the
+# time this file is read.  Everything below either sets a zstyle, which takes
+# effect on the next completion, or calls compdef, which needs compinit to
+# have already run - so this ordering is the correct one, not an accident.
+
+zmodload -i zsh/terminfo 2>/dev/null
+
+# --------------------- completion behaviour --------------------- #
+# zsh completes command names out of its hash table, which is built from $PATH
+# once at startup.  A command installed after that - the usual case being
+# `pip install` into the active venv - is therefore not completable until the
+# shell is told to look again.  This makes it re-scan $PATH on a miss instead
+# of requiring a manual `rehash`.
+zstyle ':completion:*' rehash true
+
+# Treat `.` and `..` as completable rather than already-complete, so `..<TAB>`
+# becomes `../` and can be extended again instead of stopping dead.
+zstyle ':completion:*' special-dirs true
+
+# --------------------- generated completions --------------------- #
+# gen_completions.sh writes this file.  It is optional: nothing here depends
+# on it ever having been run, and a stale one is harmless.
+#
+# Sourced rather than put on $fpath because every function in it ends in an
+# explicit `compdef`, which is how click's own output works.  That also avoids
+# a third compinit run just to pick up a new directory.
+[ -f "$HOME/.zsh/completions.zsh" ] && . "$HOME/.zsh/completions.zsh"
+
+# --------------------- Home / End --------------------- #
+# zsh binds neither key out of the box - with no bindkey entry at all they are
+# simply dead at the prompt, which is why they did nothing here.  Which escape
+# arrives depends on the keypad mode the emulator is in: the normal-keypad
+# forms are \e[H and \e[F, the application-keypad forms are terminfo's khome
+# and kend (\eOH and \eOF under Terminal.app), and several other emulators
+# send \e[1~ and \e[4~.  Bind all of them rather than depend on the mode.
+#
+# vim is intentionally left out of this.  _vimrc maps <home> to <nop> on
+# purpose, because it gets hit by accident when reaching for backspace.
+bindkey -- '^[[H'  beginning-of-line
+bindkey -- '^[[F'  end-of-line
+bindkey -- '^[OH'  beginning-of-line
+bindkey -- '^[OF'  end-of-line
+bindkey -- '^[[1~' beginning-of-line
+bindkey -- '^[[4~' end-of-line
+[[ -n ${terminfo[khome]} ]] && bindkey -- "${terminfo[khome]}" beginning-of-line
+[[ -n ${terminfo[kend]}  ]] && bindkey -- "${terminfo[kend]}"  end-of-line
+
+# --------------------- ctrl-l --------------------- #
+# zsh's clear-screen widget emits "\e[H\e[2J".  The linux terminals push the
+# erased lines into the scrollback buffer, so ctrl-l there is really a scroll
+# and the previous screen can still be reached.  Terminal.app takes the same
+# sequence literally and discards them.  Scrolling the screen off first with
+# real newlines puts it in scrollback on any emulator; the builtin widget then
+# clears a screen that is already blank and redraws the prompt.
+#
+# This is ctrl-l only.  Terminal.app's cmd-L is its own "Clear to Previous
+# Mark", which clears back to the last auto-marked prompt line; with a
+# two-line prompt that mark sits on the prompt-character line, so cmd-L eats
+# the context line above it and leaves a bare %.  Nothing zsh does can change
+# that - it is an emulator binding, and has to be avoided or rebound in
+# Terminal > Settings > Profiles > Keyboard.
+_clear_screen_scrollback() {
+    printf '\n%.0s' {1..$LINES}
+    zle .clear-screen
+}
+zle -N clear-screen _clear_screen_scrollback
+
+# vim:ft=zsh

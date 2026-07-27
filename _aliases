@@ -193,6 +193,15 @@ elif command -v xdpyinfo >/dev/null 2>&1 && xdpyinfo -v >/dev/null 2>&1; then
     alias video='xdg-open '
 fi
 
+# --------------------- completion and keys --------------------- #
+# zsh only, and in its own file for the same reason as the prompt below: bash
+# cannot parse zstyle, bindkey or ${terminfo[...]}, and a runtime guard here
+# would not stop it from trying.  bash gets none of this - readline has its own
+# completion and its own inputrc, and neither is currently configured.
+if [ -n "$ZSH_VERSION" ]; then
+    [ -f "$ENVDIR/_completion_zsh" ] && . "$ENVDIR/_completion_zsh"
+fi
+
 # --------------------- prompt --------------------- #
 # Two-line prompt in either shell: context above, a bare prompt character at
 # column 0, so the command being typed always starts at the left edge however

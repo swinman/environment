@@ -62,6 +62,9 @@ every run rather than appending duplicates:
   separate files, sourced by `_aliases` according to the shell, because each
   needs syntax the other cannot parse. Both draw the same two-line shape and
   the same colors; only zsh gets the transient form.
+- `_completion_zsh` is split out for the same reason and has no bash
+  counterpart, since `zstyle`, `bindkey` and `${terminfo[...]}` have no
+  readline equivalent worth maintaining.
 
 ## Running it
 
@@ -91,6 +94,14 @@ rc-file edits are guarded or rewritten in place, and `mkdir` calls use `-p`.
   column 0. Colors are taken from `storm.vim` so the shell and vim agree. Under
   zsh the prompt collapses to a one-line transient form once a command is
   accepted, so scrollback stays compact.
+- `_completion_zsh` - completion behaviour (`rehash` so newly installed
+  commands complete without a manual one, `special-dirs` so `..<TAB>` becomes
+  `../`), Home/End bindings, and a `clear-screen` that scrolls into the
+  scrollback buffer rather than erasing the screen the way Terminal.app
+  otherwise does.
+- `gen_completions.sh` - run by hand to regenerate `~/.zsh/completions.zsh`
+  from whatever is installed in the active venv. Uses click's own completion
+  protocol where a tool supports it and scrapes `--help` where it does not.
 - `miniterm_wrapper.py` - serial console wrapper with port collapsing.
 - `helpers/` - small single-purpose scripts (`math.sh`, `tepoc.sh`,
   `colordump.sh`, `grab_headers.sh`).
