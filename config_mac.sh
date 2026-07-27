@@ -29,6 +29,7 @@ get_core_packages() {
     brew install grep
     #brew install zsh-completions
     brew install uv
+    brew install tmux
     brew install awscli
     # Deliberately not installed:
     #   pyenv, pipx  - uv and uvx cover both jobs, and a second python manager
