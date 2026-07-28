@@ -37,11 +37,17 @@ zstyle ':completion:*' special-dirs true
 
 # --------------------- Home / End --------------------- #
 # zsh binds neither key out of the box - with no bindkey entry at all they are
-# simply dead at the prompt, which is why they did nothing here.  Which escape
-# arrives depends on the keypad mode the emulator is in: the normal-keypad
-# forms are \e[H and \e[F, the application-keypad forms are terminfo's khome
-# and kend (\eOH and \eOF under Terminal.app), and several other emulators
-# send \e[1~ and \e[4~.  Bind all of them rather than depend on the mode.
+# simply dead at the prompt.  Which escape arrives depends on the keypad mode
+# the emulator is in: the normal-keypad forms are \e[H and \e[F, the
+# application-keypad forms are terminfo's khome and kend (\eOH and \eOF for
+# xterm-256color), and several other emulators send \e[1~ and \e[4~.  Bind all
+# of them rather than depend on the mode.
+#
+# terminfo describing khome is not a promise that the emulator sends it.
+# Terminal.app sends nothing at all for these two keys - its key table has no
+# entry for Home or End, so it keeps them and scrolls its own buffer - and the
+# bindings below stayed dead there until config_mac.sh's config_terminal_keys
+# added the mapping that makes the emulator emit \e[H and \e[F.
 #
 # vim is intentionally left out of this.  _vimrc maps <home> to <nop> on
 # purpose, because it gets hit by accident when reaching for backspace.

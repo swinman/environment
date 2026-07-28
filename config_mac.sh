@@ -142,6 +142,62 @@ config_terminal_app() {
     echo "Terminal > Settings > Profiles > Keyboard."
 }
 
+config_terminal_keys() {
+    # Home and End are dead at the prompt under a stock Terminal.app, and no
+    # amount of bindkey fixes that.  Terminal's key table -
+    # Terminal.app/Contents/Resources/keyMappings.plist - has entries for the
+    # function keys, forward-delete and the modified arrows, but none for Home
+    # (F729) or End (F72B).  A key with no entry there never becomes an escape
+    # sequence at all: Terminal keeps it for itself and scrolls its own
+    # buffer, so nothing ever reaches the shell.  _completion_zsh already
+    # binds every form the keys could arrive as; the missing half is an
+    # emulator that sends one.
+    #
+    # Unlike the settings in config_terminal_app this is written rather than
+    # printed, because the earlier reasoning against it was wrong: a profile
+    # in the prefs holds only the keys that differ from the bundled profile -
+    # Basic here is Bell, Font, shellExitAction and little else - so adding a
+    # nested key leaves the serialised NSColor/NSFont blobs untouched.
+    #
+    # Going through `defaults export` / `defaults import` rather than editing
+    # the plist in place keeps cfprefsd's cached copy in agreement; a direct
+    # PlistBuddy write to the file can be silently overwritten from that
+    # cache.
+    #
+    # \033[H and \033[F are the normal-keypad forms.  The choice is not load
+    # bearing - _completion_zsh binds the application-keypad forms and the
+    # \e[1~ / \e[4~ pair too - so this sends what most other emulators do.
+    # The stored value carries a literal ESC, which is how Apple's own
+    # keyMappings.plist encodes it.
+    PROFILE=$(defaults read com.apple.Terminal "Default Window Settings" 2>/dev/null)
+    [ -z "$PROFILE" ] && PROFILE=Basic
+    PLB=/usr/libexec/PlistBuddy
+    ESC=$(printf '\033')
+    TPL=$(mktemp -t com.apple.Terminal) || return 1
+
+    defaults export com.apple.Terminal "$TPL" || return 1
+    # Each Add fails harmlessly when the level already exists.  The profile
+    # dict is missing entirely until some profile setting is changed, so it
+    # gets created with the identity keys Terminal itself writes.
+    $PLB -c "Add :'Window Settings' dict" "$TPL" 2>/dev/null
+    $PLB -c "Add :'Window Settings':'$PROFILE' dict" "$TPL" 2>/dev/null \
+        && $PLB -c "Add :'Window Settings':'$PROFILE':name string $PROFILE" "$TPL" 2>/dev/null \
+        && $PLB -c "Add :'Window Settings':'$PROFILE':type string Window Settings" "$TPL" 2>/dev/null
+    $PLB -c "Add :'Window Settings':'$PROFILE':keyMapBoundBySelector dict" "$TPL" 2>/dev/null
+    # Add-then-Set so an existing mapping is corrected rather than skipped.
+    $PLB -c "Add :'Window Settings':'$PROFILE':keyMapBoundBySelector:F729 string ${ESC}[H" "$TPL" 2>/dev/null \
+        || $PLB -c "Set :'Window Settings':'$PROFILE':keyMapBoundBySelector:F729 ${ESC}[H" "$TPL"
+    $PLB -c "Add :'Window Settings':'$PROFILE':keyMapBoundBySelector:F72B string ${ESC}[F" "$TPL" 2>/dev/null \
+        || $PLB -c "Set :'Window Settings':'$PROFILE':keyMapBoundBySelector:F72B ${ESC}[F" "$TPL"
+    defaults import com.apple.Terminal "$TPL" && \
+        echo "Mapped Home and End in Terminal profile \"$PROFILE\""
+    rm -f "$TPL"
+
+    # Terminal holds the profile in memory, so a window that is already open
+    # keeps the old table.
+    echo "Quit and reopen Terminal for Home/End to take effect."
+}
+
 config_brew_path() {
     # /etc/paths.d/homebrew puts /opt/homebrew/bin on PATH, but macOS's
     # path_helper appends paths.d entries *after* /etc/paths, so it lands
@@ -327,6 +383,7 @@ if [ "$OS" = "mac" ]; then
     config_gnu_tools_path
     config_zsh_completion
     config_terminal_app
+    config_terminal_keys
     # pyenv is no longer installed by get_core_packages, so there is nothing
     # for its init to hook.  Function kept in case pyenv comes back.
     #config_pyenv

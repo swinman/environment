@@ -98,7 +98,9 @@ rc-file edits are guarded or rewritten in place, and `mkdir` calls use `-p`.
   commands complete without a manual one, `special-dirs` so `..<TAB>` becomes
   `../`), Home/End bindings, and a `clear-screen` that scrolls into the
   scrollback buffer rather than erasing the screen the way Terminal.app
-  otherwise does.
+  otherwise does. The Home/End half only fires once the emulator sends
+  something for those keys, which under Terminal.app takes the profile mapping
+  written by `config_mac.sh`'s `config_terminal_keys`.
 - `gen_completions.sh` - run by hand to regenerate `~/.zsh/completions.zsh`
   from whatever is installed in the active venv. Uses click's own completion
   protocol where a tool supports it and scrapes `--help` where it does not.
@@ -117,7 +119,7 @@ Ported and exercised on mac:
 | file | notes |
 | --- | --- |
 | `config_shell.sh` | rc block, `$OS` detection, `$ENVDIR` |
-| `config_mac.sh` | brew list, brew ahead of `/usr/bin` in `PATH`, GNU tools ahead of BSD, ARM toolchain cask |
+| `config_mac.sh` | brew list, brew ahead of `/usr/bin` in `PATH`, GNU tools ahead of BSD, ARM toolchain cask, Terminal.app Home/End mapping |
 | `config_claude.sh` | installs Claude Code, symlinks `_claude_*` |
 | `config_git.sh` | config only; git install and ssh keys belong to `config_mac.sh` |
 | `config_vim.sh` | native `pack/plugins/start`, no pathogen, plugins via `clone_or_pull` |
