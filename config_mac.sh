@@ -24,15 +24,16 @@ check_homebrew() {
     fi
 }
 
+# One list rather than a column of `brew install` lines, so verify_core_
+# packages below checks exactly what was asked for instead of a second copy
+# that can drift.  zsh-completions was in the old list, commented out.
+CORE_FORMULAE="git vim coreutils gnu-sed grep uv tmux"
+
 get_core_packages() {
-    brew install git
-    brew install vim
-    brew install coreutils
-    brew install gnu-sed
-    brew install grep
-    #brew install zsh-completions
-    brew install uv
-    brew install tmux
+    for _f in $CORE_FORMULAE; do
+        brew install "$_f"
+    done
+    verify_core_packages
     # awscli is deliberately NOT a brew formula here - see get_aws_cli below.
     # Deliberately not installed:
     #   pyenv, pipx  - uv and uvx cover both jobs, and a second python manager
@@ -40,6 +41,28 @@ get_core_packages() {
     #                  was "system", its init was never added to ~/.zshrc, and
     #                  the 3.12.6 it built was unreachable.
     #   pandoc, lynx - only the `md` function used them, and that is removed.
+}
+
+verify_core_packages() {
+    # A failed `brew install` prints its error and the run carries on for
+    # another twenty minutes, so by the end nothing on screen says a package
+    # is missing.  The cost surfaces much later and somewhere else, because
+    # what these formulae feed is quiet when absent: config_gnu_tools_path
+    # takes its skip branch and leaves sed as BSD, and the scripts written
+    # against GNU flags start misbehaving with no obvious cause.
+    #
+    # So check, and say so while it can still be acted on.
+    _missing=
+    for _f in $CORE_FORMULAE; do
+        brew list --formula --versions "$_f" >/dev/null 2>&1 ||
+            _missing="$_missing $_f"
+    done
+    if [ -n "$_missing" ]; then
+        echo "  WARNING: core formulae still missing after install:$_missing"
+        echo "  re-run with: brew install$_missing"
+        return 1
+    fi
+    echo "All core formulae present"
 }
 
 get_aws_cli() {
