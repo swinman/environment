@@ -712,9 +712,60 @@ else
 endif
 let g:UltiSnipsSnippetDirectories = ["snippits","UltiSnips"]
 " END: ----------------- UltiSnips ------------------------------         2}}}
-" Syntastic settings
-"let g:syntastic_python_checkers = ['flake8']
-let g:syntastic_python_checkers = ['']
+" ---------------------- ALE ------------------------------------         {{{2
+" ALE replaced syntastic, whose only setting here was g:syntastic_python_
+" checkers = [''] - an explicit "do not lint python", from when the choice
+" was flake8.
+"
+" linters_explicit is the important one: without it ALE runs every linter it
+" can find on PATH, so what gets checked depends on what happens to be
+" installed rather than on anything written down.  A ruff appearing in a venv
+" would silently start linting.
+let g:ale_linters_explicit = 1
+let g:ale_linters = {
+    \ 'c': ['clangd'],
+    \ 'python': ['ruff'],
+    \ }
+
+" clangd needs to be told which cross compilers it may run to learn a target's
+" system headers; without this it uses the host's and every firmware file
+" opens with "'stdio.h' file not found".  Measured on stpdrv: 1 error without
+" the flag, 0 with it, across src/main.c, board.c, drive.c, platectl.c and an
+" ASF driver.
+"
+" A glob rather than a path, because the toolchain sits in
+" /opt/homebrew/bin on mac and ~/tools/arm-none-eabi/bin on the linux boxes.
+let g:ale_c_clangd_options = '--query-driver=**/arm-none-eabi-*'
+
+" ruff, because that is what the project repos use: ruff.toml in mfg, ralgs
+" and rlab, and astral-sh/ruff-pre-commit in eight repos' pre-commit config.
+" ALE finds the nearest ruff.toml or pyproject.toml itself, so none of that
+" per-repo configuration is duplicated here.  config_python.sh installs ruff
+" with `uv tool install`, which puts it on PATH whatever venv is active.
+"
+" c goes through clangd rather than ALE's gcc or clang linters.  Those would
+" run the host compiler - Apple clang targeting arm64 - which is wrong for the
+" arm-none-eabi trees and reports every target header as missing.  clangd
+" reads the project's own compile_commands.json, so it lints with the real
+" flags, macros and include paths, and brings ALEGoToDefinition and
+" ALEFindReferences with it.  cppcheck was the alternative and is strictly
+" weaker: it never sees the project's macros or includes.
+"
+" A project needs a compile_commands.json for this to do anything; without
+" one clangd falls back to guessing and is no better than the host compiler.
+" `bear -- make` generates it, or for the makefile trees here, parsing
+" `make -n` output works without installing anything.
+"
+" cpp is absent because there is almost none of it - five files across every
+" repo, against 2800 .c.
+"
+" Lint on save rather than while typing: these are checkers, not a
+" typing aid, and the firmware trees are large enough that on-the-fly runs
+" are a distraction.
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_insert_leave = 0
+let g:ale_lint_on_save = 1
+" END: ----------------- ALE ------------------------------------         2}}}
 
 " ----------------- Personal Functions --------------------------         {{{2
 autocmd BufWritePre * call AutoDelWhiteSpace()
