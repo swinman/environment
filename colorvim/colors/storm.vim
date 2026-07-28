@@ -465,6 +465,15 @@ hi Union            guifg=DarkKhaki     ctermfg=143
 hi link pythonOperator      Operator
 hi link pythonFunction      Function
 hi pythonBuiltin    guifg=SandyBrown    ctermfg=215
+
+" Function is deliberately left at vim's own "hi def link Function Identifier"
+" so c functions keep the LightGreen they have always been.  That default is
+" also why self and True/False/None read as functions: pythonClassVar lands on
+" Identifier directly, pythonBoolean and pythonFunction land on it through
+" Function, and all three come out the same green.  Move the two that are not
+" functions rather than recolouring every function in every language.
+hi link pythonClassVar      Statement
+hi link pythonBoolean       Constant
 "                                                                       2}}}
 "   b. HTML                                                             {{{2
 hi htmlLink         gui=UNDERLINE       cterm=UNDERLINE
@@ -519,6 +528,33 @@ hi link CTagsEnumerationValue EnumerationValue
     " state values
 hi link CTagsType           vhdlType
     " STD_LOGIC_ARRAY led_from_rom_array mem_type Ruu_array u_array Ryu_array y_array Ryy_array
+
+" The groups above are the ones TagHighlight emits on its own.  Everything
+" below comes from vim_config.sh, which generates the VHDL kinds
+" universal-ctags reports and TagHighlight's kinds.txt has no entry for.
+" Signals and ports alone are two thirds of the tags in a VHDL tree.
+hi link CTagsSignal         Identifier
+    " clk_i rst_i data_valid sample_cnt - by far the most common, so this is
+    " the one to change first if the colour is wrong
+hi link CTagsPort           Member
+    " same colour family as CTagsEntity: a port is the entity's interface
+hi link CTagsGeneric        vhdlGlobal
+    " generics are constants, so they match CTagsGlobalConstant
+hi link CTagsArchitecture   Class
+    " rtl behavioural structural
+hi link CTagsProcess        DefinedName
+hi link CTagsVariable       GlobalVariable
+hi link CTagsAlias          Type
+
+" Emitted by TagHighlight but never linked, so these rendered unhighlighted.
+hi link CTagsFunction       DefinedName
+    " log2c to_std_logic_vector slv2slNx16
+hi link CTagsTypeComponent  vhdlType
+hi link CTagsImport         Import
+    " TagHighlight maps python's 'i' kind to this and nothing linked it, so
+    " imported names rendered plain.  vim_config.sh adds the 'I' and 'Y' kinds
+    " to the same group - universal-ctags reports imports under those and
+    " TagHighlight's kinds.txt has no entry for either.
 
 
 "                                                                         2}}}
