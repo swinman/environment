@@ -71,8 +71,13 @@ filetype plugin indent on
 " END: =================== SETUP ================================         1}}}
 
 " commands to put backup files (ending in ~) in tmp directory
+"
+" The trailing // builds the backup name from the file's full path, so two
+" files with the same basename in different trees get their own backup
+" instead of the second one overwriting the first.  undodir does that
+" mangling unconditionally; backupdir only does it when asked.
 set swapfile
-set backupdir=/tmp
+set backupdir=/tmp//
 
 set undofile
 set undodir=~/.vim/undo

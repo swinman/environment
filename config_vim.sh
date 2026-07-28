@@ -37,6 +37,10 @@ get_vim_packages() {
         # jump-to-definition to the wrong place
         sudo apt-get install universal-ctags -y
         sudo apt-get install curl -y
+        # clangd is what _vimrc points ALE at for c.  It reads a project's
+        # compile_commands.json, so it lints with the real cross-compile
+        # flags rather than the host compiler's.
+        sudo apt-get install clangd -y
         # pandoc and lynx were here only for the `md` markdown reader function,
         # which has been removed from _aliases, so neither is installed now.
     elif [ "$OS" = "mac" ]; then
@@ -47,6 +51,17 @@ get_vim_packages() {
         # no-op when the formula is already present.
         brew install vim
         brew install universal-ctags
+        # clangd, for ALE's c linting, ships with the Xcode command line
+        # tools - /usr/bin/clangd, currently Apple clangd 15.  Deliberately
+        # not `brew install llvm` for it: that is a 1.9GB keg-only install,
+        # and the bundled one handles the arm-none-eabi cross builds here
+        # given --query-driver, which _vimrc passes.
+        if command -v clangd >/dev/null 2>&1; then
+            echo "clangd present: $(clangd --version | head -1)"
+        else
+            echo "  WARNING: no clangd - ALE will not lint c."
+            echo "  install the Xcode command line tools: xcode-select --install"
+        fi
     fi
 }
 

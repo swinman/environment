@@ -42,6 +42,18 @@ VENVPY=${VENVPY:-3.12}
 # and pinning it here would only fight those pins.
 BASE_PKGS=${BASE_PKGS:-"ipython numpy scipy snakeviz pyserial"}
 
+# Tools that belong on PATH rather than in the venv.  `uv tool install` gives
+# each its own isolated environment and links it into ~/.local/bin, which the
+# rc block already puts on PATH, so they resolve whatever venv is active - or
+# none at all.
+#
+# ruff is what the project repos lint with: ruff.toml in mfg, ralgs and rlab,
+# and astral-sh/ruff-pre-commit in eight repos' pre-commit config.  pre-commit
+# manages its own pinned copy, so this one is for editing rather than for the
+# hooks: _vimrc points ALE at it, and it is what `ruff check` on the command
+# line resolves to.
+UV_TOOLS=${UV_TOOLS:-"ruff"}
+
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 
 check_uv() {
@@ -84,12 +96,24 @@ install_base_packages() {
     VIRTUAL_ENV="$VENVDIR" uv pip install $BASE_PKGS
 }
 
+install_uv_tools() {
+    echo "Installing standalone tools"
+    for _t in $UV_TOOLS; do
+        echo "  $_t"
+        # --quiet still reports failures; without it every install reprints
+        # the resolution summary.
+        uv tool install --quiet "$_t" ||
+            echo "  WARNING: uv tool install $_t failed"
+    done
+}
+
 # --------------------- SETUP SCRIPT --------------------- #
 
 echo "=================== config_python.sh ==================="
 
 if check_uv && make_venv; then
     install_base_packages
+    install_uv_tools
     echo
     echo "New interactive shells activate this automatically, unless a venv is"
     echo "already active - an explicitly chosen project venv is never replaced."
