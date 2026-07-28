@@ -68,17 +68,19 @@ config_git() {
         git config --global credential.helper osxkeychain
     fi
 
-    printf "Full user name (default is no change): "
-    read username
-    if [ -n "$username" ]; then
-        echo "Setting git user.name to $username"
-        git config --global user.name "$username"
+    # ask_once rather than a bare read, so a run driven by all_config.sh uses
+    # the answers taken at the start instead of stopping here for them.  An
+    # empty answer still means "no change", including when it was given up
+    # front and arrives as an exported but empty variable.
+    ask_once CFG_GIT_USERNAME "Full user name (default is no change): "
+    if [ -n "$CFG_GIT_USERNAME" ]; then
+        echo "Setting git user.name to $CFG_GIT_USERNAME"
+        git config --global user.name "$CFG_GIT_USERNAME"
     fi
-    printf "Email address (default is no change): "
-    read emailaddr
-    if [ -n "$emailaddr" ]; then
-        echo "Setting git user.email to $emailaddr"
-        git config --global user.email "$emailaddr"
+    ask_once CFG_GIT_EMAIL "Email address (default is no change): "
+    if [ -n "$CFG_GIT_EMAIL" ]; then
+        echo "Setting git user.email to $CFG_GIT_EMAIL"
+        git config --global user.email "$CFG_GIT_EMAIL"
     fi
 
     if [ -z "$(git config --global user.name 2>/dev/null)" ] ||

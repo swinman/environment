@@ -9,6 +9,9 @@
 # These are printed as instructions rather than automated, same convention
 # as the Windows/manual-download blocks in config_avr_arm.sh.
 
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
+. "$ENVDIR/config_common.sh"
+
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 
 check_homebrew() {
@@ -293,9 +296,8 @@ config_remote_login() {
         echo "Remote Login already enabled"
         return 0
     fi
-    printf "Enable Remote Login (incoming ssh)? [y/N] "
-    read _rl
-    if [ "$_rl" = "y" ] || [ "$_rl" = "Y" ]; then
+    ask_once CFG_REMOTE_LOGIN "Enable Remote Login (incoming ssh)? [y/N] "
+    if [ "$CFG_REMOTE_LOGIN" = "y" ] || [ "$CFG_REMOTE_LOGIN" = "Y" ]; then
         sudo systemsetup -setremotelogin on
         sudo systemsetup -getremotelogin
     else
