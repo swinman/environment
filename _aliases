@@ -160,6 +160,15 @@ alias uctools="source $ENVDIR/fpga_config.sh"
 # add ctags; taghighlights to a repo
 alias vitags="$ENVDIR/vim_config.sh"
 
+# write compile_commands.json so clangd sees the real build - the cross
+# compiler, every -D and every include path.  Takes make variables, so the
+# configuration is chosen the way the build chooses it:
+#   mkccj                       the configuration a bare make would build
+#   mkccj MODEL=tf96            a different board
+# Re-run it after building a different variant; it checks what it captured
+# against .cppflags and says so when the two disagree.
+alias mkccj="python3 $ENVDIR/helpers/mkccj.py"
+
 # GNU grep --include syntax - works on mac once GNU grep is ahead of BSD in PATH
 alias pygrep='grep -r --include="*.py" --include="*.pyw" --include="*.ipynb"'
 alias vgrep='grep -r --include="*.vhd" --include="*.v" --include="*.inc"'

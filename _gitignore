@@ -11,6 +11,11 @@
 *.atsuo
 
 tags
+
+# clangd's background index, one per project root.  Written because
+# after_vim/plugin/lsp.vim passes --background-index, which is what makes
+# find-references work across files rather than only the open buffer.
+.cache/
 cscope.out
 cscope.files
 .ropeproject*

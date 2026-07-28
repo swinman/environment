@@ -550,6 +550,38 @@ hi link CTagsAlias          Type
 hi link CTagsFunction       DefinedName
     " log2c to_std_logic_vector slv2slNx16
 hi link CTagsTypeComponent  vhdlType
+" ---- semantic tokens, from the language server via yegappan/lsp ----
+" Colours here are provisional - the point for now is that each token type is
+" separable, so the categories the server reports can be checked before any of
+" them is made pretty.
+"
+" Explicit values, and chosen by measuring rather than by eye.  Picking these
+" as links into the groups above kept pairing colours one step apart in the
+" 256 cube, which read as identical on screen: Identifier 119 against Member
+" 122 made struct fields look like functions, Class 225 against GlobalVariable
+" 223 made every struct typedef look like a global, and Class 213 against
+" EnumMember 219 was closer still.
+"
+" So these were solved for instead: fix Function at LightGreen, restrict the
+" candidates to the indices legible on this background, then take the colour
+" furthest from everything already assigned.  The closest pair is now 120
+" apart in rgb, against 40 before.
+"
+" Function keeps LightGreen, which is what c functions have always been here.
+hi LspSemanticFunction   guifg=#87ff5f  ctermfg=119
+hi LspSemanticMethod     guifg=#87ff5f  ctermfg=119
+hi LspSemanticMacro      guifg=#ff5f00  ctermfg=202
+hi LspSemanticProperty   guifg=#00ffff  ctermfg=51
+hi LspSemanticVariable   guifg=#00af00  ctermfg=34
+hi LspSemanticParameter  guifg=#bcbcbc  ctermfg=250
+hi LspSemanticType       guifg=#00af87  ctermfg=36
+" clangd reports a struct typedef as Class, so these two want the same colour
+hi LspSemanticClass      guifg=#ff5fff  ctermfg=207
+hi LspSemanticStruct     guifg=#ff5fff  ctermfg=207
+hi LspSemanticEnum       guifg=#878700  ctermfg=100
+hi LspSemanticEnumMember guifg=#5f87ff  ctermfg=69
+hi LspSemanticNamespace  guifg=#ff5f87  ctermfg=204
+
 hi link CTagsImport         Import
     " TagHighlight maps python's 'i' kind to this and nothing linked it, so
     " imported names rendered plain.  vim_config.sh adds the 'I' and 'Y' kinds

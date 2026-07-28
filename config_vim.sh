@@ -159,6 +159,14 @@ get_vim_plugins() {
     # g:UltiSnipsSnippetDirectories to ["snippits","UltiSnips"], so the repo's
     # snippits/ is found by runtimepath search without any symlink.
     clone_or_pull "$GH/SirVer/ultisnips.git"     "$PACKDIR/ultisnips"
+    # LSP client, pure vim9script - no node, unlike coc.nvim, and no need for
+    # neovim.  Registered in after_vim/plugin/lsp.vim, because pack/*/start
+    # loads after vimrc and g:LspAddServer does not exist until it has.
+    #
+    # This is here for semantic highlighting: the server says what each
+    # identifier is in this file and this scope, where TagHighlight could only
+    # match tag names globally across every buffer.
+    clone_or_pull "$GH/yegappan/lsp.git"         "$PACKDIR/lsp"
 
     # Dropped deliberately, and retired with ~/.vim/bundle above:
     #   pathogen      - vim 8 native packages do this
