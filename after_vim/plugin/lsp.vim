@@ -38,6 +38,31 @@ if executable('clangd')
     })
 endif
 
+# basedpyright rather than pyright: the semantic token support this is here
+# for is one of the things the fork adds.  Installed from brew rather than
+# `uv tool install`, so it does not depend on a PyPI that is reachable - the
+# index configured here is a private one whose token expires.
+#
+# ALE keeps python diagnostics through ruff, which reads each repo's own
+# ruff.toml.  This is registered for the highlighting, so the type checking is
+# turned down to avoid a second and much noisier opinion on the same buffer.
+if executable('basedpyright-langserver')
+    servers->add({
+        name: 'basedpyright',
+        filetype: ['python'],
+        path: exepath('basedpyright-langserver'),
+        args: ['--stdio'],
+        workspaceConfig: {
+            basedpyright: {
+                analysis: {
+                    typeCheckingMode: 'off',
+                    diagnosticMode: 'openFilesOnly',
+                },
+            },
+        },
+    })
+endif
+
 if !empty(servers)
     g:LspAddServer(servers)
 endif

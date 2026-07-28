@@ -41,6 +41,21 @@ get_vim_packages() {
         # compile_commands.json, so it lints with the real cross-compile
         # flags rather than the host compiler's.
         sudo apt-get install clangd -y
+        # ALE lints sh with this.  There is a lot of shell in this repo alone,
+        # and it catches the portability class of bug that took two `sed -i`
+        # calls in vim_config.sh a long time to surface.
+        #
+        # Note the wording above: a comment whose first word is the tool's
+        # own name is read as a directive, and an unparseable directive makes
+        # it give up on the rest of the file.
+        sudo apt-get install shellcheck -y
+        # basedpyright is npm-packaged and not in apt.  It is only needed for
+        # python semantic highlighting, so its absence costs highlighting
+        # rather than anything else working.
+        if ! command -v basedpyright-langserver >/dev/null 2>&1; then
+            echo "  NOTE: no basedpyright - python semantic highlighting off."
+            echo "  install with: npm install -g basedpyright"
+        fi
         # pandoc and lynx were here only for the `md` markdown reader function,
         # which has been removed from _aliases, so neither is installed now.
     elif [ "$OS" = "mac" ]; then
@@ -51,6 +66,13 @@ get_vim_packages() {
         # no-op when the formula is already present.
         brew install vim
         brew install universal-ctags
+        brew install shellcheck
+        # basedpyright, for python semantic highlighting.  Deliberately brew
+        # and not `uv tool install`: uv and pip here are pointed at a private
+        # CodeArtifact index whose token expires, so a PyPI install fails with
+        # a 401 whenever the login has lapsed.  A tool the editor needs should
+        # not depend on that.
+        brew install basedpyright
         # clangd, for ALE's c linting, ships with the Xcode command line
         # tools - /usr/bin/clangd, currently Apple clangd 15.  Deliberately
         # not `brew install llvm` for it: that is a 1.9GB keg-only install,

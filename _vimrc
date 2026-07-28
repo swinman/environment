@@ -725,6 +725,7 @@ let g:ale_linters_explicit = 1
 let g:ale_linters = {
     \ 'c': ['clangd'],
     \ 'python': ['ruff'],
+    \ 'sh': ['shellcheck'],
     \ }
 
 " clangd needs to be told which cross compilers it may run to learn a target's

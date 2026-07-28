@@ -581,6 +581,10 @@ hi LspSemanticStruct     guifg=#ff5fff  ctermfg=207
 hi LspSemanticEnum       guifg=#878700  ctermfg=100
 hi LspSemanticEnumMember guifg=#5f87ff  ctermfg=69
 hi LspSemanticNamespace  guifg=#ff5f87  ctermfg=204
+" python only so far: basedpyright reports these, clangd has no equivalent.
+" Decorator otherwise falls back to the plugin's default of Macro, which is
+" the c preprocessor colour and reads as one.
+hi LspSemanticDecorator  guifg=#ffd700  ctermfg=220
 
 hi link CTagsImport         Import
     " TagHighlight maps python's 'i' kind to this and nothing linked it, so
