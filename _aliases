@@ -48,13 +48,16 @@ alias cd..='cd ..'
 
 # long listing.  On linux this came from Ubuntu's stock .bashrc, which is not
 # sourced on mac and has no zsh equivalent, so it has to be defined here.
-# Colour is requested two different ways: BSD ls takes it from $CLICOLOR, which
-# config_mac.sh's ~/.zshrc block exports, while GNU ls needs the flag.
-if [ "$OS" = "mac" ]; then
-    alias ll='ls -alFh'
-else
-    alias ll='ls -alFh --color=auto'
-fi
+# A plain `ls` alias too, which Ubuntu's .bashrc supplies on linux and nothing
+# supplied here, so bare `ls` came out uncoloured on both.
+#
+# --color=auto on mac as well, where this used to be left off on the theory
+# that BSD ls picks colour up from the $CLICOLOR that config_mac.sh exports.
+# True of BSD ls - but config_gnu_tools_path puts GNU coreutils ahead of it in
+# PATH, so `ls` here is GNU ls, which ignores $CLICOLOR and wants the flag.
+# The `dl` alias below already assumed GNU ls on mac for the same reason.
+alias ls='ls --color=auto'
+alias ll='ls -alFh --color=auto'
 
 # show downloads in reverse order without owner, links or permissions
 # GNU ls flags - works on mac once GNU coreutils are ahead of BSD in PATH
