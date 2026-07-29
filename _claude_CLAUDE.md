@@ -33,6 +33,14 @@
   wants. E.g. "The serial number is usually important" rather than "the thing
   I most want to see". Second person (you/your) is fine where it naturally
   addresses the reader or user, e.g. "the ports you care about".
+- When you delete code, delete it. Do NOT leave a comment describing what used
+  to be there, why it was wrong, or what replaced it - and never leave the code
+  itself commented out or disabled behind an `&& 0`. Put that reasoning in the
+  commit message, which cannot go stale and cannot be mistaken for a
+  description of the current file. Comment only what a reader of the code AS
+  IT NOW STANDS needs in order to understand it. Err aggressively toward
+  cutting: a comment that narrates history is worse than no comment, because
+  the next reader cannot tell whether it still describes the file.
 
 
 # Notes
