@@ -652,6 +652,13 @@ autocmd ColorScheme * hi def link markdownCode String
 " END: =============== VIM SETTINGS =============================         1}}}
 
 " =================== PLUGIN SETTINGS ===========================         {{{1
+" ---------------------- Fugitive -------------------------------         {{{2
+" fugitive removed the legacy :Gblame; the surviving spelling is :Git blame,
+" which opens the same blame annotations in a buffer beside the window.  The
+" old name stays as an alias because the muscle memory predates the rename.
+command! -nargs=* Gblame Git blame <args>
+" END: ----------------- Fugitive -------------------------------         2}}}
+
 " ---------------------- NERDTree -------------------------------         {{{2
 let NERDTreeIgnore = ['\.((jpe?g)|(png)|(PNG)|o|atsuo|docx?|xlsx?|pyc|pdf)$',
             \'\~$', '^tags$',
