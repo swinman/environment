@@ -55,11 +55,6 @@ VHDL_SIGNAL_RULES="
 --regex-VHDL=/${_vhdl_pre}${_vhdl_sep}${_vhdl_sep}${_vhdl_sep}(${_vhdl_id})/\1/s,signal/i
 "
 
-# The cscope half of this script was removed.  It had been gated on
-# `hash cscope`, which no machine here satisfies, so it had been silently
-# skipping rather than building anything; and the vim side that consumed the
-# database is gone too.  clangd and basedpyright answer the find-callers
-# question that cscope was kept for.
 if hash $CTAGS 2>/dev/null; then
     echo "Make ctags list"
     echo "ctags is version $(ctags --version)"

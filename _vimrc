@@ -2,8 +2,7 @@
 " -------------------- INSTRUCTIONS -----------------------------         {{{2
 " 1) RUN ./config_vim.sh, which clones every plugin this file expects into
 " ~/.vim/pack/plugins/start and symlinks the colours and after/ directory.
-" That script is the list of plugins - do not keep a second copy here, since
-" the two drifted apart for years.
+" That script is the list of plugins - do not keep a second copy here.
 "
 " 2) INSERT lines into the user .vimrc / _vimrc file to source this file
 "if has("win32")
@@ -166,16 +165,10 @@ endfunction
 " END: -------------- ToggleSpelling ----------------------------         2}}}
 
 " -------------------- TryGoToDefine ----------------------------         {{{2
-" Ask the language server where the name under the cursor is defined, and fall
-" back to the tags file for filetypes with no server - vhdl, sh, vim itself.
-"
-" This replaces a three-way branch that was broken in all three arms: rope-vim
-" is not installed, so python raised E117; the c arm ran `cs find` against a
-" cscope database nothing generates any more; and the else arm returned a
-" string, which :call discards, so <C-]> never fired at all.
-"
-" LspServerReady() is per-buffer and false while a server is still starting,
-" which is what makes the fallback correct rather than merely safe.
+" Ask the language server where the name under the cursor is defined, falling
+" back to the tags file.  LspServerReady() is per-buffer and false while a
+" server is still starting, so the fallback also covers the first seconds of a
+" session, not only the filetypes with no server at all.
 function! TryGoToDefine()
     if exists(':LspGotoDefinition') && g:LspServerReady()
         :LspGotoDefinition
@@ -613,12 +606,6 @@ set suffixes+=*.out "Latex intermediate"
 " search from the current directory to ~ for a tags file
 set tags=./tags;~
 
-" cscope is gone.  It was kept for finding callers, which a tags file cannot
-" do, but the language servers registered in after/plugin/lsp.vim answer that
-" question semantically - see <F10> / LspShowReferences below.  What was here:
-" a LoadCscope() run from an unguarded `autocmd BufEnter /*`, so every buffer
-" enter walked from the current directory up to ~ looking for a cscope.out
-" that vim_config.sh had stopped generating years ago.
 " END: ----------------- CTags ----------------------------------         2}}}
 
 " ----------------- File Type Specific --------------------------         {{{2
@@ -812,9 +799,7 @@ map <F8> <ESC>{v}gq
 
 "map <F8> :!/usr/bin/ctags-exuberant -R <CR>
 
-" Go to the definition of the name under the cursor, and list its callers.
-" F10 was rope's rename binding, which has not worked since rope-vim stopped
-" being installed; references are what cscope was carried for.
+" go to the definition of the name under the cursor, and list its callers
 map <F9> <ESC>:call TryGoToDefine()<CR>
 map <F10> <ESC>:LspShowReferences<CR>
 
