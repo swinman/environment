@@ -139,21 +139,13 @@ config_vim_files() {
     # after so that tabbing "vim" still completes vim_config.sh.
     link_config after_vim "$VIMDIR/after"
 
-    # The spell word list.  vim reads only the compiled .add.spl, and
-    # regenerates it by itself just for zg and zw, so a fresh checkout or a
-    # hand edit of _spellvim needs the :mkspell! below.  The .spl lands next
-    # to the link, in $VIMDIR, so no build artifact appears in the repo.
-    # The file name has to match 'spelllang' and 'encoding'; _vimrc leaves
-    # both at the defaults.
+    # The spell word list.  _vimrc compiles this to the .add.spl vim actually
+    # reads, on the first launch that finds the list newer, so there is no
+    # compile step here.  The .spl lands next to the link, in $VIMDIR, so no
+    # build artifact appears in the repo.  The file name has to match
+    # 'spelllang' and 'encoding'; _vimrc leaves both at the defaults.
     mkdir -p "$VIMDIR/spell"
-    if link_config _spellvim "$VIMDIR/spell/en.utf-8.add"; then
-        if vim -es -u NONE -c "mkspell! $VIMDIR/spell/en.utf-8.add" -c 'q' \
-                >/dev/null 2>&1; then
-            echo "  compiled $VIMDIR/spell/en.utf-8.add.spl"
-        else
-            echo "  WARNING: mkspell failed; added words will not be read"
-        fi
-    fi
+    link_config _spellvim "$VIMDIR/spell/en.utf-8.add"
 }
 
 config_vim_dirs() {

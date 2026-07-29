@@ -483,6 +483,16 @@ set backup        " turns on backup (saves prev. file as fn.ext~)
 " what makes zg and zw write to that file rather than guessing one.
 set spellfile=~/.vim/spell/en.utf-8.add
 
+" vim reads only the compiled .add.spl, and rebuilds it by itself just for zg
+" and zw, so a word added to _spellvim by hand - or arriving with a pull or a
+" checkout - would go unnoticed.  getftime follows the symlink to _spellvim,
+" and returns -1 for a .spl that does not exist yet, so a fresh clone compiles
+" on first launch.  Costs two stat calls when nothing has changed.
+let s:add = expand(&spellfile)
+if getftime(s:add) > getftime(s:add . '.spl')
+    silent! execute 'mkspell! ' . fnameescape(s:add)
+endif
+
 "Settings for Searching and Moving
 " set ignorecase
 " set smartcase
