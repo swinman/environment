@@ -11,10 +11,6 @@ else
     SRC_DIR=$(pwd)
 fi
 
-# pack/plugins/start, not bundle/.  config_vim.sh installs plugins as native
-# vim 8 packages and retired the pathogen bundle/ layout, so both of these
-# pointed at a directory that no longer exists - which made the taghighlight
-# block at the bottom silently skip rather than fail.
 if [ "$OS" = "windows" ]; then
     VIMDIR=~/vimfiles
 else
