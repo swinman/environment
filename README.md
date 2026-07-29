@@ -49,8 +49,9 @@ every run rather than appending duplicates:
   expanded to nothing under zsh.
 - `$softwaredir` and `$toolsdir` still exist because roughly a dozen files
   read them, but they are legacy. `$softwaredir` existed largely to put
-  `~/software` on `PYTHONPATH`; use a venv, or `addpypath.sh` for a one-off
-  shell.
+  `~/software` on `PYTHONPATH`; use a venv instead - `~/.venvs/dev` is
+  activated by every interactive shell, and `uv pip install -e <checkout>`
+  puts a tree on the path properly.
 - Files prefixed with `_` are symlinked or sourced into place rather than used
   from `$HOME` directly: `_vimrc`, `_aliases`, `_spellvim`, `_claude_CLAUDE.md`,
   `_claude_settings.json`.
