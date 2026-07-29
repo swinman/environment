@@ -1,5 +1,5 @@
 #!/bin/bash
-# use to make ctags and taghighlight files
+# use to make the ctags file
 # if you want to provide a root directory for your code
 # that is different from the calling directory, use
 # an additional parameter when you call the script
@@ -11,13 +11,7 @@ else
     SRC_DIR=$(pwd)
 fi
 
-if [ "$OS" = "windows" ]; then
-    VIMDIR=~/vimfiles
-else
-    VIMDIR=~/.vim
-fi
 CTAGS=ctags
-TAGHL=$VIMDIR/pack/plugins/start/taghighlight/plugin/TagHighlight/TagHighlight.py
 
 # universal-ctags' VHDL parser gives up on the architecture's declarative
 # region once it has passed a run of `component` declarations.  In
@@ -79,42 +73,4 @@ if hash $CTAGS 2>/dev/null; then
             && cat $SRC_DIR/tags.tmp > $SRC_DIR/tags
         rm -f $SRC_DIR/tags.tmp
     fi
-fi
-
-if [ -e $TAGHL ]; then
-    echo "Make taghighlight files"
-    rm -f $SRC_DIR/types_*.taghl
-    cd $SRC_DIR && python3 $TAGHL \
-        --use-existing-tagfile --ctags-file=$SRC_DIR/tags \
-        --source-root=$SRC_DIR
-    # vhdl_ls highlights VHDL now, per identifier and per scope.  Leaving the
-    # generated file in place would coexist rather than be overridden: a
-    # `syn keyword` colours every occurrence of a name in the buffer whatever
-    # the language server says about that particular one.
-    rm -f $SRC_DIR/types_vhdl.taghl
-fi
-
-# TagHighlight's data/kinds.txt maps the python kinds c, f, i, m and v, while
-# universal-ctags also reports 'I' (a module defined in another file) and 'Y'
-# (a class, variable, function or module from another module).  Those are the
-# imported names, and they are dropped with an "Unrecognised kind" line, which
-# is why nothing an import brought in was highlighted.
-#
-# There is no user override for that file: config.py derives DataDirectory
-# from the module's own __file__, so the only ways in are patching a plugin
-# that config_vim.sh re-clones, or generating the missing group here.
-if [ -f $SRC_DIR/types_py.taghl ]; then
-    echo "Adding the python import kinds TagHighlight drops"
-    awk -F'\t' '
-        /^!/ { next }
-        $2 ~ /\.py$/ {
-            kind = ""
-            for (i = 4; i <= NF; i++) if ($i ~ /^[a-zA-Z]$/) { kind = $i; break }
-            if ((kind != "I" && kind != "Y") || ($1 in seen)) next
-            seen[$1] = 1
-            words = words " " $1
-            if (++n % 40 == 0) { print "syn keyword CTagsImport" words; words = "" }
-        }
-        END { if (words != "") print "syn keyword CTagsImport" words }
-    ' $SRC_DIR/tags >> $SRC_DIR/types_py.taghl
 fi

@@ -217,6 +217,17 @@ retire_pathogen() {
     fi
 }
 
+retire_taghighlight() {
+    # Left installed, it would keep reading any types_*.taghl still lying in a
+    # source tree, and a syn keyword does not lose to a language server - it
+    # colours every occurrence of a name whatever the server determined about
+    # that one.  Machines that ran the old vim_config.sh have both.
+    if [ -d "$PACKDIR/taghighlight" ]; then
+        echo "Retiring taghighlight; the language servers highlight now"
+        retire_path "$PACKDIR/taghighlight" "$UNUSED"
+    fi
+}
+
 get_vim_plugins() {
     echo "Getting vim plugins into $PACKDIR"
     mkdir -p "$PACKDIR"
@@ -231,11 +242,6 @@ get_vim_plugins() {
     # ALE replaces syntastic, which linted synchronously and froze vim while
     # the checker ran
     clone_or_pull "$GH/dense-analysis/ale.git"   "$PACKDIR/ale"
-    # Official git mirror of the mercurial repo at heptapod.host/cgtk/
-    # taghighlight, so neither mercurial nor git-remote-hg is needed - and an
-    # hg:: remote tangles git tab completion.  The mirror can lag upstream.
-    clone_or_pull "$GH/abudden/taghighlight-automirror.git" \
-        "$PACKDIR/taghighlight"
     # Needs +python3, which is why this was held back until brew's vim was
     # ahead of Apple's on PATH.  _vimrc already carries the UltiSnips block:
     # it appends $softwaredir/environment to runtimepath and sets
@@ -258,7 +264,12 @@ get_vim_plugins() {
     #                   options explicitly anyway
     #   jedi-vim      - was already commented out
     #   neocomplcache - was already being moved to ~/.vim/unused
-    #   swinman/taghighlight - the fork is behind upstream, nothing local in it
+    #   taghighlight  - the language servers colour per scope, where this could
+    #                   only match tag names globally across every buffer.  Its
+    #                   last output still in use was types_py.taghl, and what
+    #                   that covered was the names basedpyright could not
+    #                   resolve, so it was masking a python import problem
+    #                   rather than adding anything
 
     # pathogen#helptags() rebuilt these on every vim startup.  vim does not do
     # it for packages, so generate them once here instead.  Each doc directory
@@ -291,6 +302,7 @@ check_vim_features
 config_vim_files
 config_vim_dirs
 retire_pathogen
+retire_taghighlight
 get_vim_plugins
 
 echo "=============== END: config_vim.sh  ===================="

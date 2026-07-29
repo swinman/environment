@@ -652,24 +652,9 @@ autocmd ColorScheme * hi def link markdownCode String
 " END: =============== VIM SETTINGS =============================         1}}}
 
 " =================== PLUGIN SETTINGS ===========================         {{{1
-" -------------------- TagHighlight -----------------------------         {{{2
-"if ! exists('g:TagHighlightSettings')
-"    let g:TagHighlightSettings = {}
-"endif
-"
-"if has("win32")
-"    let g:TagHighlightSettings['CtagsExecutable'] =
-"                \ "C:\\Program Files (x86)\\ctags58\\ctags.exe"
-"else
-"    let g:TagHighlightSettings['CtagsExecutable'] = "ctags"
-"end
-"
-"let g:TagHighlightSettings['TagFileName'] = 'tags'
-" END: --------------- TagHighlight -----------------------------         2}}}
-
 " ---------------------- NERDTree -------------------------------         {{{2
 let NERDTreeIgnore = ['\.((jpe?g)|(png)|(PNG)|o|atsuo|docx?|xlsx?|pyc|pdf)$',
-            \'\~$', '^tags$', '\.taghl$',
+            \'\~$', '^tags$',
             \'\.pyc$', '\.pdf$', '\.o$', '__pycache__']
 " END: ----------------- NERDTree -------------------------------         2}}}
 

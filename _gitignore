@@ -4,7 +4,6 @@
 # Editors & Project Files #
 ###########################
 \.*.sw[a-z]
-*.taghl
 *.json
 
 # avr studio

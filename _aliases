@@ -157,7 +157,7 @@ alias miniterm="python $ENVDIR/miniterm_wrapper.py --collapse all --keep '^/dev/
 # (mac: DYLD_LIBRARY_PATH) that can shadow system libs for unrelated programs.
 alias uctools="source $ENVDIR/fpga_config.sh"
 
-# add ctags; taghighlights to a repo
+# add a ctags file to a repo
 alias vitags="$ENVDIR/vim_config.sh"
 
 # write compile_commands.json so clangd sees the real build - the cross
