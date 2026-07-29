@@ -476,7 +476,12 @@ set backup        " turns on backup (saves prev. file as fn.ext~)
 "if exists("+spelllang")
 "    set spelllang=en_us
 "endif
-"set spellfile=~/.vim/spell/en.utf-8.add
+" config_vim.sh links this to the repo's _spellvim, so zg appends there and
+" the word list stays under version control.  The name has to match
+" 'spelllang' and 'encoding', which are left at the defaults en and utf-8.
+" vim loads the compiled .add.spl off runtimepath on its own; this option is
+" what makes zg and zw write to that file rather than guessing one.
+set spellfile=~/.vim/spell/en.utf-8.add
 
 "Settings for Searching and Moving
 " set ignorecase
@@ -633,15 +638,6 @@ let g:markdown_syntax_conceal = 0
 autocmd ColorScheme * hi def link markdownCode String
             \| hi def link markdownCodeBlock String
 " END: ----------------- Markdown -------------------------------         2}}}
-
-" ---------------------- Spelling -------------------------------         {{{2
-" add SpellGoodWordsStart and SpellGoodWordsEnd to dictionary
-for lline in readfile(expand('<sfile>:p:h') . '/_spellvim')
-    for word in split(lline, '\W\+')
-        silent execute ':spellgood! ' . word
-    endfor
-endfor
-" END: ----------------- Spelling -------------------------------         2}}}
 
 " END: =============== VIM SETTINGS =============================         1}}}
 

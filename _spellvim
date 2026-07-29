@@ -1,32 +1,82 @@
-SpellGoodWordsStart SpellGoodWordsEnd
+# Word list for vim's spell checker.  config_vim.sh links this in as
+# ~/.vim/spell/en.utf-8.add, which is the 'spellfile' _vimrc sets, and
+# compiles it with :mkspell!.  vim reads only the compiled .add.spl and
+# rebuilds it by itself just for zg and zw, so a word added by hand here
+# needs config_vim.sh re-run before vim sees it.  zg appends through the
+# symlink, so words added while editing land in this file.
+#
+# One word per line.  Blank lines and lines starting with # are ignored.
+
+# the markers AutoSpellGoodWords searches a buffer for
+SpellGoodWordsStart
+SpellGoodWordsEnd
 
 github
-
 swinman
 
+# abbreviations that read as misspellings
 calc
 proc
 fpga
-
-vhd vhdl
-
+vhd
+vhdl
 src
-
 config
-
-spi uart usart
-rx tx nx
-
-addr incr
-
-msb lsb
+addr
+incr
+msb
+lsb
 ascii
 adc
 
-a0 a1 a2 a3 a4 a5 a6 a7 a8
-b0 b1 b2 b3 b4 b5 b6 b7 b8
-d0 d1 d2 d3 d4 d5 d6 d7 d8
-u0 u1 u2 u3 u4 u5 u6 u7 u8
+# buses and signal names
+spi
+uart
+usart
+rx
+tx
+nx
 
-ys ysum
-ym ymean
+# pin and bit names
+a0
+a1
+a2
+a3
+a4
+a5
+a6
+a7
+a8
+b0
+b1
+b2
+b3
+b4
+b5
+b6
+b7
+b8
+d0
+d1
+d2
+d3
+d4
+d5
+d6
+d7
+d8
+u0
+u1
+u2
+u3
+u4
+u5
+u6
+u7
+u8
+
+# axis statistics
+ys
+ysum
+ym
+ymean
