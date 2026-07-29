@@ -75,10 +75,16 @@ endif
 # sit on PATH.  Linked instead, it panics at startup before answering
 # anything, naming only the relative paths it looked in.
 #
-# Full analysis wants a vhdl_ls.toml per project mapping libraries to files,
-# the way clangd wants compile_commands.json.  Without one the server still
-# starts and still highlights, but reports each file opened as not part of
-# the project.
+# Full analysis wants a vhdl_ls.toml mapping libraries to files, the way
+# clangd wants compile_commands.json; helpers/mkvhdlls.py writes one.  Without
+# it the server still starts and still highlights, but reports each file as
+# outside the project and resolves nothing across files - 43 fewer identifiers
+# on stopsen's main_top.vhd, silently mis-coloured rather than left plain.
+#
+# rootSearch is what makes that file findable.  The default workspace root is
+# the current directory, so opening fpga/main_top.vhd from anywhere but the
+# project root put the root below the config and the server reported it
+# missing.  Searched upwards instead, editing from a subdirectory works.
 #
 # The token types are the standard LSP set, so signals, ports and generics
 # arrive as variable, property and parameter rather than as kinds of their
@@ -89,6 +95,7 @@ if executable('vhdl_ls')
         filetype: ['vhdl'],
         path: exepath('vhdl_ls'),
         args: [],
+        rootSearch: ['vhdl_ls.toml'],
     })
 endif
 

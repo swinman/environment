@@ -23,14 +23,12 @@ TAGHL=$VIMDIR/pack/plugins/start/taghighlight/plugin/TagHighlight/TagHighlight.p
 # region once it has passed a run of `component` declarations.  In
 # stopsen's fpga/main_top.vhd it tags the entity fine - 81 ports, 38 generics
 # - then emits nothing for the 54 signals and 2 types that follow the seven
-# component blocks.  The result looks like a highlighting bug rather than a
-# tagging one: a signal is coloured only if some *other* file happens to
-# declare the same name, since syn keyword applies to the whole buffer.  Hence
-# roughly half of them green and half white.
+# component blocks.
 #
 # These rules add the signals back through ctags' own regex mechanism, so they
-# land in the tags file and :tag works on them, rather than being patched into
-# the highlight file afterwards.
+# land in the tags file and :tag reaches them.  vhdl_ls answers go-to-definition
+# for VHDL now, so what still rests on this is <F11>, the bare <C-]>, and any
+# machine without the server installed.
 #
 # One rule per name position, because a ctags regex yields a single tag per
 # line: 25% of declarations here name two or more signals.  Four covers 99% of
@@ -89,26 +87,22 @@ if [ -e $TAGHL ]; then
     cd $SRC_DIR && python3 $TAGHL \
         --use-existing-tagfile --ctags-file=$SRC_DIR/tags \
         --source-root=$SRC_DIR
+    # vhdl_ls highlights VHDL now, per identifier and per scope.  Leaving the
+    # generated file in place would coexist rather than be overridden: a
+    # `syn keyword` colours every occurrence of a name in the buffer whatever
+    # the language server says about that particular one.
+    rm -f $SRC_DIR/types_vhdl.taghl
 fi
 
-# TagHighlight's data/kinds.txt lists only the twelve VHDL kinds exuberant
-# ctags emitted.  universal-ctags also reports signals, ports, generics,
-# architectures, processes, variables and aliases, and those are silently
-# dropped - 3225 of stopsen's 3791 VHDL tags, including every signal and
-# port, which are the ones worth highlighting in VHDL.
+# TagHighlight's data/kinds.txt maps the python kinds c, f, i, m and v, while
+# universal-ctags also reports 'I' (a module defined in another file) and 'Y'
+# (a class, variable, function or module from another module).  Those are the
+# imported names, and they are dropped with an "Unrecognised kind" line, which
+# is why nothing an import brought in was highlighted.
 #
 # There is no user override for that file: config.py derives DataDirectory
 # from the module's own __file__, so the only ways in are patching a plugin
-# that config_vim.sh re-clones, or generating the missing groups here.
-#
-# Names are claimed by the first kind that declares them, so a name appearing
-# as both a signal and a port lands in one group rather than being highlighted
-# twice with different colours.
-# Same gap on the python side: TagHighlight's kinds.txt maps c, f, i, m and v,
-# while universal-ctags also reports 'I' (a module defined in another file) and
-# 'Y' (a class, variable, function or module from another module).  Those are
-# the imported names, and they were dropped with the same "Unrecognised kind"
-# line - which is why nothing an import brought in was highlighted.
+# that config_vim.sh re-clones, or generating the missing group here.
 if [ -f $SRC_DIR/types_py.taghl ]; then
     echo "Adding the python import kinds TagHighlight drops"
     awk -F'\t' '
@@ -123,29 +117,4 @@ if [ -f $SRC_DIR/types_py.taghl ]; then
         }
         END { if (words != "") print "syn keyword CTagsImport" words }
     ' $SRC_DIR/tags >> $SRC_DIR/types_py.taghl
-fi
-
-if [ -f $SRC_DIR/types_vhdl.taghl ]; then
-    echo "Adding the VHDL kinds TagHighlight drops"
-    awk -F'\t' '
-        BEGIN {
-            grp["s"] = "CTagsSignal";  grp["q"] = "CTagsPort"
-            grp["g"] = "CTagsGeneric"; grp["a"] = "CTagsArchitecture"
-            grp["Q"] = "CTagsProcess"; grp["v"] = "CTagsVariable"
-            grp["A"] = "CTagsAlias"
-        }
-        /^!/ { next }
-        $2 ~ /\.vhdl?$/ {
-            kind = ""
-            for (i = 4; i <= NF; i++) if ($i ~ /^[a-zA-Z]$/) { kind = $i; break }
-            if (!(kind in grp) || ($1 in seen)) next
-            seen[$1] = 1
-            g = grp[kind]
-            words[g] = words[g] " " $1
-            # chunked the way TagHighlight chunks its own output, rather than
-            # emitting one unbounded line per group
-            if (++n[g] % 40 == 0) { print "syn keyword " g words[g]; words[g] = "" }
-        }
-        END { for (g in words) if (words[g] != "") print "syn keyword " g words[g] }
-    ' $SRC_DIR/tags >> $SRC_DIR/types_vhdl.taghl
 fi
