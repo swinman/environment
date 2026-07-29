@@ -63,6 +63,35 @@ if executable('basedpyright-langserver')
     })
 endif
 
+# vhdl_ls (VHDL-LS/rust_hdl) is here for the same reason clangd is: the tags
+# file matched names globally, so a signal declared in one file coloured that
+# name in every buffer, and one declared nowhere else stayed plain.  VHDL was
+# the last filetype still highlighted that way.
+#
+# There is no brew formula or apt package, so config_vim.sh unpacks a release
+# build.  Its layout is load-bearing.  The binary locates its bundled ieee and
+# std libraries relative to its own path, and the path it resolves is the one
+# it was launched from rather than a symlink's target, so the real file has to
+# sit on PATH.  Linked instead, it panics at startup before answering
+# anything, naming only the relative paths it looked in.
+#
+# Full analysis wants a vhdl_ls.toml per project mapping libraries to files,
+# the way clangd wants compile_commands.json.  Without one the server still
+# starts and still highlights, but reports each file opened as not part of
+# the project.
+#
+# The token types are the standard LSP set, so signals, ports and generics
+# arrive as variable, property and parameter rather than as kinds of their
+# own - the same remapping clangd needs for struct fields.
+if executable('vhdl_ls')
+    servers->add({
+        name: 'vhdl_ls',
+        filetype: ['vhdl'],
+        path: exepath('vhdl_ls'),
+        args: [],
+    })
+endif
+
 if !empty(servers)
     g:LspAddServer(servers)
 endif

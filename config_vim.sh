@@ -87,6 +87,59 @@ get_vim_packages() {
     fi
 }
 
+get_vhdl_server() {
+    # vhdl_ls, the VHDL language server registered in after_vim/plugin/lsp.vim.
+    # Neither brew nor apt packages it, so this takes a release build.
+    #
+    # The install layout is the part to be careful with.  vhdl_ls finds its
+    # bundled ieee and std libraries by looking beside the executable, and the
+    # path it resolves is the one it was launched from, not a symlink's
+    # target: linked onto PATH from an unpacked tree elsewhere, it panics at
+    # startup.  ../share/vhdl_libraries is one of the directories it searches,
+    # so the binary goes in ~/.local/bin and the libraries in ~/.local/share,
+    # which is the layout that needs no arguments to find them.
+    _vl_bin=$HOME/.local/bin
+    _vl_share=$HOME/.local/share
+
+    if command -v vhdl_ls >/dev/null 2>&1; then
+        echo "vhdl_ls present: $(vhdl_ls --version)"
+        return 0
+    fi
+
+    case "$OS" in
+        mac)   _vl_asset=vhdl_ls-aarch64-apple-darwin ;;
+        linux) _vl_asset=vhdl_ls-x86_64-unknown-linux-gnu ;;
+        *)
+            echo "  no vhdl_ls build for $OS; VHDL keeps tag highlighting"
+            return 1
+            ;;
+    esac
+
+    echo "Getting vhdl_ls ($_vl_asset)"
+    _vl_url=$(curl -sL \
+        https://api.github.com/repos/VHDL-LS/rust_hdl/releases/latest |
+        grep -o "\"browser_download_url\": *\"[^\"]*$_vl_asset.zip\"" |
+        cut -d'"' -f4)
+    if [ -z "$_vl_url" ]; then
+        echo "  WARNING: no $_vl_asset.zip in the latest release, skipping"
+        return 1
+    fi
+
+    _vl_tmp=$(mktemp -d) || return 1
+    if curl -sL -o "$_vl_tmp/vhdl_ls.zip" "$_vl_url" &&
+            unzip -q "$_vl_tmp/vhdl_ls.zip" -d "$_vl_tmp"; then
+        mkdir -p "$_vl_bin" "$_vl_share"
+        rm -rf "$_vl_share/vhdl_libraries"
+        mv "$_vl_tmp/$_vl_asset/vhdl_libraries" "$_vl_share/vhdl_libraries"
+        mv "$_vl_tmp/$_vl_asset/bin/vhdl_ls" "$_vl_bin/vhdl_ls"
+        chmod +x "$_vl_bin/vhdl_ls"
+        echo "  installed $("$_vl_bin/vhdl_ls" --version) to $_vl_bin"
+    else
+        echo "  WARNING: could not fetch or unpack $_vl_url"
+    fi
+    rm -rf "$_vl_tmp"
+}
+
 check_vim_features() {
     echo "Checking vim build: $(command -v vim)"
     echo "  $(vim --version | head -1)"
@@ -233,6 +286,7 @@ get_vim_plugins() {
 echo "==================== config_vim.sh  ===================="
 
 get_vim_packages
+get_vhdl_server
 check_vim_features
 config_vim_files
 config_vim_dirs
