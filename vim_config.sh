@@ -1,5 +1,5 @@
 #!/bin/bash
-# use to make ctags, cscope and taghighlight files
+# use to make ctags and taghighlight files
 # if you want to provide a root directory for your code
 # that is different from the calling directory, use
 # an additional parameter when you call the script
@@ -55,21 +55,11 @@ VHDL_SIGNAL_RULES="
 --regex-VHDL=/${_vhdl_pre}${_vhdl_sep}${_vhdl_sep}${_vhdl_sep}(${_vhdl_id})/\1/s,signal/i
 "
 
-if hash cscope 2>/dev/null; then
-    echo "Write cscope files list"
-    rm -f $SRC_DIR/cscope.files $SRC_DIR/cscope.out
-    cd $SRC_DIR && echo "$(find . -name "*.[ch]")" > cscope.files
-    cd $SRC_DIR && echo "$(find . -name "*.vhd")" >> cscope.files
-    cd $SRC_DIR && echo "$(find . -name "*.py")" >> cscope.files
-# pascal files from nanoplotter
-#    cd $SRC_DIR && echo "$(find . -name "*.npl")" >> cscope.files
-#    cd $SRC_DIR && echo "$(find . -name "*.inc")" >> cscope.files
-#    cd $SRC_DIR && echo "$(find . -name "*.sfe")" >> cscope.files
-
-    echo "Make cscope database"
-    cd $SRC_DIR && cscope -Rkb -i cscope.files
-fi
-
+# The cscope half of this script was removed.  It had been gated on
+# `hash cscope`, which no machine here satisfies, so it had been silently
+# skipping rather than building anything; and the vim side that consumed the
+# database is gone too.  clangd and basedpyright answer the find-callers
+# question that cscope was kept for.
 if hash $CTAGS 2>/dev/null; then
     echo "Make ctags list"
     echo "ctags is version $(ctags --version)"

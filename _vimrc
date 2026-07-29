@@ -1,24 +1,11 @@
 " ======================== SETUP ================================         {{{1
 " -------------------- INSTRUCTIONS -----------------------------         {{{2
-" run the ./config_vim.sh script in bash or..
-" 1) INSTALL pathogen:
-" mkdir ~/.vim/autoload ~/.vim/bundle
-" curl -Sso ~/.vim/autoload/pathogen.vim \
-"   https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
-
-" 2) DOWNLOAD the following plugins:
-" clone below into bundle subdirectory of ~/.vim or ~/vimfiles
-" git clone git://github.com/jiangmiao/auto-pairs.git
-" git clone git://github.com/scrooloose/nerdtree.git
-" git clone git://github.com/scrooloose/syntastic.git
-" git clone git://github.com/klen/rope-vim.git
-" git clone git://github.com/tpope/vim-fugitive.git
-" git clone git://github.com/tpope/vim-sensible.git
-" git clone git://github.com/SirVer/ultisnips.git
-" git clone git://github.com/swinman/colorvim.git
-" git clone git://github.com/swinman/taghighlight.git
+" 1) RUN ./config_vim.sh, which clones every plugin this file expects into
+" ~/.vim/pack/plugins/start and symlinks the colours and after/ directory.
+" That script is the list of plugins - do not keep a second copy here, since
+" the two drifted apart for years.
 "
-" 3) INSERT lines into the user .vimrc / _vimrc file to source this file
+" 2) INSERT lines into the user .vimrc / _vimrc file to source this file
 "if has("win32")
 "    source ~\Documents\software\environment\_vimrc
 "else
@@ -179,14 +166,21 @@ endfunction
 " END: -------------- ToggleSpelling ----------------------------         2}}}
 
 " -------------------- TryGoToDefine ----------------------------         {{{2
+" Ask the language server where the name under the cursor is defined, and fall
+" back to the tags file for filetypes with no server - vhdl, sh, vim itself.
+"
+" This replaces a three-way branch that was broken in all three arms: rope-vim
+" is not installed, so python raised E117; the c arm ran `cs find` against a
+" cscope database nothing generates any more; and the else arm returned a
+" string, which :call discards, so <C-]> never fired at all.
+"
+" LspServerReady() is per-buffer and false while a server is still starting,
+" which is what makes the fallback correct rather than merely safe.
 function! TryGoToDefine()
-    if &ft == 'python'
-        :call RopeGotoDefinition()
-    elseif &ft == 'c' || &ft == 'cpp'
-	:exe("cs find g " . expand("<cword>"))
-"        cs find g <C-R>=expand("<cword>")<CR><CR>
+    if exists(':LspGotoDefinition') && g:LspServerReady()
+        :LspGotoDefinition
     else
-        return "<C-]>"
+        execute "normal! \<C-]>"
     endif
 endfunction
 " END: --------------- TryGoToDefine ----------------------------         2}}}
@@ -615,28 +609,17 @@ set wildignore+=*.pdf "pdf binary files"
 set suffixes+=*.out "Latex intermediate"
 " END: ----------- Wildmenu / Wildignore ------------------------         2}}}
 
-" ------------------- CTags / CScope ----------------------------         {{{2
-" search from the current directory to ~ for ctags and cscope files
+" ---------------------- CTags ----------------------------------         {{{2
+" search from the current directory to ~ for a tags file
 set tags=./tags;~
 
-function! LoadCscope()
-    let db = findfile("cscope.out", ".;~")
-    if (!empty(db))
-        let path = strpart(db, 0, match(db, "/cscope.out$"))
-        set nocscopeverbose " suppress 'duplicate connection' error
-        exe "cs add " . db . " " . path
-        set cscopeverbose
-    endif
-endfunction
-autocmd BufEnter /* call LoadCscope()
-
-if has("cscope") && !has("win32") && 0
-    set csto=0
-    set cst
-    set nocsverb
-    set csverb
-endif
-" END: -------------- CTags / CScope ----------------------------         2}}}
+" cscope is gone.  It was kept for finding callers, which a tags file cannot
+" do, but the language servers registered in after/plugin/lsp.vim answer that
+" question semantically - see <F10> / LspShowReferences below.  What was here:
+" a LoadCscope() run from an unguarded `autocmd BufEnter /*`, so every buffer
+" enter walked from the current directory up to ~ looking for a cscope.out
+" that vim_config.sh had stopped generating years ago.
+" END: ----------------- CTags ----------------------------------         2}}}
 
 " ----------------- File Type Specific --------------------------         {{{2
 autocmd FileType text setlocal formatoptions+=t spell
@@ -693,7 +676,7 @@ endfor
 
 " ---------------------- NERDTree -------------------------------         {{{2
 let NERDTreeIgnore = ['\.((jpe?g)|(png)|(PNG)|o|atsuo|docx?|xlsx?|pyc|pdf)$',
-            \'\~$', '^cscope.files$', '^cscope.out$', '^tags$', '\.taghl$',
+            \'\~$', '^tags$', '\.taghl$',
             \'\.pyc$', '\.pdf$', '\.o$', '__pycache__']
 " END: ----------------- NERDTree -------------------------------         2}}}
 
@@ -829,10 +812,11 @@ map <F8> <ESC>{v}gq
 
 "map <F8> :!/usr/bin/ctags-exuberant -R <CR>
 
-" Mapping rope
-"map <leader>j <ESC>:RopeGotoDefinition<cr>
+" Go to the definition of the name under the cursor, and list its callers.
+" F10 was rope's rename binding, which has not worked since rope-vim stopped
+" being installed; references are what cscope was carried for.
 map <F9> <ESC>:call TryGoToDefine()<CR>
-map <F10> <C-c>rd
+map <F10> <ESC>:LspShowReferences<CR>
 
 "goto definition with F11
 map <F11> <C-]>
