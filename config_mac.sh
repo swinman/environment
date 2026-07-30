@@ -214,9 +214,15 @@ config_terminal_keys() {
         echo "Mapped Home and End in Terminal profile \"$PROFILE\""
     rm -f "$TPL"
 
-    # Terminal holds the profile in memory, so a window that is already open
-    # keeps the old table.
-    echo "Quit and reopen Terminal for Home/End to take effect."
+    # Terminal reads its key table once, at launch, so every window of an
+    # already-running Terminal keeps the old one no matter how many new windows
+    # are opened.  Spelled out because the obvious reading of "restart
+    # Terminal" is to close the window, which does not do it - and the symptom
+    # of getting that wrong is indistinguishable from the mapping not working.
+    echo
+    echo "Home/End need Terminal RESTARTED to take effect: cmd-Q, then reopen."
+    echo "Closing the window is not enough - the running app keeps its old key"
+    echo "table, and new windows inherit it."
 }
 
 config_brew_path() {
