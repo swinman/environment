@@ -5,18 +5,19 @@
 # tests and array subscripts are parse errors there.  One `. _prompt_zsh` line
 # is trivially parseable by both shells; everything in here can be zsh-only.
 #
-# Colors come from colorvim/colors/storm.vim so the shell and vim agree:
-#   user@host   LightGreen  #90ee90   (storm Identifier)
-#   path        SkyBlue1    #87ceff   (storm Directory, which is the cwd group)
-#   git branch  Khaki3      #cdc673   (storm Statement)
-#   venv        SandyBrown  #ff9e64   (storm pythonBuiltin)
-#   over ssh    IndianRed1  #ff6a6a   (storm PreProc)
-#   % or #      LightCoral  #f08080   (storm Constant)
+# Colors come from colorvim/colors/storm.vim so the shell and vim agree, as
+# 256-palette indices rather than hex: cterm is the half of that colorscheme
+# terminal vim actually renders, so these are its ctermfg values.
+#   user@host   119   (storm Identifier)
+#   path        117   (storm Directory, which is the cwd group)
+#   git branch  185   (storm Statement)
+#   venv        215   (storm pythonBuiltin)
+#   over ssh    203   (storm PreProc)
+#   % or #      210   (storm Constant)
 # The prompt character is coloured so it does not read as part of the command
 # typed after it, which it did while both were the Normal white.
-# These are storm's gui values.  Terminal vim uses its cterm values instead
-# unless 'set termguicolors' is added to _vimrc, so the two differ slightly
-# until then.  Needs a truecolor terminal and zsh >= 5.7 for %F{#rrggbb}.
+# %F{n} also needs neither a truecolor terminal nor zsh >= 5.7, both of which
+# %F{#rrggbb} did.
 #
 # Layout is two lines: context above, a bare prompt character at column 0, so
 # the command being typed always starts at the left edge no matter how long the
@@ -27,8 +28,8 @@
 autoload -Uz vcs_info add-zsh-hook add-zle-hook-widget
 
 zstyle ':vcs_info:*' enable git
-zstyle ':vcs_info:git:*' formats       ' %F{#cdc673}(%b)%f'
-zstyle ':vcs_info:git:*' actionformats ' %F{#cdc673}(%b|%a)%f'
+zstyle ':vcs_info:git:*' formats       ' %F{185}(%b)%f'
+zstyle ':vcs_info:git:*' actionformats ' %F{185}(%b|%a)%f'
 
 # ${vcs_info_msg_0_} and ${_prompt_venv} must stay unexpanded until each
 # prompt is drawn.  Escapes inside the substituted values are still processed.
@@ -40,15 +41,15 @@ export VIRTUAL_ENV_DISABLE_PROMPT=1
 
 # .../ plus the last three components once the path is deeper than three.
 # bash does the same thing with PROMPT_DIRTRIM=3.
-_prompt_path='%F{#87ceff}%(4~|.../%3~|%~)%f'
+_prompt_path='%F{117}%(4~|.../%3~|%~)%f'
 
 # Red host when this shell arrived over ssh - the accurate mac equivalent of
 # the linux "$DISPLAY is empty" test, since $DISPLAY is never set on mac.
 # $SSH_CONNECTION cannot change within a shell, so this is resolved once.
 if [[ -n $SSH_CONNECTION ]]; then
-    _prompt_hostcolor='#ff6a6a'
+    _prompt_hostcolor='203'
 else
-    _prompt_hostcolor='#90ee90'
+    _prompt_hostcolor='119'
 fi
 
 # Recomputed per prompt: a venv can be activated or deactivated mid-session.
@@ -66,7 +67,7 @@ _prompt_set_venv() {
     if [[ $n == .venv || $n == venv || $n == env || $n == .env ]]; then
         n=${VIRTUAL_ENV:h:t}
     fi
-    _prompt_venv="%F{#ff9e64}(${n})%f "
+    _prompt_venv="%F{215}(${n})%f "
 }
 
 # %# is zsh's native prompt character: % for a normal user, # for root.  bash
@@ -74,7 +75,7 @@ _prompt_set_venv() {
 # deliberately different rather than forced to match: both keep the # root
 # warning, so the normal-user glyph costs nothing to differ and is free
 # information about which shell this is.
-_prompt_char='%F{#f08080}%#%f '
+_prompt_char='%F{210}%#%f '
 
 PROMPT_FULL='${_prompt_venv}'"%F{$_prompt_hostcolor}%n@%m%f:$_prompt_path"'${vcs_info_msg_0_}'$'\n'"$_prompt_char"
 

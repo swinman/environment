@@ -1,9 +1,12 @@
 # bash prompt.  Sourced from _aliases when not running under zsh.
 #
 # Same two-line shape and the same storm.vim colors as _prompt_zsh, so the two
-# shells look alike.  What bash cannot do is the transient form: there is no
-# equivalent of zle's line-finish hook, so accepted commands keep both lines in
-# scrollback.  Everything else carries over.
+# shells look alike; _prompt_zsh carries the table of which storm group each one
+# comes from.  The codes are 38;5;n palette indices rather than 38;2;r;g;b,
+# because cterm is the half of that colorscheme terminal vim renders.
+# What bash cannot do is the transient form: there is no equivalent of zle's
+# line-finish hook, so accepted commands keep both lines in scrollback.
+# Everything else carries over.
 #
 # Non-printing sequences must be wrapped in \[ \] or bash miscounts the line
 # width and redraws wrongly when editing long commands.
@@ -16,14 +19,14 @@ PROMPT_DIRTRIM=3
 # rendered as a segment below instead, so it cannot end up shown twice.
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
-_pc_green='\[\e[38;2;144;238;144m\]'
-_pc_red='\[\e[38;2;255;106;106m\]'
-_pc_blue='\[\e[38;2;135;206;255m\]'
-_pc_khaki='\[\e[38;2;205;198;115m\]'
-_pc_orange='\[\e[38;2;255;158;100m\]'
+_pc_green='\[\e[38;5;119m\]'
+_pc_red='\[\e[38;5;203m\]'
+_pc_blue='\[\e[38;5;117m\]'
+_pc_khaki='\[\e[38;5;185m\]'
+_pc_orange='\[\e[38;5;215m\]'
 # storm Constant, for the prompt character - so it does not read as part of
 # the command typed after it, which it did while both were the Normal white.
-_pc_coral='\[\e[38;2;240;128;128m\]'
+_pc_coral='\[\e[38;5;210m\]'
 _pc_off='\[\e[39m\]'
 
 # Red host over ssh, or on linux with no $DISPLAY.  The $DISPLAY half preserves
