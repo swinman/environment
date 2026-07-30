@@ -59,6 +59,16 @@ alias cd..='cd ..'
 alias ls='ls --color=auto'
 alias ll='ls -alFh --color=auto'
 
+# With LS_COLORS unset, GNU ls falls back to its built-in di=01;34 - bold
+# blue, ANSI index 4, one of the 16 profile-dependent slots - which is nearly
+# invisible on Ubuntu's aubergine background.  38;5;117 is the same palette
+# index as storm.vim's Directory and the prompt's path segment, so ls
+# directories match both regardless of the terminal profile.  Only the keys
+# named here are overridden; every other file type keeps ls's built-in
+# colour.  ow (other-writable) and tw (sticky + other-writable, e.g. /tmp)
+# otherwise render on a green background.
+export LS_COLORS="di=38;5;117:ow=38;5;117:tw=38;5;117"
+
 # show downloads in reverse order without owner, links or permissions
 # GNU ls flags - works on mac once GNU coreutils are ahead of BSD in PATH
 alias dl="ls -gGthr --color=always ~/Downloads | sed 's/^[^ ]* *[0-9]* //'"
@@ -159,9 +169,26 @@ alias py='python -c'
 # only the /dev/cu.* callout node, which is the one you want anyway.
 alias miniterm="python $ENVDIR/miniterm_wrapper.py --collapse all --keep '^/dev/ttyS4\$'"
 
-# source the FPGA / uC toolchain env (arm-none-eabi, iCEcube2, Diamond, ...) on
-# demand.  Not auto-sourced into every shell: it sets a global LD_LIBRARY_PATH
-# (mac: DYLD_LIBRARY_PATH) that can shadow system libs for unrelated programs.
+
+# The bare-metal compilers, always on PATH.  Unlike the FPGA env below there
+# is no LD_LIBRARY_PATH, license or env-var baggage - a PATH entry is the
+# whole story - so fresh shells get them and firmware builds just work.
+# Idempotent, and skipped where the directory does not exist (mac: the
+# gcc-arm-embedded cask is already on PATH).
+if [ -d "${toolsdir:-$HOME/tools}/arm-none-eabi/bin" ]; then
+    case ":$PATH:" in
+        *":${toolsdir:-$HOME/tools}/arm-none-eabi/bin:"*) ;;
+        *) export PATH="$PATH:${toolsdir:-$HOME/tools}/arm-none-eabi/bin" ;;
+    esac
+fi
+
+# The FPGA toolchain env (iCEcube2, Diamond, ...), loaded on demand only.
+# Deliberately NOT sourced at shell init - and fpga_config.sh returns
+# immediately if some rc chain sources it anyway - so a fresh shell carries
+# no FPGA tools and a build that needs them fails loudly rather than leaning
+# on shell state.  The intended long-term home for that env is a committed
+# discovery tool in the repo that builds with it; see the fpga_config.sh
+# header.
 alias uctools="source $ENVDIR/fpga_config.sh"
 
 # add a ctags file to a repo

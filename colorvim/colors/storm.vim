@@ -553,7 +553,11 @@ hi link vhdlGlobal      GlobalVariable
 " Function keeps LightGreen, which is what c functions have always been here.
 hi LspSemanticFunction   guifg=#87ff5f  ctermfg=119
 hi LspSemanticMethod     guifg=#87ff5f  ctermfg=119
-hi LspSemanticMacro      guifg=#ff5f00  ctermfg=202
+" 181 is DefinedName's colour, which is what #defined names were under
+" TagHighlight for years - macros read as that grey-pink, not as a warning
+" orange.  Decorator below stops matching Macro as a side effect, which is
+" fine: a python decorator is not a preprocessor macro.
+hi LspSemanticMacro      guifg=#d7afaf  ctermfg=181
 hi LspSemanticProperty   guifg=#00ffff  ctermfg=51
 hi LspSemanticVariable   guifg=#00af00  ctermfg=34
 hi LspSemanticParameter  guifg=#bcbcbc  ctermfg=250

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # bash prompt.  Sourced from _aliases when not running under zsh.
 #
 # Same two-line shape and the same storm.vim colors as _prompt_zsh, so the two
@@ -50,6 +51,8 @@ _prompt_venv_bash() {
     local n=${VIRTUAL_ENV_PROMPT:-$(basename "$VIRTUAL_ENV")}
     # VIRTUAL_ENV_PROMPT is sometimes already decorated as "(name) "
     n=${n//[()]/}
+    n=${n## }
+    n=${n%% }
     # A directory literally named .venv or venv says nothing useful; the
     # project directory above it is the name worth showing.
     case $n in

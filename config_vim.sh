@@ -27,11 +27,15 @@ GH=https://github.com
 get_vim_packages() {
     if [ "$OS" = "linux" ]; then
         echo "Getting required vim packages"
-        sudo apt-get install vim -y
-        # vim-gtk3 is not about gvim: Ubuntu's plain vim package is built
-        # -clipboard, and this is how terminal vim gets the "* and "+ registers
-        sudo apt-get install vim-gtk3 -y
-        sudo apt-get install vim-doc -y
+        # No apt vim: Ubuntu 22.04's package is 8.2, and yegappan/lsp is
+        # vim9script gated on v:version >= 900, so get_vim9 below builds vim
+        # from source instead.  These are its build dependencies - libxt-dev
+        # is what makes --with-x yield +clipboard in terminal vim, and
+        # python3-dev provides the embedded python UltiSnips needs.
+        sudo apt-get install build-essential -y
+        sudo apt-get install libncurses-dev -y
+        sudo apt-get install libxt-dev -y
+        sudo apt-get install python3-dev -y
         # universal-ctags replaces exuberant-ctags, which has been unmaintained
         # since 2009 and mis-parses enough modern C and python to send
         # jump-to-definition to the wrong place
@@ -85,6 +89,36 @@ get_vim_packages() {
             echo "  install the Xcode command line tools: xcode-select --install"
         fi
     fi
+}
+
+get_vim9() {
+    # vim 9, from source, linux only.  Ubuntu 22.04's apt tops out at 8.2,
+    # which cannot load yegappan/lsp, and the jonathonf PPA's 9.0.0749
+    # predates patches the plugin checks for (up to 9.0.1629).  mac gets a
+    # current vim from brew, so only linux takes this path.
+    #
+    # Installs into ~/.local, which interactive shells put ahead of /usr/bin
+    # on PATH, so no sudo is needed and the apt vim is left alone.
+    [ "$OS" = "linux" ] || return 0
+    if vim --version 2>/dev/null | head -1 | grep -q 'IMproved 9'; then
+        echo "vim 9 present: $(command -v vim)"
+        return 0
+    fi
+
+    echo "Building vim 9 into $HOME/.local"
+    _v9_src=${softwaredir:-$HOME/software}/vim
+    clone_or_pull https://github.com/vim/vim.git "$_v9_src"
+    # --with-python3-command pins the embedded interpreter to the system
+    # python.  Left to configure, the first python3 on PATH wins - an active
+    # venv, or a conda env - and the embedded python is bound at build time,
+    # so vim quietly loses +python3 or breaks outright when that environment
+    # is later removed.
+    (cd "$_v9_src" &&
+        ./configure --prefix="$HOME/.local" --with-features=huge \
+            --enable-python3interp --with-python3-command=/usr/bin/python3 \
+            --with-x &&
+        make -j"$(nproc)" && make install) >/dev/null ||
+        echo "  WARNING: vim build failed; run make in $_v9_src to see why"
 }
 
 get_vhdl_server() {
@@ -297,6 +331,7 @@ get_vim_plugins() {
 echo "==================== config_vim.sh  ===================="
 
 get_vim_packages
+get_vim9
 get_vhdl_server
 check_vim_features
 config_vim_files
