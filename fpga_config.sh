@@ -7,6 +7,31 @@
 #######################################################################
 #######################################################################
 
+# Direct source only, on purpose.  A fresh shell carries NO fpga / uC tools:
+# this file returns immediately when sourced from another file (an rc chain
+# at shell init), and provides everything only when sourced directly -
+# `source ~/software/environment/fpga_config.sh`, or the uctools alias.  So
+# `make syn` in ../stopsen fails loudly in a new shell instead of leaning on
+# whatever environment the shell happens to carry.
+#
+# That failure is a reminder, and the intended fix lives in stopsen, not
+# here: commit a discovery tool there (a make fragment or a script the
+# Makefile sources) that finds iCEcube2 / Diamond under $toolsdir and sets
+# FOUNDRY, SBT_DIR, SYNPLIFY_PATH, LM_LICENSE_FILE and LD_LIBRARY_PATH for
+# the build's own processes - the way liblusam's ccdb.py generates
+# compile_commands.json at postbuild.  The env then travels with the build,
+# so ssh / cron / bare non-interactive shells all work, and LD_LIBRARY_PATH
+# never leaks into interactive shells.  stopsen is the only repo doing FPGA
+# work; until that tool exists, uctools is the manual fallback.
+#
+# BASH_SOURCE[1] is set only when the `source` call itself came from a
+# sourced file (.bashrc -> _aliases -> here); typed at a prompt the depth is
+# one and it is empty.  Executed rather than sourced it is also empty, and
+# the mac branch below exits for that case.
+if [ -n "${BASH_SOURCE[1]}" ]; then
+    return 0
+fi
+
 # No-op on mac.  Everything below is the x86 Linux iCEcube2 / Diamond flow -
 # LSE and sbt_backend are Linux ELF, the licensing is FlexLM node-locked, and
 # LD_LIBRARY_PATH is ignored by macOS anyway (it uses DYLD_LIBRARY_PATH).  The
