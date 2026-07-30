@@ -555,62 +555,6 @@ hi LspSemanticNamespace  guifg=#ff5f87  ctermfg=204
 hi LspSemanticDecorator  guifg=#ffd700  ctermfg=220
 
 "                                                                         2}}}
-"   d. Additional tags                                                    {{{2
-"hi link Anchor                  Keyword
-"hi link BlockData               Keyword
-"hi link CommonBlocks            Keyword
-"hi link Component               Keyword
-"hi link Data                    Keyword
-"hi link Domain                  Keyword
-"hi link Entity                  Keyword
-"hi link EntryPoint              Keyword
-"hi link Enumeration             Keyword
-"hi link EnumerationName         Keyword
-"hi link Event                   Keyword
-"hi link Exception               Keyword
-"hi link Feature                 Keyword
-"hi link Field                   Keyword
-"hi link FileDescription         Keyword
-"hi link Format                  Keyword
-"hi link Fragment                Keyword
-"hi link FunctionObject          Keyword
-"hi link GroupItem               Keyword
-"hi link Index                   Keyword
-"hi link Interface               Keyword
-"hi link InterfaceComponent      Keyword
-"hi link Label                   Keyword
-"hi link Macro                   Keyword
-"hi link Method                  Keyword
-"hi link Module                  Keyword
-"hi link Namelist                Keyword
-"hi link NetType                 Keyword
-"hi link Package                 Keyword
-"hi link Paragraph               Keyword
-"hi link Pattern                 Keyword
-"hi link Port                    Keyword
-"hi link Program                 Keyword
-"hi link Property                Keyword
-"hi link Prototype               Keyword
-"hi link Publication             Keyword
-"hi link Record                  Keyword
-"hi link RegisterType            Keyword
-"hi link Section                 Keyword
-"hi link Service                 Keyword
-"hi link Set                     Keyword
-"hi link Signature               Keyword
-"hi link Singleton               Keyword
-"hi link Slot                    Keyword
-"hi link SqlCursor               Keyword
-"hi link Subroutine              Keyword
-"hi link Synonym                 Keyword
-"hi link Table                   Keyword
-"hi link Task                    Keyword
-"hi link Trigger                 Keyword
-"hi link TypeComponent           Keyword
-"hi link Variable                Keyword
-"hi link View                    Keyword
-"hi link VirtualPattern          Keyword
-"                                                                       2}}}
 "                                                                       1}}}
 " A. NOTES                                                              {{{1
 "   a. General                                                          {{{2
