@@ -6,7 +6,7 @@
 " check :runtime syntax/hitest.vim
 "       :runtime syntax/colortest.vim
 "       :highlight
-"       $ ./helpers/colordump.sh
+"       $ ./helpers/colordump.sh [0-255]
 "
 " The cterm values are the ones that matter.  vim here is always terminal vim,
 " so 'termguicolors' stays off and the gui values are never rendered: tune
