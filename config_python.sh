@@ -79,11 +79,17 @@ make_venv() {
     echo "Creating venv at $VENVDIR (python $VENVPY)"
     # --seed installs pip and setuptools.  Plain `uv venv` creates an
     # environment with no pip at all, and this venv exists to be where a
-    # `pip install` can land.  uv supplies the interpreter, downloading one if
-    # no matching version is installed, so this does not depend on any
-    # particular system python.
+    # `pip install` can land.
+    #
+    # only-managed keeps PATH out of the interpreter search.  Left open, uv
+    # falls through to the first matching python3 on PATH - a conda env, a
+    # pyenv shim - and pyvenv.cfg then borrows that environment's stdlib, so
+    # the venv dies whenever the environment does.  Restricted to managed
+    # interpreters, uv downloads its own (once, ~20MB) into
+    # ~/.local/share/uv/python, which nothing but uv touches, so the base
+    # does not depend on any particular system python.
     mkdir -p "$(dirname "$VENVDIR")"
-    uv venv --seed --python "$VENVPY" "$VENVDIR"
+    UV_PYTHON_PREFERENCE=only-managed uv venv --seed --python "$VENVPY" "$VENVDIR"
 }
 
 install_base_packages() {

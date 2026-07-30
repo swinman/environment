@@ -80,3 +80,13 @@ ys
 ysum
 ym
 ymean
+
+# carried from the linux machine's pre-symlink local list.  The zw
+# wrong-marks it also held (if/!, print/!, section/! among them) were
+# dropped as accidental - marking "if" wrong would flag ordinary prose.
+abc
+comm_ifc_enabled
+G65
+_HASH_KEY
+inputs
+merge_with_mating
