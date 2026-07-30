@@ -1,9 +1,19 @@
 # environment
 
-Personal dotfiles and machine setup scripts: vim, git, shell aliases, and
-embedded toolchains (arm-none-eabi, openocd, J-Link, iCEcube2, USB CDC work).
-One repo shared across machines, branching on `$OS` rather than forking a copy
-per platform.
+personal dotfiles, aliases, helpers, configurations and setup scripts.
+
+## preferences
+
+- linux over mac / windows
+- vim as the editor
+- git, python, c, sh, vhdl
+- keyboard over mouse
+- tabbed over typed
+- cli over gui
+- ascii over unicode
+- dark over light colorscheme
+- cterm colors over gui colors
+
 
 ## Read this first
 

@@ -3,6 +3,21 @@
 "                 ------------------------------------
 " 0. SETUP                                                              {{{1
 "                                                                       {{{2
+" check :runtime syntax/hitest.vim
+"       :runtime syntax/colortest.vim
+"       :highlight
+"       $ ./helpers/colordump.sh
+"
+" The cterm values are the ones that matter.  vim here is always terminal vim,
+" so 'termguicolors' stays off and the gui values are never rendered: tune
+" ctermfg/ctermbg, and treat any gui value as stale until checked.  Nothing in
+" vim maps one side onto the other, so the two drift silently.
+"
+" Indices 16-255 are fixed by the xterm spec, so an index names one rgb value
+" on every terminal.  0-15 follow the terminal profile instead, which is why
+" they are avoided for anything that has to stay legible.
+"
+" _prompt_zsh and _prompt_bash draw their segments from these same indices.
 
 if version > 580
     " no guarantees below v 5.8, but this makes it stop complaining
@@ -577,7 +592,7 @@ hi LspSemanticDecorator  guifg=#ffd700  ctermfg=220
 " :he cterm-colors
 "                                                                       2}}}
 "   b. Color Terminal Options                                           {{{2
-"color terminal colors
+"color terminal colors -- determined by the terminal; not deterministic
 "	    NR-16   NR-8    COLOR NAME ~
 "	    0	    0	    Black
 "	    1	    4	    DarkBlue
