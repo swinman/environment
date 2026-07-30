@@ -59,6 +59,16 @@ alias cd..='cd ..'
 alias ls='ls --color=auto'
 alias ll='ls -alFh --color=auto'
 
+# With LS_COLORS unset, GNU ls falls back to its built-in di=01;34 - bold
+# blue, ANSI index 4, one of the 16 profile-dependent slots - which is nearly
+# invisible on Ubuntu's aubergine background.  38;5;117 is the same palette
+# index as storm.vim's Directory and the prompt's path segment, so ls
+# directories match both regardless of the terminal profile.  Only the keys
+# named here are overridden; every other file type keeps ls's built-in
+# colour.  ow (other-writable) and tw (sticky + other-writable, e.g. /tmp)
+# otherwise render on a green background.
+export LS_COLORS="di=38;5;117:ow=38;5;117:tw=38;5;117"
+
 # show downloads in reverse order without owner, links or permissions
 # GNU ls flags - works on mac once GNU coreutils are ahead of BSD in PATH
 alias dl="ls -gGthr --color=always ~/Downloads | sed 's/^[^ ]* *[0-9]* //'"
