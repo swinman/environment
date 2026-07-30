@@ -114,8 +114,6 @@ get_embedded_tools() {
     # brew aliases `openocd` to the open-ocd formula
     brew install openocd
     brew install --cask segger-jlink
-    # for identifying attached USB devices; mac has no lsusb of its own
-    brew install lsusb
 
     # NOTE : clang probably isn't a good tool for us because we don't use cpp,
     # only bare c.  not sure what clang does anyway - graph was suggested by

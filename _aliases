@@ -85,6 +85,13 @@ fi
 
 alias math="$ENVDIR/helpers/math.sh"
 alias tepoc="$ENVDIR/helpers/tepoc.sh"
+
+# linux has the real lsusb.  mac has none, and brew's is a wrapper around
+# `system_profiler SPUSBDataType`, which returns empty here - so the helper
+# reads the IOUSB registry plane with ioreg instead.
+if [ "$OS" = "mac" ]; then
+    alias lsusb="$ENVDIR/helpers/lsusb.sh"
+fi
 alias mkpass='< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-12}; echo'
 
 alias LS='echo "Remove CAPS LOCK you ass"'
