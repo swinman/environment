@@ -518,38 +518,6 @@ hi link vhdlComment     Comment
 hi link vhdlGlobal      GlobalVariable
     " vhdlGlobal ?
 
-hi link CTagsPackage        Member
-    " stopsen_pkg low_logic_pkg
-hi link CTagsGlobalConstant vhdlGlobal
-    " SIG_LEN seed3_stdl F_SYS_kHZ F_SAMPLE_kHZ ROM_BLOCK_SIZE ADC_LEAD_0s ADC_CPOL ROM_ADDR_BITS F_IN_kHZ LOG2N ROM_BLOCKS ADC_MAX T_sample_low T_half seed2_stdl ROM_ADDR_WIDTH T_half_ps LOG2_ROM_BLOCK_SIZE LOG2NxADC ADC_RES count_to LOG2NxADCxx2 ROM_DATA_WIDTH ADC_CPHA LOG2_ROM_DATA_WIDTH cycles_per_sample CORR_nA CORR_nB
-hi link CTagsEntity         Member
-    " sample_clk_gen ram shift_reg_tb pseudorandom stopsen_tb stopsen_calc led_pattern_tb adc_itf mux shift_register mux2 adc_itf_tb top_level_altera correlate_sum pll_altera_12x48 rom_generic sample_clk_tb pll_12x48 flipflop led_rom top_level correlations_tb rom_1x_altera led_pattern
-hi link CTagsEnumerationValue EnumerationValue
-    " state values
-hi link CTagsType           vhdlType
-    " STD_LOGIC_ARRAY led_from_rom_array mem_type Ruu_array u_array Ryu_array y_array Ryy_array
-
-" The groups above are the ones TagHighlight emits on its own.  Everything
-" below comes from vim_config.sh, which generates the VHDL kinds
-" universal-ctags reports and TagHighlight's kinds.txt has no entry for.
-" Signals and ports alone are two thirds of the tags in a VHDL tree.
-hi link CTagsSignal         Identifier
-    " clk_i rst_i data_valid sample_cnt - by far the most common, so this is
-    " the one to change first if the colour is wrong
-hi link CTagsPort           Member
-    " same colour family as CTagsEntity: a port is the entity's interface
-hi link CTagsGeneric        vhdlGlobal
-    " generics are constants, so they match CTagsGlobalConstant
-hi link CTagsArchitecture   Class
-    " rtl behavioural structural
-hi link CTagsProcess        DefinedName
-hi link CTagsVariable       GlobalVariable
-hi link CTagsAlias          Type
-
-" Emitted by TagHighlight but never linked, so these rendered unhighlighted.
-hi link CTagsFunction       DefinedName
-    " log2c to_std_logic_vector slv2slNx16
-hi link CTagsTypeComponent  vhdlType
 " ---- semantic tokens, from the language server via yegappan/lsp ----
 " Colours here are provisional - the point for now is that each token type is
 " separable, so the categories the server reports can be checked before any of
@@ -585,13 +553,6 @@ hi LspSemanticNamespace  guifg=#ff5f87  ctermfg=204
 " Decorator otherwise falls back to the plugin's default of Macro, which is
 " the c preprocessor colour and reads as one.
 hi LspSemanticDecorator  guifg=#ffd700  ctermfg=220
-
-hi link CTagsImport         Import
-    " TagHighlight maps python's 'i' kind to this and nothing linked it, so
-    " imported names rendered plain.  vim_config.sh adds the 'I' and 'Y' kinds
-    " to the same group - universal-ctags reports imports under those and
-    " TagHighlight's kinds.txt has no entry for either.
-
 
 "                                                                         2}}}
 "   d. Additional tags                                                    {{{2
