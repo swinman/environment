@@ -37,23 +37,32 @@ else
     echo "modelsim not installed"
 fi
 
-export LD_LIBRARY_PATH=
-export LD_LIBRARY_PATH=$ICEDIR/LSE:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$ICEDIR/LSE/bin/lin:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$ICEDIR/sbt_backend/lib/linux/opt:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$ICEDIR/sbt_backend/bin/linux/opt/synpwrap:$LD_LIBRARY_PATH
-if [ -n "$ALTERADIR" ]; then
-    export LD_LIBRARY_PATH=$ALTERADIR/modelsim_ase/lib32:$LD_LIBRARY_PATH
-fi
-
 export FOUNDRY=$ICEDIR/LSE
 export SYNPLIFY_PATH=$ICEDIR/synpbase
 export SBT_DIR=$ICEDIR/sbt_backend
-
 export DIAMOND_DIR=$toolsdir/lscc/programmer/3.2
-export PATH=$PATH:$DIAMOND_DIR/bin/lin:$DIAMOND_DIR/ispfpga/bin/lin
-export PATH=$PATH:$ICEDIR/synpbase/linux/lib
-export PATH=$PATH:$toolsdir/arm-none-eabi/bin
+
+# PATH / LD_LIBRARY_PATH appends run once per environment: nested shells
+# (tmux, bash inside bash) inherit them along with UCTOOLS_ON and skip this
+# block, so re-sourcing only re-defines the aliases below.  LD_LIBRARY_PATH
+# is prepended to, not cleared, so any prior value survives.
+if [ -z "$UCTOOLS_ON" ]; then
+    export LD_LIBRARY_PATH=$ICEDIR/LSE${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=$ICEDIR/LSE/bin/lin:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$ICEDIR/sbt_backend/lib/linux/opt:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$ICEDIR/sbt_backend/bin/linux/opt/synpwrap:$LD_LIBRARY_PATH
+    if [ -n "$ALTERADIR" ]; then
+        export LD_LIBRARY_PATH=$ALTERADIR/modelsim_ase/lib32:$LD_LIBRARY_PATH
+    fi
+
+    export PATH=$PATH:$DIAMOND_DIR/bin/lin:$DIAMOND_DIR/ispfpga/bin/lin
+    export PATH=$PATH:$ICEDIR/synpbase/linux/lib
+    export PATH=$PATH:$toolsdir/arm-none-eabi/bin
+    export PATH=$PATH:$toolsdir/flopoco
+    export PATH=$PATH:$toolsdir
+
+    export UCTOOLS_ON=1
+fi
 
 if [ -n "$INTELDIR" ]; then
     alias vsim="$INTELDIR/modelsim_ase/linux/vsim"
@@ -68,11 +77,6 @@ alias sbrouter=$ICEDIR/sbt_backend/bin/linux/opt/sbrouter
 alias edifparser=$ICEDIR/sbt_backend/bin/linux/opt/edifparser
 alias sbtplacer=$ICEDIR/sbt_backend/bin/linux/opt/sbtplacer
 alias iCEcube2=$ICEDIR/iCEcube2
-
-export PATH=$PATH:$toolsdir/flopoco
-
-export PATH=$PATH:$toolsdir
-export PATH=$PATH:$toolsdir/arm-none-eabi/bin
 
 #ln -s -T proj_ice/stopsen_impl/stopsen.srr log.log
 #ln -s -T ~/.config/LatticeSemi/programmer.log programmer.log
