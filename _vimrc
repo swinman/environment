@@ -657,6 +657,10 @@ autocmd ColorScheme * hi def link markdownCode String
 " which opens the same blame annotations in a buffer beside the window.  The
 " old name stays as an alias because the muscle memory predates the rename.
 command! -nargs=* Gblame Git blame <args>
+" :Gstatus went the same way, but its replacement is a bare :Git rather than
+" ":Git status" - with no arguments fugitive opens the summary window, which is
+" what the old command showed.  No <args> here because :Gstatus never took any.
+command! Gstatus Git
 " END: ----------------- Fugitive -------------------------------         2}}}
 
 " ---------------------- NERDTree -------------------------------         {{{2
