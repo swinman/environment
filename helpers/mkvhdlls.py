@@ -8,9 +8,11 @@ nothing, it still starts and still highlights, but logs "Library mapping is
 unknown", treats every file as outside the project, and its analysis may be
 wrong in ways nothing on screen distinguishes from correct.
 
-This is the VHDL counterpart to mkccj.py, and the failure it guards against is
-the same one: an editor quietly describing something other than the code in
-front of you.
+This is the VHDL counterpart to the compile_commands.json that clangd wants for
+C, and the failure it guards against is the same one: an editor quietly
+describing something other than the code in front of you.  The C side is not
+here - liblusam's mk/ccdb.py writes it from the stamps the firmware build
+already records, and runs at postbuild so it cannot go stale.
 
 ONE LIBRARY, NOT ONE PER DIRECTORY
 

@@ -167,15 +167,6 @@ alias uctools="source $ENVDIR/fpga_config.sh"
 # add a ctags file to a repo
 alias vitags="$ENVDIR/vim_config.sh"
 
-# write compile_commands.json so clangd sees the real build - the cross
-# compiler, every -D and every include path.  Takes make variables, so the
-# configuration is chosen the way the build chooses it:
-#   mkccj                       the configuration a bare make would build
-#   mkccj MODEL=tf96            a different board
-# Re-run it after building a different variant; it checks what it captured
-# against .cppflags and says so when the two disagree.
-alias mkccj="python3 $ENVDIR/helpers/mkccj.py"
-
 # Quote every --include pattern.  zsh globs the whole word, not just the part
 # after the "=", so an unquoted --include=Makefile* looks for a file of that
 # literal name, finds none, and nomatch aborts the command before grep runs.

@@ -136,18 +136,19 @@ Ported and exercised on mac:
 | `config_vim.sh` | native `pack/plugins/start`, no pathogen, plugins via `clone_or_pull` |
 | `config_python.sh` | one shared venv activated by the rc block, no system `pip` |
 | `_aliases` | mac branches for `vs`, `tdmesg`, screen recording, prompt |
+| `config_latex.sh` | MacTeX without the GUI apps, and a `~/Library/texmf` link to the standalone latex checkout |
 
 Everything in that table is called from the mac branch of `all_config.sh`.
+`config_latex.sh` runs only when the up-front question is answered `y`, because
+the full TeX Live it installs is several GB.
 
-Not yet ported - still `apt-get` based, and unaudited for whether they are even
-wanted any more. Counts are `apt-get`/`sudo` call sites:
+Not ported, and not going to be:
 
-| file | calls | notes |
-| --- | --- | --- |
-| `config_fpga.sh` | 53 | also downloads vendor toolchains |
-| `config_latex.sh` | 34 | |
-| `config_avr_arm.sh` | 21 | mac equivalents are in `config_mac.sh` |
-| `config_udev.sh` | - | linux device rules, no mac equivalent |
+| file | why |
+| --- | --- |
+| `config_avr_arm.sh` | AVR is out. The ARM half - the `gcc-arm-embedded` cask, `openocd`, `segger-jlink` - is in `config_mac.sh`, and the rest was linux build scaffolding |
+| `config_fpga.sh` | no macOS build of iCEcube2 exists, and the CLI flow is x86 Linux ELF with node-locked licensing. VHDL compiles remotely instead; `fpga_config.sh` is already a no-op on mac. See `TODO.md` |
+| `config_udev.sh` | linux device rules, no mac equivalent |
 
 Believed unused:
 

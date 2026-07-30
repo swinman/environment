@@ -50,9 +50,11 @@ collect_answers() {
             ask_once CFG_REMOTE_LOGIN \
                 "Enable Remote Login (incoming ssh)? [y/N] "
         fi
-    else
-        ask_once ADD_LATEX "Would you like to set up latex? [y/N] "
     fi
+    # Asked on both now that config_latex.sh has a mac path.  It stays a
+    # question rather than riding along with the rest, because the full TeX Live
+    # it installs is several GB.
+    ask_once ADD_LATEX "Would you like to set up latex? [y/N] "
     if [ "$OS" = "linux" ]; then
         ask_once ADD_CHROMIUM "Add chromium as the default browser? [N/y] "
     fi
@@ -97,18 +99,26 @@ if [ "$OS" = "mac" ]; then
     # one script at a time here as each is audited and ported, so this
     # grows into a full mac setup without ever risking a half-ported run.
     #
-    # not yet ported: config_latex, config_avr_arm, config_fpga
     # not applicable: config_udev (linux device rules), update_default_programs
+    # not wanted:     config_avr_arm (AVR is out; the ARM half config_mac.sh
+    #                 already covers), config_fpga (no macOS iCEcube2 exists -
+    #                 VHDL compiles remotely, see TODO.md)
     # ----------------------------------------------------------------- #
     time ./config_mac.sh
     time ./config_git.sh
     time ./config_vim.sh
     time ./config_claude.sh
     time ./config_python.sh
+    if [ "$ADD_LATEX" = "y" ]; then
+        time ./config_latex.sh
+    fi
     echo
     echo "==================== all_config.sh: mac ===================="
     echo "Ran: config_shell.sh, config_mac.sh, config_git.sh, config_vim.sh,"
     echo "     config_claude.sh, config_python.sh"
+    if [ "$ADD_LATEX" = "y" ]; then
+        echo "     config_latex.sh"
+    fi
     echo "Open a new terminal (or 'exec zsh') to pick up ~/.zshrc changes."
     echo "==========================================================="
     exit 0
