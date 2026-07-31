@@ -26,6 +26,11 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2425", \
 MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
 #RUN+="/sbin/modprobe usbserial vendor=0x03eb product=0x2425"
 
+# Atmel CDC device product ID for luboot bootloader
+# (ID_MM_DEVICE_IGNORE keeps ModemManager off the port during flashing)
+SUBSYSTEM=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2423", \
+MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
+
 # Atmel CDC device product ID for EDBG
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb", ATTRS{idVendor}=="03eb", \
 ATTRS{idProduct}=="2111", MODE="0660", GROUP="plugdev", \
