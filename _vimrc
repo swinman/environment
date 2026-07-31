@@ -805,6 +805,10 @@ map <F8> <ESC>{v}gq
 map <F9> <ESC>:call TryGoToDefine()<CR>
 map <F10> <ESC>:LspShowReferences<CR>
 
+" the native tag-jump key asks the language server first, same as F9; the
+" fallback in TryGoToDefine uses "normal!" so this mapping cannot recurse
+nnoremap <C-]> :call TryGoToDefine()<CR>
+
 "goto definition with F11
 map <F11> <C-]>
 
