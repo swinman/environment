@@ -1,20 +1,32 @@
 #!/bin/sh
-# Dump all 256 terminal colours three ways, to judge them against one
-# background.  $1 is that background, as a colour index; with no argument the
-# terminal's own background is used.
+# Dump the 256 terminal colours.  The default output is a compact grid, 16
+# numbered swatches per row, each number drawn in its own colour - enough to
+# pick a shade at a glance.
 #
-# Each row is one colour, shown as a solid block, then as foreground text on
-# the chosen background, then as a background under the default foreground.
-# The middle field is the one that answers "is this index legible as text
-# here", which is what picking highlight colours actually needs.
+# --extend prints the older long form: one row per colour, shown as a solid
+# block, then as foreground text on the chosen background, then as a
+# background under the default foreground.  Its optional argument is that
+# background, as a colour index; with no argument the terminal's own
+# background is used.  The middle field is the one that answers "is this
+# index legible as text here", which is what picking highlight colours
+# actually needs.
 
 usage() {
-    echo "usage: ${0##*/} [background colour index 0-255]" >&2
+    echo "usage: ${0##*/} [--extend [background colour index 0-255]]" >&2
     exit 1
 }
 
+extend=0
+if [ "$1" = "--extend" ]; then
+    extend=1
+    shift
+fi
+
 base_color=""
 if [ -n "$1" ]; then
+    # The background index only means something in the extended per-row
+    # output; the grid always draws on the terminal's own background.
+    [ "$extend" -eq 1 ] || usage
     case $1 in
         *[!0-9]*) usage ;;
     esac
@@ -23,6 +35,19 @@ if [ -n "$1" ]; then
 fi
 
 num_colors=256
+
+if [ "$extend" -eq 0 ]; then
+    # \033[38;5;Nm rather than tput setaf, to avoid 256 command
+    # substitutions for one throwaway grid.
+    i=0
+    while [ "$i" -lt "$num_colors" ]; do
+        printf '\033[38;5;%dm%4d' "$i" "$i"
+        [ $(( (i + 1) % 16 )) -eq 0 ] && printf '\033[0m\n'
+        i=$((i + 1))
+    done
+    exit 0
+fi
+
 if [ -n "$base_color" ]; then
     width=16
 else

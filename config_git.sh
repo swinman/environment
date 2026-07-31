@@ -51,6 +51,20 @@ config_git() {
     echo "git version $(git --version | sed 's/^git version //'), configuring:"
     echo "   color ui to true"
     git config --global color.ui true
+    # Fixed 256-color values instead of the ANSI names.  The names (red,
+    # green, even brightred) are resolved through the terminal's palette,
+    # and the dark profiles in use on both linux and mac map them to shades
+    # that are hard to read on a near-black background.  Numeric values
+    # bypass the palette and render the same everywhere; both GNOME
+    # Terminal and Terminal.app support the 256-color set (Terminal.app
+    # does not support 24-bit hex, so that form is avoided).
+    echo "   diff colors to lighter 256-color values"
+    git config --global color.diff.old "210"        # light red
+    git config --global color.diff.new "120"        # light green
+    git config --global color.diff.frag "117"       # light blue @@ hunks
+    git config --global color.diff.func "117"       # function in @@ line
+    git config --global color.diff.commit "222"     # light yellow
+    git config --global color.diff.meta "252 bold"  # file header lines
     # push.default simple is unconditional now.  The value has existed since
     # git 1.7.11 and has been the default since 2.0, so the version gate that
     # used to guard it could not fire on anything still in use.  Its check was
