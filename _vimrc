@@ -799,8 +799,6 @@ map <F7> <Esc>:set guifont=*<CR>
 
 map <F8> <ESC>{v}gq
 
-"map <F8> :!/usr/bin/ctags-exuberant -R <CR>
-
 " go to the definition of the name under the cursor, and list its callers
 map <F9> <ESC>:call TryGoToDefine()<CR>
 map <F10> <ESC>:LspShowReferences<CR>
@@ -826,17 +824,6 @@ nnoremap gK :call GitKeepAbove()<CR>
 nnoremap gJ :call GitKeepBelow()<CR>
 nnoremap gN /<<<<<<< <CR>zt
 " END: .................... g. ..................................         3}}}
-
-" ....................... CScope ................................         {{{3
-nmap <C-Space>s :cs find s <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>c :cs find c <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>t :cs find t <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>e :cs find e <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-Space>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-nmap <C-Space>d :cs find d <C-R>=expand("<cword>")<CR><CR>
-" END: .................. CScope ................................         3}}}
 
 " ................. Searching / Moving ..........................         {{{3
 " nnoremap / /\v

@@ -24,9 +24,10 @@ get_git_packages() {
         sudo apt-get install xclip -y
         # mercurial and felipec/git-remote-hg used to be installed here.  The
         # only thing that ever needed them was cloning the taghighlight plugin
-        # from heptapod; config_vim.sh now takes it from the git mirror, so
-        # nothing in here speaks hg any more.  An hg:: remote also tangles git
-        # tab completion, which is a second reason not to reintroduce one.
+        # from heptapod; that plugin is retired (the language servers colour
+        # identifiers now), so nothing in here speaks hg any more.  An hg::
+        # remote also tangles git tab completion, a second reason not to
+        # reintroduce one.
     elif [ "$OS" = "windows" ]; then
         echo "Download git and install using 'simple context menu' with bash"
         echo "Download from http://git-scm.com/download/win"
