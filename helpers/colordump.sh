@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 # Dump all 256 terminal colours three ways, to judge them against one
 # background.  $1 is that background, as a colour index; with no argument the
 # terminal's own background is used.
@@ -8,36 +8,41 @@
 # The middle field is the one that answers "is this index legible as text
 # here", which is what picking highlight colours actually needs.
 
-if [ -z "$1" ]; then
-    base_color=""
-elif [ "$1" -ge 0 ] && [ "$1" -le 255 ] 2>/dev/null; then
-    base_color=$1
-else
-    echo "usage: ${0:t} [background colour index 0-255]" >&2
+usage() {
+    echo "usage: ${0##*/} [background colour index 0-255]" >&2
     exit 1
+}
+
+base_color=""
+if [ -n "$1" ]; then
+    case $1 in
+        *[!0-9]*) usage ;;
+    esac
+    [ "$1" -le 255 ] || usage
+    base_color=$1
 fi
 
 num_colors=256
 if [ -n "$base_color" ]; then
     width=16
 else
-    width=35
+    width=34
 fi
 
 reset=$(tput sgr0)$(tput op)
-blanks=$(printf "%${width}s")
-hashes=${blanks// /#}
+hashes=$(printf "%${width}s" | tr ' ' '#')
 sep="${reset} "
 
-for i in $(seq 0 $((num_colors - 1))); do
-    line="${reset}$(printf '%03d' $i)"
-    line+="${sep}$(tput setab $i)     "                 # empty background
-    line+="${sep}$(tput op)$(tput setaf $i)${hashes}"   # foreground, original bg
-    line+="${sep}$(tput op)$(tput setab $i)${hashes}"   # background, original fg
+i=0
+while [ "$i" -lt "$num_colors" ]; do
+    line="${reset}$(printf '%03d' "$i")"
+    line="${line}${sep}$(tput setab "$i")     "                # empty background
+    line="${line}${sep}$(tput op)$(tput setaf "$i")${hashes}"  # foreground, original bg
+    line="${line}${sep}$(tput op)$(tput setab "$i")${hashes}"  # background, original fg
     if [ -n "$base_color" ]; then
-        line+="${sep}$(tput setab $base_color)$(tput setaf $i)${hashes}"           # fg, selected bg
-        line+="${sep}$(tput setaf $base_color)$(tput setab $i)${hashes}${reset}"   # bg, selected fg
+        line="${line}${sep}$(tput setab "$base_color")$(tput setaf "$i")${hashes}"  # fg, selected bg
+        line="${line}${sep}$(tput setaf "$base_color")$(tput setab "$i")${hashes}"  # bg, selected fg
     fi
-    line+="${reset}"
-    print -r -- "${line}${reset}"
+    printf '%s%s\n' "$line" "$reset"
+    i=$((i + 1))
 done
