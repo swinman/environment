@@ -43,7 +43,9 @@ get_vim_packages() {
         sudo apt-get install curl -y
         # clangd is what _vimrc points ALE at for c.  It reads a project's
         # compile_commands.json, so it lints with the real cross-compile
-        # flags rather than the host compiler's.
+        # flags rather than the host compiler's.  apt's build is 14, which
+        # get_clangd below shadows with a 15+ release build in ~/.local;
+        # this one stays as the fallback for when that fetch fails.
         sudo apt-get install clangd -y
         # ALE lints sh with this.  There is a lot of shell in this repo alone,
         # and it catches the portability class of bug that took two `sed -i`
@@ -172,6 +174,58 @@ get_vhdl_server() {
         echo "  WARNING: could not fetch or unpack $_vl_url"
     fi
     rm -rf "$_vl_tmp"
+}
+
+get_clangd() {
+    # clangd 15 or newer, linux only.  Ubuntu 22.04's apt clangd is 14,
+    # whose --query-driver drops the extracted system includes for any file
+    # whose compile command is inferred rather than found in
+    # compile_commands.json.  The shared firmware lib trips that
+    # constantly: a lib file compiled out of the app last built
+    # (drivers/accel.c under stpdrv) opens with "'math.h' file not found"
+    # while every neighbour in the compile db is clean.  Fixed in 15;
+    # verified against the 15.0.6 and 18.1.3 release builds.  mac's clangd
+    # ships with the Xcode tools and is already 15, so it takes no part in
+    # this.
+    #
+    # A release build from clangd/clangd, into ~/.local like vim and
+    # vhdl_ls, so it wins over /usr/bin/clangd on PATH and ALE and
+    # yegappan/lsp pick it up with no configuration change.  The layout is
+    # the part to be careful with: clangd finds its builtin headers in
+    # ../lib/clang/<version> relative to the binary, so lib/ is merged
+    # into ~/.local/lib alongside the binary in ~/.local/bin.
+    [ "$OS" = "linux" ] || return 0
+
+    _cd_major=$(clangd --version 2>/dev/null | head -1 |
+        sed 's/.*version //' | cut -d. -f1)
+    if [ -n "$_cd_major" ] && [ "$_cd_major" -ge 15 ] 2>/dev/null; then
+        echo "clangd present: $(clangd --version | head -1)"
+        return 0
+    fi
+
+    echo "Getting clangd (linux release build)"
+    _cd_url=$(curl -sL \
+        https://api.github.com/repos/clangd/clangd/releases/latest |
+        grep -o '"browser_download_url": *"[^"]*clangd-linux-[^"]*\.zip"' |
+        cut -d'"' -f4)
+    if [ -z "$_cd_url" ]; then
+        echo "  WARNING: no clangd-linux zip in the latest release, skipping"
+        return 1
+    fi
+
+    _cd_tmp=$(mktemp -d) || return 1
+    if curl -sL -o "$_cd_tmp/clangd.zip" "$_cd_url" &&
+            unzip -q "$_cd_tmp/clangd.zip" -d "$_cd_tmp"; then
+        set -- "$_cd_tmp"/clangd_*
+        mkdir -p "$HOME/.local/bin" "$HOME/.local/lib"
+        cp -R "$1/lib/." "$HOME/.local/lib/"
+        mv "$1/bin/clangd" "$HOME/.local/bin/clangd"
+        chmod +x "$HOME/.local/bin/clangd"
+        echo "  installed $("$HOME/.local/bin/clangd" --version | head -1)"
+    else
+        echo "  WARNING: could not fetch or unpack $_cd_url"
+    fi
+    rm -rf "$_cd_tmp"
 }
 
 check_vim_features() {
@@ -333,6 +387,7 @@ echo "==================== config_vim.sh  ===================="
 get_vim_packages
 get_vim9
 get_vhdl_server
+get_clangd
 check_vim_features
 config_vim_files
 config_vim_dirs
