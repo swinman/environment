@@ -107,9 +107,12 @@ endif
 #
 # autoHighlightDiags is off because ALE already reports diagnostics and two
 # sets of signs in the same gutter is noise.
-# showDiagOnStatusLine keeps the message reachable without a popup.
+# showDiagOnStatusLine is off because this server sees every keystroke, so
+# the status line churned with half-typed errors mid-edit.  ALE covers
+# diagnostics on save; :LspDiag current fetches this server's message on
+# demand.
 g:LspOptionsSet({
     semanticHighlight: true,
     autoHighlightDiags: false,
-    showDiagOnStatusLine: true,
+    showDiagOnStatusLine: false,
 })
