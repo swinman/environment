@@ -65,6 +65,16 @@ config_git() {
     git config --global color.diff.func "117"       # function in @@ line
     git config --global color.diff.commit "222"     # light yellow
     git config --global color.diff.meta "252 bold"  # file header lines
+    # The interactive colors (add -p and friends) are left at ANSI defaults
+    # by git: bold blue for the prompt, bold red for both help and errors.
+    # Those are the two shades the dark profiles render nearly invisible, so
+    # they get 256-color values as well.  The picks stay clear of the diff
+    # palette above - the prompt sits directly against the 117 hunk header,
+    # and an error that matched 210 would read as a removed line.
+    echo "   interactive colors to lighter 256-color values"
+    git config --global color.interactive.prompt "213"  # light magenta
+    git config --global color.interactive.error "226"   # bright yellow
+    git config --global color.interactive.help "250"    # grey, recedes
     # push.default simple is unconditional now.  The value has existed since
     # git 1.7.11 and has been the default since 2.0, so the version gate that
     # used to guard it could not fire on anything still in use.  Its check was
