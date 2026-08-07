@@ -3,6 +3,21 @@
 "                 ------------------------------------
 " 0. SETUP                                                              {{{1
 "                                                                       {{{2
+" check :runtime syntax/hitest.vim
+"       :runtime syntax/colortest.vim
+"       :highlight
+"       $ ./helpers/colordump.sh [0-255]
+"
+" The cterm values are the ones that matter.  vim here is always terminal vim,
+" so 'termguicolors' stays off and the gui values are never rendered: tune
+" ctermfg/ctermbg, and treat any gui value as stale until checked.  Nothing in
+" vim maps one side onto the other, so the two drift silently.
+"
+" Indices 16-255 are fixed by the xterm spec, so an index names one rgb value
+" on every terminal.  0-15 follow the terminal profile instead, which is why
+" they are avoided for anything that has to stay legible.
+"
+" _prompt_zsh and _prompt_bash draw their segments from these same indices.
 
 if version > 580
     " no guarantees below v 5.8, but this makes it stop complaining
@@ -465,6 +480,15 @@ hi Union            guifg=DarkKhaki     ctermfg=143
 hi link pythonOperator      Operator
 hi link pythonFunction      Function
 hi pythonBuiltin    guifg=SandyBrown    ctermfg=215
+
+" Function is deliberately left at vim's own "hi def link Function Identifier"
+" so c functions keep the LightGreen they have always been.  That default is
+" also why self and True/False/None read as functions: pythonClassVar lands on
+" Identifier directly, pythonBoolean and pythonFunction land on it through
+" Function, and all three come out the same green.  Move the two that are not
+" functions rather than recolouring every function in every language.
+hi link pythonClassVar      Statement
+hi link pythonBoolean       Constant
 "                                                                       2}}}
 "   b. HTML                                                             {{{2
 hi htmlLink         gui=UNDERLINE       cterm=UNDERLINE
@@ -509,75 +533,47 @@ hi link vhdlComment     Comment
 hi link vhdlGlobal      GlobalVariable
     " vhdlGlobal ?
 
-hi link CTagsPackage        Member
-    " stopsen_pkg low_logic_pkg
-hi link CTagsGlobalConstant vhdlGlobal
-    " SIG_LEN seed3_stdl F_SYS_kHZ F_SAMPLE_kHZ ROM_BLOCK_SIZE ADC_LEAD_0s ADC_CPOL ROM_ADDR_BITS F_IN_kHZ LOG2N ROM_BLOCKS ADC_MAX T_sample_low T_half seed2_stdl ROM_ADDR_WIDTH T_half_ps LOG2_ROM_BLOCK_SIZE LOG2NxADC ADC_RES count_to LOG2NxADCxx2 ROM_DATA_WIDTH ADC_CPHA LOG2_ROM_DATA_WIDTH cycles_per_sample CORR_nA CORR_nB
-hi link CTagsEntity         Member
-    " sample_clk_gen ram shift_reg_tb pseudorandom stopsen_tb stopsen_calc led_pattern_tb adc_itf mux shift_register mux2 adc_itf_tb top_level_altera correlate_sum pll_altera_12x48 rom_generic sample_clk_tb pll_12x48 flipflop led_rom top_level correlations_tb rom_1x_altera led_pattern
-hi link CTagsEnumerationValue EnumerationValue
-    " state values
-hi link CTagsType           vhdlType
-    " STD_LOGIC_ARRAY led_from_rom_array mem_type Ruu_array u_array Ryu_array y_array Ryy_array
-
+" ---- semantic tokens, from the language server via yegappan/lsp ----
+" Colours here are provisional - the point for now is that each token type is
+" separable, so the categories the server reports can be checked before any of
+" them is made pretty.
+"
+" Explicit values, and chosen by measuring rather than by eye.  Picking these
+" as links into the groups above kept pairing colours one step apart in the
+" 256 cube, which read as identical on screen: Identifier 119 against Member
+" 122 made struct fields look like functions, Class 225 against GlobalVariable
+" 223 made every struct typedef look like a global, and Class 213 against
+" EnumMember 219 was closer still.
+"
+" So these were solved for instead: fix Function at LightGreen, restrict the
+" candidates to the indices legible on this background, then take the colour
+" furthest from everything already assigned.  The closest pair is now 120
+" apart in rgb, against 40 before.
+"
+" Function keeps LightGreen, which is what c functions have always been here.
+hi LspSemanticFunction   guifg=#87ff5f  ctermfg=119
+hi LspSemanticMethod     guifg=#87ff5f  ctermfg=119
+" 181 is DefinedName's colour, which is what #defined names were under
+" TagHighlight for years - macros read as that grey-pink, not as a warning
+" orange.  Decorator below stops matching Macro as a side effect, which is
+" fine: a python decorator is not a preprocessor macro.
+hi LspSemanticMacro      guifg=#d7afaf  ctermfg=181
+hi LspSemanticProperty   guifg=#00ffff  ctermfg=51
+hi LspSemanticVariable   guifg=#00af00  ctermfg=34
+hi LspSemanticParameter  guifg=#bcbcbc  ctermfg=250
+hi LspSemanticType       guifg=#00af87  ctermfg=36
+" clangd reports a struct typedef as Class, so these two want the same colour
+hi LspSemanticClass      guifg=#ff5fff  ctermfg=207
+hi LspSemanticStruct     guifg=#ff5fff  ctermfg=207
+hi LspSemanticEnum       guifg=#878700  ctermfg=100
+hi LspSemanticEnumMember guifg=#5f87ff  ctermfg=69
+hi LspSemanticNamespace  guifg=#ff5f87  ctermfg=204
+" python only so far: basedpyright reports these, clangd has no equivalent.
+" Decorator otherwise falls back to the plugin's default of Macro, which is
+" the c preprocessor colour and reads as one.
+hi LspSemanticDecorator  guifg=#ffd700  ctermfg=220
 
 "                                                                         2}}}
-"   d. Additional tags                                                    {{{2
-"hi link Anchor                  Keyword
-"hi link BlockData               Keyword
-"hi link CommonBlocks            Keyword
-"hi link Component               Keyword
-"hi link Data                    Keyword
-"hi link Domain                  Keyword
-"hi link Entity                  Keyword
-"hi link EntryPoint              Keyword
-"hi link Enumeration             Keyword
-"hi link EnumerationName         Keyword
-"hi link Event                   Keyword
-"hi link Exception               Keyword
-"hi link Feature                 Keyword
-"hi link Field                   Keyword
-"hi link FileDescription         Keyword
-"hi link Format                  Keyword
-"hi link Fragment                Keyword
-"hi link FunctionObject          Keyword
-"hi link GroupItem               Keyword
-"hi link Index                   Keyword
-"hi link Interface               Keyword
-"hi link InterfaceComponent      Keyword
-"hi link Label                   Keyword
-"hi link Macro                   Keyword
-"hi link Method                  Keyword
-"hi link Module                  Keyword
-"hi link Namelist                Keyword
-"hi link NetType                 Keyword
-"hi link Package                 Keyword
-"hi link Paragraph               Keyword
-"hi link Pattern                 Keyword
-"hi link Port                    Keyword
-"hi link Program                 Keyword
-"hi link Property                Keyword
-"hi link Prototype               Keyword
-"hi link Publication             Keyword
-"hi link Record                  Keyword
-"hi link RegisterType            Keyword
-"hi link Section                 Keyword
-"hi link Service                 Keyword
-"hi link Set                     Keyword
-"hi link Signature               Keyword
-"hi link Singleton               Keyword
-"hi link Slot                    Keyword
-"hi link SqlCursor               Keyword
-"hi link Subroutine              Keyword
-"hi link Synonym                 Keyword
-"hi link Table                   Keyword
-"hi link Task                    Keyword
-"hi link Trigger                 Keyword
-"hi link TypeComponent           Keyword
-"hi link Variable                Keyword
-"hi link View                    Keyword
-"hi link VirtualPattern          Keyword
-"                                                                       2}}}
 "                                                                       1}}}
 " A. NOTES                                                              {{{1
 "   a. General                                                          {{{2
@@ -600,7 +596,7 @@ hi link CTagsType           vhdlType
 " :he cterm-colors
 "                                                                       2}}}
 "   b. Color Terminal Options                                           {{{2
-"color terminal colors
+"color terminal colors -- determined by the terminal; not deterministic
 "	    NR-16   NR-8    COLOR NAME ~
 "	    0	    0	    Black
 "	    1	    4	    DarkBlue

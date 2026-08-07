@@ -3,9 +3,10 @@
 
 Setup: this is a standalone script (needs pyserial).  To use it as your
 `miniterm` command, add an alias to your shell rc (~/.bashrc, ~/.bash_aliases,
-~/.zshrc, ...):
+~/.zshrc, ...) -- "--collapse all" hides every known family of phantom ports
+and is the alias worth having on any machine:
 
-    alias miniterm='python /path/to/miniterm_wrapper.py'
+    alias miniterm='python /path/to/miniterm_wrapper.py --collapse all'
 
 Run it directly as `python miniterm_wrapper.py [miniterm args...]`.  Naming a
 port (`... /dev/ttyACM0`), a list number 1-3 (`... 1` opens the first device
@@ -13,12 +14,15 @@ the picker would list), or passing -h/--help skips the picker;
 otherwise the picker runs and its choice becomes the port.  Any other arguments
 pass through to miniterm (e.g. a trailing baud rate: `... /dev/ttyACM0 115200`).
 
-Fold noisy port families out of the picker with `--collapse` (repeat it, one
-bucket each): "--collapse LABEL=REGEX", or a bare preset name -- "--collapse
-ttyS" folds /dev/ttyS*.  These options are consumed here and not passed on to
-miniterm; put them in your alias, e.g.:
-
-    alias miniterm='python /path/to/miniterm_wrapper.py --collapse ttyS'
+More on that fold, if the one-size-fits-all "all" is not what you want:
+`--collapse` is repeatable, one bucket each, and takes "LABEL=REGEX" or a bare
+preset name from COLLAPSE_PRESETS -- "ttyS" folds /dev/ttyS*, "mac-builtin"
+folds mac's bluetooth and debug-console nodes.  "all" is simply every preset
+at once, which is why it needs no per-OS branch: a preset matching nothing on
+this machine claims no ports and never shows up.  To carve one port back out
+of a bucket, "--keep REGEX" (also repeatable) forces anything it matches to
+stay in the visible list.  These options are all consumed here and never
+passed on to miniterm.
 
 Replaces miniterm's plain "--- Enter port index or full name:" prompt with a
 listing that shows the useful details (product, manufacturer, VID:PID, USB
@@ -99,30 +103,67 @@ def read_key(esc_delay: float = 0.04) -> str:
 # this list to fold new noisy port families out of the way -- the label travels
 # with the pattern, so nothing hardcodes "/dev/ttyS".  Matched against p.device
 # only (see the module docstring for why a grep-style "not ttyS" pattern fails).
-COLLAPSED_BUCKETS = [
-    # ttyS4 is this machine's one real 16550 UART (setserial shows the rest as
-    # "unknown"), so exclude it from the fold -- it shows as an interesting port.
-#    ("/dev/ttyS* (except ttyS4)", re.compile(r"^/dev/ttyS(?!4$)\d+$")),
-]
+# Empty by default; --collapse replaces it.
+COLLAPSED_BUCKETS = []
+
+# Patterns from --keep: a port matching any of these is never collapsed, even
+# when a bucket would claim it.  This is what lets one machine-independent
+# --collapse list stand while a single real port is carved back out of it.
+KEEP_PATTERNS = []
 
 
 def collapsed_bucket(device: str) -> int | None:
     """Index of the first COLLAPSED_BUCKETS entry matching `device`, else None
-    (None meaning the port is interesting and shown normally)."""
+    (None meaning the port is interesting and shown normally).  A --keep match
+    wins over every bucket."""
+    if any(pattern.match(device) for pattern in KEEP_PATTERNS):
+        return None
     for i, (_, pattern) in enumerate(COLLAPSED_BUCKETS):
         if pattern.match(device):
             return i
     return None
 
 
-# Bare `--collapse <name>` presets, so the common folds need no regex.
+# Bare `--collapse <name>` presets, so the common folds need no regex.  Keep
+# every entry describing a port family that is noise on any machine that has
+# it, never a local carve-out, because `--collapse all` pulls in the whole
+# dict: a preset naming ports this machine lacks just claims nothing and never
+# renders, so the full set is safe to ask for everywhere.  Order matters only
+# where two patterns overlap, since the first match claims the port.
+#
+# "mac-builtin" folds the two nodes macOS always provides -- the Bluetooth
+# serial profile and the Apple silicon debug console -- which are never the
+# device you are reaching for.  The pattern also covers their /dev/tty.* form
+# for safety, though in practice only /dev/cu.* ever reaches the picker: macOS
+# exposes each port twice, as a callin node /dev/tty.NAME that blocks on open
+# until DCD is asserted and a callout node /dev/cu.NAME that opens right away,
+# and pyserial's darwin backend reports the IOCalloutDevice string only.  So
+# the tty.* twins need no bucket of their own -- they are already absent.
 COLLAPSE_PRESETS = {
     "ttyS": ("/dev/ttyS*", re.compile(r"^/dev/ttyS\d+$")),
+    "mac-builtin": ("mac built-in", re.compile(
+        r"^/dev/(tty|cu)\.(Bluetooth-Incoming-Port|debug-console)$")),
 }
 
 
+# The --collapse value asking for every preset at once.
+COLLAPSE_ALL = "all"
+
+
+def parse_collapse(specs: list[str]) -> list[tuple[str, "re.Pattern[str]"]]:
+    """Turn the --collapse values into the ordered bucket list, expanding
+    COLLAPSE_ALL into every preset where it appears."""
+    buckets = []
+    for spec in specs:
+        if spec == COLLAPSE_ALL:
+            buckets += list(COLLAPSE_PRESETS.values())
+        else:
+            buckets.append(parse_bucket(spec))
+    return buckets
+
+
 def parse_bucket(spec: str) -> tuple[str, "re.Pattern[str]"]:
-    """Turn a --collapse value into a (label, compiled pattern) bucket rule.
+    """Turn one --collapse value into a (label, compiled pattern) bucket rule.
 
     "LABEL=REGEX" -> that label and regex; a bare preset name (e.g. "ttyS") ->
     its built-in rule; anything else -> a bare regex (label = the regex).
@@ -633,18 +674,26 @@ def port_given(args: list[str]) -> bool:
 
 
 def main() -> int:
-    # Pull our own --collapse options out first (repeatable; one bucket each,
-    # so they never swallow the port), leaving the rest for miniterm.  Given
-    # any, they replace the module-level COLLAPSED_BUCKETS default.
+    # Pull our own --collapse / --keep options out first (both repeatable and
+    # both taking a value, so they never swallow the port), leaving the rest
+    # for miniterm.  Given any, they replace the module-level defaults.
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--collapse", action="append", default=[], metavar="SPEC")
+    parser.add_argument("--keep", action="append", default=[], metavar="REGEX")
     opts, args = parser.parse_known_args()
     if opts.collapse:
         global COLLAPSED_BUCKETS
         try:
-            COLLAPSED_BUCKETS = [parse_bucket(spec) for spec in opts.collapse]
+            COLLAPSED_BUCKETS = parse_collapse(opts.collapse)
         except re.error as exc:
             print(f"{WARN}bad --collapse regex: {exc}{RESET}")
+            return 2
+    if opts.keep:
+        global KEEP_PATTERNS
+        try:
+            KEEP_PATTERNS = [re.compile(spec) for spec in opts.keep]
+        except re.error as exc:
+            print(f"{WARN}bad --keep regex: {exc}{RESET}")
             return 2
 
     # Bare "python" (not sys.executable's full path) keeps the echoed command

@@ -4,15 +4,17 @@
 # Editors & Project Files #
 ###########################
 \.*.sw[a-z]
-*.taghl
 *.json
 
 # avr studio
 *.atsuo
 
 tags
-cscope.out
-cscope.files
+
+# clangd's background index, one per project root.  Written because
+# after_vim/plugin/lsp.vim passes --background-index, which is what makes
+# find-references work across files rather than only the open buffer.
+.cache/
 .ropeproject*
 .spyderproject*
 

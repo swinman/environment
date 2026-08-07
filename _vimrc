@@ -1,24 +1,10 @@
 " ======================== SETUP ================================         {{{1
 " -------------------- INSTRUCTIONS -----------------------------         {{{2
-" run the ./config_vim.sh script in bash or..
-" 1) INSTALL pathogen:
-" mkdir ~/.vim/autoload ~/.vim/bundle
-" curl -Sso ~/.vim/autoload/pathogen.vim \
-"   https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
-
-" 2) DOWNLOAD the following plugins:
-" clone below into bundle subdirectory of ~/.vim or ~/vimfiles
-" git clone git://github.com/jiangmiao/auto-pairs.git
-" git clone git://github.com/scrooloose/nerdtree.git
-" git clone git://github.com/scrooloose/syntastic.git
-" git clone git://github.com/klen/rope-vim.git
-" git clone git://github.com/tpope/vim-fugitive.git
-" git clone git://github.com/tpope/vim-sensible.git
-" git clone git://github.com/SirVer/ultisnips.git
-" git clone git://github.com/swinman/colorvim.git
-" git clone git://github.com/swinman/taghighlight.git
+" 1) RUN ./config_vim.sh, which clones every plugin this file expects into
+" ~/.vim/pack/plugins/start and symlinks the colours and after/ directory.
+" That script is the list of plugins - do not keep a second copy here.
 "
-" 3) INSERT lines into the user .vimrc / _vimrc file to source this file
+" 2) INSERT lines into the user .vimrc / _vimrc file to source this file
 "if has("win32")
 "    source ~\Documents\software\environment\_vimrc
 "else
@@ -49,15 +35,21 @@
 "
 " END: ------------------- TODO ---------------------------------         2}}}
 
-" ------------------ PATHOGEN SETTINGS --------------------------         {{{2
-filetype off
-" style recommended by python-mode
-call pathogen#infect()
-call pathogen#helptags()
+" ------------------ PACKAGES -----------------------------------         {{{2
+" Plugins live in ~/.vim/pack/plugins/start and vim puts them on runtimepath
+" itself, so there is no plugin manager to call here.  This replaced
+" pathogen#infect() and pathogen#helptags(); config_vim.sh retires the old
+" bundle tree into ~/.vim/unused.
+"
+" The 'filetype off' / 'filetype on' dance around the infect() call was a
+" pathogen requirement and is not needed for packages.
+"
+" pathogen#helptags() rebuilt help tags on every startup.  vim does not do
+" that for packages, so config_vim.sh runs :helptags ALL once after cloning
+" instead - same result without paying for it every time vim opens.
 syntax enable
-filetype on
 filetype plugin indent on
-" END: ------------- PATHOGEN SETTINGS --------------------------         2}}}
+" END: ------------- PACKAGES -----------------------------------         2}}}
 
 " NOTE: to output python command to the buffer use
 " :.!py -c "import uuid; print uuid.uuid1()"
@@ -65,8 +57,13 @@ filetype plugin indent on
 " END: =================== SETUP ================================         1}}}
 
 " commands to put backup files (ending in ~) in tmp directory
+"
+" The trailing // builds the backup name from the file's full path, so two
+" files with the same basename in different trees get their own backup
+" instead of the second one overwriting the first.  undodir does that
+" mangling unconditionally; backupdir only does it when asked.
 set swapfile
-set backupdir=/tmp
+set backupdir=/tmp//
 
 set undofile
 set undodir=~/.vim/undo
@@ -168,14 +165,15 @@ endfunction
 " END: -------------- ToggleSpelling ----------------------------         2}}}
 
 " -------------------- TryGoToDefine ----------------------------         {{{2
+" Ask the language server where the name under the cursor is defined, falling
+" back to the tags file.  LspServerReady() is per-buffer and false while a
+" server is still starting, so the fallback also covers the first seconds of a
+" session, not only the filetypes with no server at all.
 function! TryGoToDefine()
-    if &ft == 'python'
-        :call RopeGotoDefinition()
-    elseif &ft == 'c' || &ft == 'cpp'
-	:exe("cs find g " . expand("<cword>"))
-"        cs find g <C-R>=expand("<cword>")<CR><CR>
+    if exists(':LspGotoDefinition') && g:LspServerReady()
+        :LspGotoDefinition
     else
-        return "<C-]>"
+        execute "normal! \<C-]>"
     endif
 endfunction
 " END: --------------- TryGoToDefine ----------------------------         2}}}
@@ -478,7 +476,22 @@ set backup        " turns on backup (saves prev. file as fn.ext~)
 "if exists("+spelllang")
 "    set spelllang=en_us
 "endif
-"set spellfile=~/.vim/spell/en.utf-8.add
+" config_vim.sh links this to the repo's _spellvim, so zg appends there and
+" the word list stays under version control.  The name has to match
+" 'spelllang' and 'encoding', which are left at the defaults en and utf-8.
+" vim loads the compiled .add.spl off runtimepath on its own; this option is
+" what makes zg and zw write to that file rather than guessing one.
+set spellfile=~/.vim/spell/en.utf-8.add
+
+" vim reads only the compiled .add.spl, and rebuilds it by itself just for zg
+" and zw, so a word added to _spellvim by hand - or arriving with a pull or a
+" checkout - would go unnoticed.  getftime follows the symlink to _spellvim,
+" and returns -1 for a .spl that does not exist yet, so a fresh clone compiles
+" on first launch.  Costs two stat calls when nothing has changed.
+let s:add = expand(&spellfile)
+if getftime(s:add) > getftime(s:add . '.spl')
+    silent! execute 'mkspell! ' . fnameescape(s:add)
+endif
 
 "Settings for Searching and Moving
 " set ignorecase
@@ -534,7 +547,9 @@ set foldmethod=indent
 set foldlevel=1
 set formatoptions-=t        " DONT auto-wrap lines
 set title         " set window title
-set visualbell    " turns off bell, turns on flash
+" belloff=all silences the bell outright.  visualbell alone did not: it only
+" swapped the beep for a screen flash, which is still an interruption.
+set belloff=all
 " END: ------------------ Display -------------------------------         2}}}
 
 sy match OverLength /\%81v\+/
@@ -602,28 +617,11 @@ set wildignore+=*.pdf "pdf binary files"
 set suffixes+=*.out "Latex intermediate"
 " END: ----------- Wildmenu / Wildignore ------------------------         2}}}
 
-" ------------------- CTags / CScope ----------------------------         {{{2
-" search from the current directory to ~ for ctags and cscope files
+" ---------------------- CTags ----------------------------------         {{{2
+" search from the current directory to ~ for a tags file
 set tags=./tags;~
 
-function! LoadCscope()
-    let db = findfile("cscope.out", ".;~")
-    if (!empty(db))
-        let path = strpart(db, 0, match(db, "/cscope.out$"))
-        set nocscopeverbose " suppress 'duplicate connection' error
-        exe "cs add " . db . " " . path
-        set cscopeverbose
-    endif
-endfunction
-autocmd BufEnter /* call LoadCscope()
-
-if has("cscope") && !has("win32") && 0
-    set csto=0
-    set cst
-    set nocsverb
-    set csverb
-endif
-" END: -------------- CTags / CScope ----------------------------         2}}}
+" END: ----------------- CTags ----------------------------------         2}}}
 
 " ----------------- File Type Specific --------------------------         {{{2
 autocmd FileType text setlocal formatoptions+=t spell
@@ -651,36 +649,23 @@ autocmd ColorScheme * hi def link markdownCode String
             \| hi def link markdownCodeBlock String
 " END: ----------------- Markdown -------------------------------         2}}}
 
-" ---------------------- Spelling -------------------------------         {{{2
-" add SpellGoodWordsStart and SpellGoodWordsEnd to dictionary
-for lline in readfile(expand('<sfile>:p:h') . '/_spellvim')
-    for word in split(lline, '\W\+')
-        silent execute ':spellgood! ' . word
-    endfor
-endfor
-" END: ----------------- Spelling -------------------------------         2}}}
-
 " END: =============== VIM SETTINGS =============================         1}}}
 
 " =================== PLUGIN SETTINGS ===========================         {{{1
-" -------------------- TagHighlight -----------------------------         {{{2
-"if ! exists('g:TagHighlightSettings')
-"    let g:TagHighlightSettings = {}
-"endif
-"
-"if has("win32")
-"    let g:TagHighlightSettings['CtagsExecutable'] =
-"                \ "C:\\Program Files (x86)\\ctags58\\ctags.exe"
-"else
-"    let g:TagHighlightSettings['CtagsExecutable'] = "ctags"
-"end
-"
-"let g:TagHighlightSettings['TagFileName'] = 'tags'
-" END: --------------- TagHighlight -----------------------------         2}}}
+" ---------------------- Fugitive -------------------------------         {{{2
+" fugitive removed the legacy :Gblame; the surviving spelling is :Git blame,
+" which opens the same blame annotations in a buffer beside the window.  The
+" old name stays as an alias because the muscle memory predates the rename.
+command! -nargs=* Gblame Git blame <args>
+" :Gstatus went the same way, but its replacement is a bare :Git rather than
+" ":Git status" - with no arguments fugitive opens the summary window, which is
+" what the old command showed.  No <args> here because :Gstatus never took any.
+command! Gstatus Git
+" END: ----------------- Fugitive -------------------------------         2}}}
 
 " ---------------------- NERDTree -------------------------------         {{{2
 let NERDTreeIgnore = ['\.((jpe?g)|(png)|(PNG)|o|atsuo|docx?|xlsx?|pyc|pdf)$',
-            \'\~$', '^cscope.files$', '^cscope.out$', '^tags$', '\.taghl$',
+            \'\~$', '^tags$',
             \'\.pyc$', '\.pdf$', '\.o$', '__pycache__']
 " END: ----------------- NERDTree -------------------------------         2}}}
 
@@ -699,9 +684,61 @@ else
 endif
 let g:UltiSnipsSnippetDirectories = ["snippits","UltiSnips"]
 " END: ----------------- UltiSnips ------------------------------         2}}}
-" Syntastic settings
-"let g:syntastic_python_checkers = ['flake8']
-let g:syntastic_python_checkers = ['']
+" ---------------------- ALE ------------------------------------         {{{2
+" ALE replaced syntastic, whose only setting here was g:syntastic_python_
+" checkers = [''] - an explicit "do not lint python", from when the choice
+" was flake8.
+"
+" linters_explicit is the important one: without it ALE runs every linter it
+" can find on PATH, so what gets checked depends on what happens to be
+" installed rather than on anything written down.  A ruff appearing in a venv
+" would silently start linting.
+let g:ale_linters_explicit = 1
+let g:ale_linters = {
+    \ 'c': ['clangd'],
+    \ 'python': ['ruff'],
+    \ 'sh': ['shellcheck'],
+    \ }
+
+" clangd needs to be told which cross compilers it may run to learn a target's
+" system headers; without this it uses the host's and every firmware file
+" opens with "'stdio.h' file not found".  Measured on stpdrv: 1 error without
+" the flag, 0 with it, across src/main.c, board.c, drive.c, platectl.c and an
+" ASF driver.
+"
+" A glob rather than a path, because the toolchain sits in
+" /opt/homebrew/bin on mac and ~/tools/arm-none-eabi/bin on the linux boxes.
+let g:ale_c_clangd_options = '--query-driver=**/arm-none-eabi-*'
+
+" ruff, because that is what the project repos use: ruff.toml in mfg, ralgs
+" and rlab, and astral-sh/ruff-pre-commit in eight repos' pre-commit config.
+" ALE finds the nearest ruff.toml or pyproject.toml itself, so none of that
+" per-repo configuration is duplicated here.  config_python.sh installs ruff
+" with `uv tool install`, which puts it on PATH whatever venv is active.
+"
+" c goes through clangd rather than ALE's gcc or clang linters.  Those would
+" run the host compiler - Apple clang targeting arm64 - which is wrong for the
+" arm-none-eabi trees and reports every target header as missing.  clangd
+" reads the project's own compile_commands.json, so it lints with the real
+" flags, macros and include paths, and brings ALEGoToDefinition and
+" ALEFindReferences with it.  cppcheck was the alternative and is strictly
+" weaker: it never sees the project's macros or includes.
+"
+" A project needs a compile_commands.json for this to do anything; without
+" one clangd falls back to guessing and is no better than the host compiler.
+" `bear -- make` generates it, or for the makefile trees here, parsing
+" `make -n` output works without installing anything.
+"
+" cpp is absent because there is almost none of it - five files across every
+" repo, against 2800 .c.
+"
+" Lint on save rather than while typing: these are checkers, not a
+" typing aid, and the firmware trees are large enough that on-the-fly runs
+" are a distraction.
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_insert_leave = 0
+let g:ale_lint_on_save = 1
+" END: ----------------- ALE ------------------------------------         2}}}
 
 " ----------------- Personal Functions --------------------------         {{{2
 autocmd BufWritePre * call AutoDelWhiteSpace()
@@ -762,12 +799,13 @@ map <F7> <Esc>:set guifont=*<CR>
 
 map <F8> <ESC>{v}gq
 
-"map <F8> :!/usr/bin/ctags-exuberant -R <CR>
-
-" Mapping rope
-"map <leader>j <ESC>:RopeGotoDefinition<cr>
+" go to the definition of the name under the cursor, and list its callers
 map <F9> <ESC>:call TryGoToDefine()<CR>
-map <F10> <C-c>rd
+map <F10> <ESC>:LspShowReferences<CR>
+
+" the native tag-jump key asks the language server first, same as F9; the
+" fallback in TryGoToDefine uses "normal!" so this mapping cannot recurse
+nnoremap <C-]> :call TryGoToDefine()<CR>
 
 "goto definition with F11
 map <F11> <C-]>
@@ -786,17 +824,6 @@ nnoremap gK :call GitKeepAbove()<CR>
 nnoremap gJ :call GitKeepBelow()<CR>
 nnoremap gN /<<<<<<< <CR>zt
 " END: .................... g. ..................................         3}}}
-
-" ....................... CScope ................................         {{{3
-nmap <C-Space>s :cs find s <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>c :cs find c <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>t :cs find t <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>e :cs find e <C-R>=expand("<cword>")<CR><CR>
-nmap <C-Space>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-Space>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-nmap <C-Space>d :cs find d <C-R>=expand("<cword>")<CR><CR>
-" END: .................. CScope ................................         3}}}
 
 " ................. Searching / Moving ..........................         {{{3
 " nnoremap / /\v

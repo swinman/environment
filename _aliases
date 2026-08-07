@@ -1,0 +1,264 @@
+# Shell aliases, sourced from the login shell's rc file by config_shell.sh.
+# Works in both bash and zsh - there is no _bash_aliases / _zsh_aliases split.
+# Anything shell-specific is guarded on $ZSH_VERSION, anything OS-specific on
+# $OS.
+#
+## config_shell.sh writes this into ~/.zshrc (mac) or ~/.bashrc (linux):
+#
+# export OS=mac                          # or linux
+# export ENVDIR="$HOME/software/environment"
+#
+# if [ -f $ENVDIR/_aliases ]; then
+#     . $ENVDIR/_aliases
+# fi
+#
+# $ENVDIR replaced the old ${BASH_SOURCE[0]} path derivation, which is
+# bash-only and expands to nothing in zsh - every helper path below silently
+# became /helpers/foo.sh.  An explicit variable is portable and less clever.
+
+# --------------------- history ignore --------------------- #
+# bash: HISTIGNORE is a colon-separated glob list
+# zsh:  HISTORY_IGNORE is one extended-glob pattern
+# The vi pattern covers vi, viq and vidq but not vim: the old zsh form
+# vi(q)#( )# was "vi" plus any number of q, so it never matched vidq, and the
+# old bash form vi?(q)?( ) had the same gap.
+if [ -n "$ZSH_VERSION" ]; then
+    setopt EXTENDED_GLOB
+    export HISTORY_IGNORE='(&|ls|[bf]g|exit|gis|gdf|gdw|gba|vi((d|)q|)( )#|gvim|ipy|history( )#)'
+else
+    export HISTIGNORE='&:ls:[bf]g:exit:gis:gdf:gdw:gba:vi?(?(d)q)?( ):gvim:ipy:history?( ):'
+fi
+
+# --------------------- silence the bell --------------------- #
+# zsh beeps by default on completion ambiguity and at the ends of history.
+# bash beeps through readline, whose bell-style is a separate setting, and
+# `bind` only exists in an interactive shell.  vim is handled separately by
+# belloff=all in _vimrc.
+if [ -n "$ZSH_VERSION" ]; then
+    unsetopt beep
+    unsetopt hist_beep
+    unsetopt list_beep
+else
+    case $- in
+        *i*) bind 'set bell-style none' 2>/dev/null ;;
+    esac
+fi
+
+alias cd..='cd ..'
+
+# long listing.  On linux this came from Ubuntu's stock .bashrc, which is not
+# sourced on mac and has no zsh equivalent, so it has to be defined here.
+# A plain `ls` alias too, which Ubuntu's .bashrc supplies on linux and nothing
+# supplied here, so bare `ls` came out uncoloured on both.
+#
+# --color=auto on mac as well, where this used to be left off on the theory
+# that BSD ls picks colour up from the $CLICOLOR that config_mac.sh exports.
+# True of BSD ls - but config_gnu_tools_path puts GNU coreutils ahead of it in
+# PATH, so `ls` here is GNU ls, which ignores $CLICOLOR and wants the flag.
+# The `dl` alias below already assumed GNU ls on mac for the same reason.
+alias ls='ls --color=auto'
+alias ll='ls -alFh --color=auto'
+
+# With LS_COLORS unset, GNU ls falls back to its built-in di=01;34 - bold
+# blue, ANSI index 4, one of the 16 profile-dependent slots - which is nearly
+# invisible on Ubuntu's aubergine background.  38;5;117 is the same palette
+# index as storm.vim's Directory and the prompt's path segment, so ls
+# directories match both regardless of the terminal profile.  Only the keys
+# named here are overridden; every other file type keeps ls's built-in
+# colour.  ow (other-writable) and tw (sticky + other-writable, e.g. /tmp)
+# otherwise render on a green background.
+export LS_COLORS="di=38;5;117:ow=38;5;117:tw=38;5;117"
+
+# show downloads in reverse order without owner, links or permissions
+# GNU ls flags - works on mac once GNU coreutils are ahead of BSD in PATH
+alias dl="ls -gGthr --color=always ~/Downloads | sed 's/^[^ ]* *[0-9]* //'"
+
+# view latest screenshot.  single quotes matter: the ls must run when the
+# alias is used, not when this file is sourced.
+if [ "$OS" = "mac" ]; then
+    alias vs='open "$(ls -t ~/Desktop/Screen*.png 2>/dev/null | head -1)"'
+else
+    alias vs='eog "$(ls ~/Pictures/Screenshots/* | tail -1)"'
+fi
+
+# Just the SSO login.  The private-index login that used to be chained on here
+# is site-specific, so it is configured outside this repo and run separately
+# when a private index is actually needed.
+alias asl="aws sso login"
+
+# live log tail.  mac has no /var/log/syslog; unified logging replaced it.
+if [ "$OS" = "mac" ]; then
+    alias tdmesg="log stream --style compact"
+else
+    alias tdmesg='tail -n 0 -f /var/log/syslog'
+fi
+
+alias math="$ENVDIR/helpers/math.sh"
+alias tepoc="$ENVDIR/helpers/tepoc.sh"
+
+# linux has the real lsusb.  mac has none, and brew's is a wrapper around
+# `system_profiler SPUSBDataType`, which returns empty here - so the helper
+# reads the IOUSB registry plane with ioreg instead.
+if [ "$OS" = "mac" ]; then
+    alias lsusb="$ENVDIR/helpers/lsusb.sh"
+fi
+alias mkpass='< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-12}; echo'
+
+alias LS='echo "Remove CAPS LOCK you ass"'
+
+alias vi='vim'
+
+# --------------------- terminal size --------------------- #
+# XTWINOPS "CSI 8 ; rows ; cols t" asks the terminal emulator to resize its
+# window.  Confirmed working in Terminal.app and on linux, and it travels over
+# ssh, because the sequence is interpreted by the emulator rather than by the
+# shell that printed it.
+#
+# This replaced helpers/resize.sh, which took two very different routes to the
+# same place: wmctrl + xprop + xwininfo with a hardcoded 609x752 pixel geometry
+# under X11, and otherwise a `vim -c "set columns=..." -c q` round trip
+# followed by xterm's `resize` binary.  One printf covers both platforms.
+#
+# Note the argument order: the escape takes rows first, but these take cols
+# first, which is how viq and vidq have always been called.
+#
+# Inside tmux or screen the multiplexer owns the geometry, so this does not
+# work there - use the multiplexer's own resize commands instead.
+tsize() {
+    printf '\033[8;%d;%dt' "${2:-50}" "${1:-85}"
+}
+viq()  { tsize 85 50; }
+vidq() { tsize 165 50; }
+
+# zsh tracks SIGWINCH itself, and bash has done so by default since 5.0, but
+# older bash keeps reporting the pre-resize $COLUMNS/$LINES without this.
+[ -n "$BASH_VERSION" ] && shopt -s checkwinsize 2>/dev/null
+
+# vim resizes the same way from inside: <F4> calls ToggleWidth() in _vimrc,
+# which flips &columns between 85 and 165 and vsplits, so a resize no longer
+# needs ctrl-z / viq / fg.
+
+# a function, not an alias: as an alias the $(cat) ran at source time, so
+# every new shell printed a "No such file" error when the key was absent.
+adr() {
+    aider --model sonnet --api-key anthropic="$(cat ~/.anthropic/key)" \
+        --no-auto-commits "$@"
+}
+
+# keep the machine awake, either for one command or until interrupted:
+#   caffeinate make -j8      awake while that build runs
+#   caffeinate               awake until ctrl-c
+# mac ships caffeinate and defaults to blocking idle sleep; add -d to also
+# keep the display on, -s to hold off system sleep while on AC.  linux has no
+# caffeinate, but systemd-inhibit wraps a command the same way, so aliasing it
+# to the same name means the command works on both.
+if [ "$OS" != "mac" ]; then
+    alias caffeinate='systemd-inhibit --what=idle:sleep:handle-lid-switch --why=caffeinate'
+fi
+
+# various programs
+alias ipy='ipython -i --no-banner'
+alias py3='ipython3 -i --no-banner'
+alias py='python -c'
+
+# --collapse all folds every known family of phantom ports, so this needs no
+# $OS branch: linux's on-board /dev/ttyS* and mac's bluetooth / debug-console
+# nodes each fold where they exist and are silently absent where they do not.
+# --keep carves ttyS4 back out, the one real 16550 UART on the linux box.  On
+# mac the /dev/tty.* callin twins need no bucket at all -- pyserial reports
+# only the /dev/cu.* callout node, which is the one you want anyway.
+alias miniterm="python $ENVDIR/miniterm_wrapper.py --collapse all --keep '^/dev/ttyS4\$'"
+
+
+# The bare-metal compilers, always on PATH.  Unlike the FPGA env below there
+# is no LD_LIBRARY_PATH, license or env-var baggage - a PATH entry is the
+# whole story - so fresh shells get them and firmware builds just work.
+# Idempotent, and skipped where the directory does not exist (mac: the
+# gcc-arm-embedded cask is already on PATH).
+if [ -d "${toolsdir:-$HOME/tools}/arm-none-eabi/bin" ]; then
+    case ":$PATH:" in
+        *":${toolsdir:-$HOME/tools}/arm-none-eabi/bin:"*) ;;
+        *) export PATH="$PATH:${toolsdir:-$HOME/tools}/arm-none-eabi/bin" ;;
+    esac
+fi
+
+# The FPGA toolchain env (iCEcube2, Diamond, ...), loaded on demand only.
+# Deliberately NOT sourced at shell init - and fpga_config.sh returns
+# immediately if some rc chain sources it anyway - so a fresh shell carries
+# no FPGA tools and a build that needs them fails loudly rather than leaning
+# on shell state.  The intended long-term home for that env is a committed
+# discovery tool in the repo that builds with it; see the fpga_config.sh
+# header.
+alias uctools="source $ENVDIR/fpga_config.sh"
+
+# add a ctags file to a repo
+alias vitags="$ENVDIR/vim_config.sh"
+
+# Quote every --include pattern.  zsh globs the whole word, not just the part
+# after the "=", so an unquoted --include=Makefile* looks for a file of that
+# literal name, finds none, and nomatch aborts the command before grep runs.
+# BSD grep takes --include too, so none of this needs GNU grep on PATH.
+alias pygrep='grep -r --include="*.py" --include="*.pyw" --include="*.ipynb"'
+alias vgrep='grep -r --include="*.vhd" --include="*.v" --include="*.inc"'
+alias cgrep='grep -r --include="*.[chsCHS]" --include="*.mk" --include="*.ld" --include="Makefile*" --include="*.[chsCHS][Pp][Pp]"'
+alias ncgrep='grep -r --include="*.nc"'
+alias texgrep='grep -r --include="*.tex"'
+alias shgrep='grep -r --include="*.sh"'
+alias ngrep='grep -r --include="*.npl" --include="*.inc" --include="*.sfe"'
+
+# Git
+alias gis='git status '
+alias gba='git branch -a '
+alias gs='echo no'
+alias gdf='git diff '
+alias gdw='git diff --word-diff'
+alias gdc='git diff --cached'
+alias glb='git log --graph --oneline'
+alias gld="git log --pretty=format:'%C(yellow)%h|%Cred%ad|%Cblue%an|%Cgreen%d %Creset%s' --date=short | column -ts'|' | less -r"
+
+#  DFU-Programmer
+alias dfu='dfu-programmer at32uc3b1512'
+alias dflash='dfu flash --suppress-bootloader-mem'
+alias derase='dfu erase'
+alias dreset='dfu reset'
+
+# --------------------- screen recording --------------------- #
+# xdpyinfo/recordmydesktop/xdg-open are X11-only; mac uses screencapture
+if [ "$OS" = "mac" ]; then
+    alias grabscreen='screencapture -v ~/Desktop/screen-recording.mov'
+    alias video='open '
+elif command -v xdpyinfo >/dev/null 2>&1 && xdpyinfo -v >/dev/null 2>&1; then
+    SCREENWIDTH=$(xdpyinfo | grep -oP 'dimensions:\s+\K[0-9]*')
+    SCREENHEIGHT=$(xdpyinfo | grep -oP 'dimensions:\s+[0-9]*x\K[0-9]*\S+')
+    alias grabscreen='recordmydesktop --no-sound --fps=15 --delay=1 '
+    alias grabscreen1='recordmydesktop --no-sound --fps=15 --delay=1 --width=$(($SCREENWIDTH/2))'
+    alias grabscreen2='recordmydesktop --no-sound --fps=15 --delay=1 --x=$(($SCREENWIDTH/2))'
+    alias video='xdg-open '
+fi
+
+# --------------------- completion and keys --------------------- #
+# zsh only, and in its own file for the same reason as the prompt below: bash
+# cannot parse zstyle, bindkey or ${terminfo[...]}, and a runtime guard here
+# would not stop it from trying.  bash gets none of this - readline has its own
+# completion and its own inputrc, and neither is currently configured.
+if [ -n "$ZSH_VERSION" ]; then
+    [ -f "$ENVDIR/_completion_zsh" ] && . "$ENVDIR/_completion_zsh"
+fi
+
+# --------------------- prompt --------------------- #
+# Two-line prompt in either shell: context above, a bare prompt character at
+# column 0, so the command being typed always starts at the left edge however
+# long the venv / path / branch context grows.  Colors come from
+# colorvim/colors/storm.vim so the shell and vim agree.
+#
+# Each shell's implementation is a separate file rather than a guarded block
+# here.  A runtime guard does not stop the other shell from *parsing* the
+# block, and both use syntax the other cannot parse: zsh pattern tests and
+# subscripts, bash's \[ \] width markers.  These two lines are safe in both.
+if [ -n "$ZSH_VERSION" ]; then
+    [ -f "$ENVDIR/_prompt_zsh" ] && . "$ENVDIR/_prompt_zsh"
+else
+    [ -f "$ENVDIR/_prompt_bash" ] && . "$ENVDIR/_prompt_bash"
+fi
+
+# vim:ft=sh

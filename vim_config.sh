@@ -1,5 +1,5 @@
 #!/bin/bash
-# use to make ctags, cscope and taghighlight files
+# use to make the ctags file
 # if you want to provide a root directory for your code
 # that is different from the calling directory, use
 # an additional parameter when you call the script
@@ -11,50 +11,66 @@ else
     SRC_DIR=$(pwd)
 fi
 
-if [ "$OS" = "windows" ]; then
-    CTAGS=ctags
-    TAGHL=~/vimfiles/bundle/taghighlight/plugin/TagHighlight/TagHighlight.py
-else
-    CTAGS=ctags
-    TAGHL=~/.vim/bundle/taghighlight/plugin/TagHighlight/TagHighlight.py
-fi
+CTAGS=ctags
 
-if hash cscope 2>/dev/null; then
-    echo "Write cscope files list"
-    rm -f $SRC_DIR/cscope.files $SRC_DIR/cscope.out
-    cd $SRC_DIR && echo "$(find . -name "*.[ch]")" > cscope.files
-    cd $SRC_DIR && echo "$(find . -name "*.vhd")" >> cscope.files
-    cd $SRC_DIR && echo "$(find . -name "*.py")" >> cscope.files
-# pascal files from nanoplotter
-#    cd $SRC_DIR && echo "$(find . -name "*.npl")" >> cscope.files
-#    cd $SRC_DIR && echo "$(find . -name "*.inc")" >> cscope.files
-#    cd $SRC_DIR && echo "$(find . -name "*.sfe")" >> cscope.files
-
-    echo "Make cscope database"
-    cd $SRC_DIR && cscope -Rkb -i cscope.files
-fi
+# universal-ctags' VHDL parser gives up on the architecture's declarative
+# region once it has passed a run of `component` declarations.  In
+# stopsen's fpga/main_top.vhd it tags the entity fine - 81 ports, 38 generics
+# - then emits nothing for the 54 signals and 2 types that follow the seven
+# component blocks.
+#
+# These rules add the signals back through ctags' own regex mechanism, so they
+# land in the tags file and :tag reaches them.  vhdl_ls answers go-to-definition
+# for VHDL now, so what still rests on this is <F11>, the bare <C-]>, and any
+# machine without the server installed.
+#
+# One rule per name position, because a ctags regex yields a single tag per
+# line: 25% of declarations here name two or more signals.  Four covers 99% of
+# them (811 declare one name, 262 two, 14 three, 6 four, and a thin tail out to
+# thirteen).
+#
+# [[:space:]] rather than [ \t]: the rules are passed unquoted so the shell
+# splits them into one argument each, which a pattern containing a literal
+# space would not survive.
+_vhdl_id='[a-zA-Z0-9_]+'
+_vhdl_sp='[[:space:]]*'
+_vhdl_pre="^${_vhdl_sp}signal[[:space:]]+"
+_vhdl_sep="${_vhdl_id}${_vhdl_sp},${_vhdl_sp}"
+VHDL_SIGNAL_RULES="
+--regex-VHDL=/${_vhdl_pre}(${_vhdl_id})/\1/s,signal/i
+--regex-VHDL=/${_vhdl_pre}${_vhdl_sep}(${_vhdl_id})/\1/s,signal/i
+--regex-VHDL=/${_vhdl_pre}${_vhdl_sep}${_vhdl_sep}(${_vhdl_id})/\1/s,signal/i
+--regex-VHDL=/${_vhdl_pre}${_vhdl_sep}${_vhdl_sep}${_vhdl_sep}(${_vhdl_id})/\1/s,signal/i
+"
 
 if hash $CTAGS 2>/dev/null; then
     echo "Make ctags list"
     echo "ctags is version $(ctags --version)"
     rm -f $SRC_DIR/tags
-    cd $SRC_DIR && $CTAGS -R --exclude="*~" --exclude=".git" --langmap=c:+.npl
+    # --languages=-JSON because ctags tags every element of a json array.
+    # A 12MB data file in stopsen's testing/datafiles produced 507,968 tags
+    # named array:sigs.N and a 74MB tags file, against 3,791 real tags from
+    # the .vhd sources.  Dropping the parser takes that to 596KB.  Nothing
+    # navigates to a json key by tag, so there is nothing to lose.
+    cd $SRC_DIR && $CTAGS -R --exclude="*~" --exclude=".git" \
+        --languages=-JSON --langmap=c:+.npl $VHDL_SIGNAL_RULES
     if [ -f $SRC_DIR/tags ]; then
-        for var in bool char int uint8_t uint16_t uint32_t; do
-            echo "sed -i \"s/^$var .*//\" $SRC_DIR/tags"
-            sed -i "s/^$var\s.*//" $SRC_DIR/tags
-        done
-        echo "sed -i '/^$/d' $SRC_DIR/tags"
-        sed -i '/^$/d' $SRC_DIR/tags
+        # Drop the tags for bare type names, which are noise to jump to.
+        #
+        # One grep, where this used to be a loop of `sed -i` blanking the
+        # matching lines followed by a second `sed -i` deleting the blanks.
+        # Both failed outright under BSD sed: -i there reads its argument as
+        # the backup suffix, so it swallowed the script and died on the
+        # filename, and \s is a GNU extension that BSD sed matches as a
+        # literal s.  A POSIX ERE with [[:space:]] behaves the same under
+        # either sed, and removing the lines outright leaves no blanks to
+        # clean up afterwards.
+        #
+        # cat-then-rm rather than mv, so the tags file keeps its permissions.
+        echo "Dropping type-name tags from $SRC_DIR/tags"
+        grep -v -E "^(bool|char|int|uint8_t|uint16_t|uint32_t)[[:space:]]" \
+            $SRC_DIR/tags > $SRC_DIR/tags.tmp \
+            && cat $SRC_DIR/tags.tmp > $SRC_DIR/tags
+        rm -f $SRC_DIR/tags.tmp
     fi
 fi
-
-if [ -e $TAGHL ]; then
-    echo "Make taghighlight files"
-    rm -f $SRC_DIR/types_*.taghl
-    cd $SRC_DIR && python3 $TAGHL \
-        --use-existing-tagfile --ctags-file=$SRC_DIR/tags \
-        --source-root=$SRC_DIR
-fi
-
-mkdir -p ~/.tmp #for storing vim backup files

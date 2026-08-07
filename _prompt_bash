@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# bash prompt.  Sourced from _aliases when not running under zsh.
+#
+# Same two-line shape and the same storm.vim colors as _prompt_zsh, so the two
+# shells look alike; _prompt_zsh carries the table of which storm group each one
+# comes from.  The codes are 38;5;n palette indices rather than 38;2;r;g;b,
+# because cterm is the half of that colorscheme terminal vim renders.
+# What bash cannot do is the transient form: there is no equivalent of zle's
+# line-finish hook, so accepted commands keep both lines in scrollback.
+# Everything else carries over.
+#
+# Non-printing sequences must be wrapped in \[ \] or bash miscounts the line
+# width and redraws wrongly when editing long commands.
+
+# .../ plus the last three path components.  bash >= 4.0; silently ignored on
+# bash 3.2, which is what mac ships, so the path just stays full there.
+PROMPT_DIRTRIM=3
+
+# Stop virtualenv's activate from prepending its own (name) to PS1; the venv is
+# rendered as a segment below instead, so it cannot end up shown twice.
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
+_pc_green='\[\e[38;5;119m\]'
+_pc_red='\[\e[38;5;203m\]'
+_pc_blue='\[\e[38;5;117m\]'
+_pc_khaki='\[\e[38;5;185m\]'
+_pc_orange='\[\e[38;5;215m\]'
+# storm Constant, for the prompt character - so it does not read as part of
+# the command typed after it, which it did while both were the Normal white.
+_pc_coral='\[\e[38;5;210m\]'
+_pc_off='\[\e[39m\]'
+
+# Red host over ssh, or on linux with no $DISPLAY.  The $DISPLAY half preserves
+# what _bash_aliases used to do by sed-patching 32m to 31m in PS1, which only
+# worked because the color happened to be a 16-color code.
+if [ -n "$SSH_CONNECTION" ] || { [ "$OS" != "mac" ] && [ -z "$DISPLAY" ]; }; then
+    _pc_host=$_pc_red
+else
+    _pc_host=$_pc_green
+fi
+
+# Keep the window title Ubuntu's stock .bashrc sets, which a bare PS1 would
+# otherwise drop.
+case "$TERM" in
+    xterm*|rxvt*|screen*|tmux*) _pc_title='\[\e]0;\u@\h: \w\a\]' ;;
+    *) _pc_title='' ;;
+esac
+
+_prompt_venv_bash() {
+    [ -n "$VIRTUAL_ENV" ] || return
+    local n=${VIRTUAL_ENV_PROMPT:-$(basename "$VIRTUAL_ENV")}
+    # VIRTUAL_ENV_PROMPT is sometimes already decorated as "(name) "
+    n=${n//[()]/}
+    n=${n## }
+    n=${n%% }
+    # A directory literally named .venv or venv says nothing useful; the
+    # project directory above it is the name worth showing.
+    case $n in
+        .venv|venv|env|.env) n=$(basename "$(dirname "$VIRTUAL_ENV")") ;;
+    esac
+    printf '%s' "$n"
+}
+
+_prompt_git_bash() {
+    local b
+    b=$(git symbolic-ref --short -q HEAD 2>/dev/null) ||
+        b=$(git rev-parse --short HEAD 2>/dev/null) || return
+    printf '%s' "$b"
+}
+
+_prompt_set_bash() {
+    local v g
+    v=$(_prompt_venv_bash)
+    g=$(_prompt_git_bash)
+    PS1="$_pc_title"
+    [ -n "$v" ] && PS1="${PS1}${_pc_orange}(${v})${_pc_off} "
+    PS1="${PS1}${_pc_host}\u@\h${_pc_off}:${_pc_blue}\w${_pc_off}"
+    [ -n "$g" ] && PS1="${PS1} ${_pc_khaki}(${g})${_pc_off}"
+    # second line: bare prompt character at column 0.  \$ renders $ as a normal
+    # user and # as root.
+    PS1="${PS1}\n${_pc_coral}\\\$${_pc_off} "
+}
+
+# Prepend rather than overwrite: distributions put things in PROMPT_COMMAND
+# too.  Guarded so re-sourcing this file does not stack copies.
+case ";$PROMPT_COMMAND;" in
+    *";_prompt_set_bash;"*) ;;
+    *) PROMPT_COMMAND="_prompt_set_bash${PROMPT_COMMAND:+;$PROMPT_COMMAND}" ;;
+esac
+
+# vim:ft=sh

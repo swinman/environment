@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(source ~/software/environment/fpga_config.sh)",
+      "Bash(git log *)",
+      "Bash(git status)",
+      "Bash(arm-none-eabi-size *)",
+      "Bash(arm-none-eabi-nm *)",
+      "Bash(arm-none-eabi-objdump *)",
+      "Bash(lsusb)"
+    ],
+    "defaultMode": "auto"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "a=$(jq -r 'try (.prompt | capture(\"^\\\\s*(?<a>gis|gdf)\\\\s*$\").a) // empty'); case \"$a\" in gis) git status >&2; exit 2;; gdf) git diff >&2; exit 2;; esac"
+          }
+        ]
+      }
+    ]
+  },
+  "tui": "fullscreen",
+  "agentPushNotifEnabled": true,
+  "theme": "dark"
+}
