@@ -180,6 +180,21 @@ config_terminal_keys() {
     # Basic here is Bell, Font, shellExitAction and little else - so adding a
     # nested key leaves the serialised NSColor/NSFont blobs untouched.
     #
+    # The per-profile override Terminal reads is keyMapBoundKeys.  Nothing
+    # reads keyMapBoundBySelector: `strings Terminal | grep -i keymap` does
+    # not contain that name at all, and the Keyboard tab's table binds to
+    # selection.keyMapBoundKeys.  A write to the wrong name lands in the
+    # prefs, survives a restart and reads back looking exactly right, so it
+    # is worth checking the name against the binary before believing a
+    # correct-looking mapping.
+    #
+    # keyMapBoundKeys is a whole table rather than a delta - the Keyboard tab
+    # writes all of the bundled entries back out alongside anything added -
+    # so setting it to just Home and End would drop the function keys,
+    # forward-delete and the modified arrows.  Merge seeds the bundled table
+    # and skips keys that are already there, which leaves both Apple's
+    # defaults and any hand-made mapping intact.
+    #
     # Going through `defaults export` / `defaults import` rather than editing
     # the plist in place keeps cfprefsd's cached copy in agreement; a direct
     # PlistBuddy write to the file can be silently overwritten from that
@@ -194,6 +209,7 @@ config_terminal_keys() {
     [ -z "$PROFILE" ] && PROFILE=Basic
     PLB=/usr/libexec/PlistBuddy
     ESC=$(printf '\033')
+    KEYMAPS=/System/Applications/Utilities/Terminal.app/Contents/Resources/keyMappings.plist
     TPL=$(mktemp -t com.apple.Terminal) || return 1
 
     defaults export com.apple.Terminal "$TPL" || return 1
@@ -204,12 +220,17 @@ config_terminal_keys() {
     $PLB -c "Add :'Window Settings':'$PROFILE' dict" "$TPL" 2>/dev/null \
         && $PLB -c "Add :'Window Settings':'$PROFILE':name string $PROFILE" "$TPL" 2>/dev/null \
         && $PLB -c "Add :'Window Settings':'$PROFILE':type string Window Settings" "$TPL" 2>/dev/null
-    $PLB -c "Add :'Window Settings':'$PROFILE':keyMapBoundBySelector dict" "$TPL" 2>/dev/null
+    $PLB -c "Add :'Window Settings':'$PROFILE':keyMapBoundKeys dict" "$TPL" 2>/dev/null
+    # Merge reports every collision on stdout, which is noise here: a rerun
+    # collides on all of them.
+    [ -f "$KEYMAPS" ] && \
+        $PLB -c "Merge $KEYMAPS :'Window Settings':'$PROFILE':keyMapBoundKeys" "$TPL" >/dev/null
     # Add-then-Set so an existing mapping is corrected rather than skipped.
-    $PLB -c "Add :'Window Settings':'$PROFILE':keyMapBoundBySelector:F729 string ${ESC}[H" "$TPL" 2>/dev/null \
-        || $PLB -c "Set :'Window Settings':'$PROFILE':keyMapBoundBySelector:F729 ${ESC}[H" "$TPL"
-    $PLB -c "Add :'Window Settings':'$PROFILE':keyMapBoundBySelector:F72B string ${ESC}[F" "$TPL" 2>/dev/null \
-        || $PLB -c "Set :'Window Settings':'$PROFILE':keyMapBoundBySelector:F72B ${ESC}[F" "$TPL"
+    $PLB -c "Add :'Window Settings':'$PROFILE':keyMapBoundKeys:F729 string ${ESC}[H" "$TPL" 2>/dev/null \
+        || $PLB -c "Set :'Window Settings':'$PROFILE':keyMapBoundKeys:F729 ${ESC}[H" "$TPL"
+    $PLB -c "Add :'Window Settings':'$PROFILE':keyMapBoundKeys:F72B string ${ESC}[F" "$TPL" 2>/dev/null \
+        || $PLB -c "Set :'Window Settings':'$PROFILE':keyMapBoundKeys:F72B ${ESC}[F" "$TPL"
+    $PLB -c "Delete :'Window Settings':'$PROFILE':keyMapBoundBySelector" "$TPL" 2>/dev/null
     defaults import com.apple.Terminal "$TPL" && \
         echo "Mapped Home and End in Terminal profile \"$PROFILE\""
     rm -f "$TPL"
