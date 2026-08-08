@@ -33,6 +33,26 @@ ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
 VENVDIR=${VENVDIR:-$HOME/.venvs/dev}
 VENVPY=${VENVPY:-3.12}
 
+# --clean rebuilds from scratch rather than adding to what is already there.
+# Everything installed into the venv is lost, so it is a flag rather than the
+# default: the common case is re-running this to pick up a new base package.
+CLEAN=${CLEAN:-0}
+for _arg in "$@"; do
+    case "$_arg" in
+        --clean) CLEAN=1 ;;
+        -h | --help)
+            echo "usage: config_python.sh [--clean]"
+            echo "  --clean   remove $VENVDIR first, then rebuild"
+            exit 0
+            ;;
+        *)
+            echo "unknown argument: $_arg" >&2
+            echo "usage: config_python.sh [--clean]" >&2
+            exit 1
+            ;;
+    esac
+done
+
 # Tools wanted whatever the project is.
 #
 # pyserial, not serial: both exist on PyPI and are unrelated.  pyserial is the
@@ -73,6 +93,20 @@ check_uv() {
         echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"
     fi
     return 1
+}
+
+clean_venv() {
+    [ "$CLEAN" = 1 ] || return 0
+    [ -e "$VENVDIR" ] || return 0
+    # A mis-set VENVDIR would otherwise take a real directory with it, so only
+    # a tree that actually looks like a venv is removed.
+    if [ ! -f "$VENVDIR/pyvenv.cfg" ]; then
+        echo "Refusing to clean $VENVDIR" >&2
+        echo "  no pyvenv.cfg there - that is not a venv" >&2
+        return 1
+    fi
+    echo "Removing $VENVDIR"
+    rm -rf "$VENVDIR"
 }
 
 make_venv() {
@@ -122,7 +156,7 @@ install_uv_tools() {
 
 echo "=================== config_python.sh ==================="
 
-if check_uv && make_venv; then
+if clean_venv && check_uv && make_venv; then
     install_base_packages
     install_uv_tools
     echo
@@ -132,8 +166,8 @@ if check_uv && make_venv; then
     echo "Add project packages with the venv active:"
     echo "  uv pip install -e <path-to-checkout>"
     echo
-    echo "Reset it completely with:"
-    echo "  rm -rf $VENVDIR && $ENVDIR/config_python.sh"
+    echo "Rebuild it from scratch with:"
+    echo "  $ENVDIR/config_python.sh --clean"
 fi
 
 echo "============== END: config_python.sh ==================="
