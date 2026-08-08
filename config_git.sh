@@ -107,6 +107,11 @@ config_git() {
         echo "Setting git user.email to $CFG_GIT_EMAIL"
         git config --global user.email "$CFG_GIT_EMAIL"
     fi
+    ask_once CFG_GIT_INITIAL_BRANCH "Default initial branch (default is no change): "
+    if [ -n "$CFG_GIT_INITIAL_BRANCH" ]; then
+        echo "Setting git default branch to $CFG_GIT_INITIAL_BRANCH"
+        git config --global init.defaultBranch "$CFG_GIT_INITIAL_BRANCH"
+    fi
 
     if [ -z "$(git config --global user.name 2>/dev/null)" ] ||
        [ -z "$(git config --global user.email 2>/dev/null)" ]; then
