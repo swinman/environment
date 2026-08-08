@@ -40,7 +40,12 @@ VENVPY=${VENVPY:-3.12}
 #
 # pandas is deliberately absent.  It arrives as a dependency of other things,
 # and pinning it here would only fight those pins.
-BASE_PKGS=${BASE_PKGS:-"ipython numpy scipy snakeviz pyserial"}
+#
+# jupyterlab and notebook rather than the `jupyter` metapackage.  notebook 7 is
+# built on jupyterlab, so the pair gives both the lab and the notebook
+# interface, while the metapackage would additionally pull qtconsole,
+# jupyter-console and nbconvert.
+BASE_PKGS=${BASE_PKGS:-"ipython numpy scipy matplotlib jupyterlab notebook snakeviz pyserial"}
 
 # Tools that belong on PATH rather than in the venv.  `uv tool install` gives
 # each its own isolated environment and links it into ~/.local/bin, which the
