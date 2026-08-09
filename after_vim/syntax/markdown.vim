@@ -42,17 +42,15 @@ syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\S\@
 syn match markdownPlaceholder "<[A-Za-z_][A-Za-z0-9_./ -]*>" transparent contains=NONE
 syn cluster markdownInline add=markdownPlaceholder
 
-" 6) an indented line is only a code block if a blank line precedes it.  The
-"    runtime rule is "4 spaces or a tab at line start", with no awareness of
-"    lists or paragraphs (its own comment there says "TODO: real nesting"),
-"    so the hanging indent of a wrapped list item and the lazy continuation
-"    of a paragraph both render in the code colour.  That was invisible until
-"    fix 1 above gave markdownCodeBlock a highlight group.  Anchoring the
-"    region on the preceding blank line - with a lookahead for the indented
-"    line that follows - is commonmark's actual rule, and separates real
-"    indented code from continuation text.  The blank line carries the start
-"    of the region but displays nothing.  A lookahead rather than a
-"    lookbehind, so there is no regex cost.  The one case it drops is an
-"    indented block on line 1, which has no preceding blank line.
-syn clear markdownCodeBlock
-syn region markdownCodeBlock start="^\s*$\n\%(\%( \{4,}\|\t\)\S\)\@=" end="^\%(\%( \{4,}\|\t\)\|\s*$\)\@!" keepend
+" 6) do NOT clear markdownCodeBlock here.  This file used to replace the
+"    runtime's indented-code rule with one anchored on a preceding blank line,
+"    because an older runtime matched a bare "4 spaces or a tab at line start"
+"    and so coloured the hanging indent of a wrapped list item as code.  The
+"    vim 9 runtime already requires the blank line, so the replacement bought
+"    nothing - and "syn clear markdownCodeBlock" took the ``` and ~~~ fenced
+"    block rules with it, because the runtime files give all three rules the
+"    same group name.  With no fenced rule left, the three backticks fall to
+"    the inline `code` region, which is not line bounded, so an opening fence
+"    ran the code colour on down the file straight past its own closing fence.
+"    Fenced blocks that name a language were unaffected, since those get their
+"    own markdownHighlight_<lang> group.
