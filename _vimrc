@@ -647,6 +647,45 @@ let g:markdown_syntax_conceal = 0
 " so put it back whenever the scheme is switched (see the F3 mapping)
 autocmd ColorScheme * hi def link markdownCode String
             \| hi def link markdownCodeBlock String
+
+" formatoptions is per buffer, not per region, so 't' auto-wraps ascii art and
+" long command lines inside ``` fences, and gq reflows the whole block as one
+" paragraph.  Let the cursor position decide: drop 't' while it sits in a code
+" block, put it back on the way out.  gq ignores 't', so formatexpr covers that
+" case by returning 0 - "these lines are already formatted, leave them alone".
+function! s:MarkdownInCode(lnum) abort
+    let l:groups = filter(map(synstack(a:lnum, 1), 'synIDattr(v:val, "name")'),
+                \ 'v:val =~# "^markdown\\%(Code\\|Highlight\\)"')
+    if empty(l:groups)
+        return 0
+    endif
+    " the indented-code region spans the blank lines bracketing it (see
+    " after/syntax/markdown.vim); a blank line is a paragraph break, not code
+    if getline(a:lnum) =~# '^\s*$' && index(l:groups, 'markdownCodeBlock') >= 0
+        return 0
+    endif
+    return 1
+endfunction
+
+function! s:MarkdownFormatOptions() abort
+    if s:MarkdownInCode(line('.'))
+        setlocal formatoptions-=t
+    else
+        setlocal formatoptions+=t
+    endif
+endfunction
+
+" global, because formatexpr is evaluated outside this script's context
+function! MarkdownFormatExpr() abort
+    return s:MarkdownInCode(v:lnum) ? 0 : 1
+endfunction
+
+augroup markdown_code_format
+    autocmd!
+    autocmd FileType markdown setlocal formatexpr=MarkdownFormatExpr()
+                \| autocmd CursorMoved,CursorMovedI <buffer>
+                \      call s:MarkdownFormatOptions()
+augroup END
 " END: ----------------- Markdown -------------------------------         2}}}
 
 " END: =============== VIM SETTINGS =============================         1}}}
