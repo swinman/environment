@@ -25,6 +25,9 @@
     ]
   },
   "tui": "fullscreen",
+  "theme": "dark",
   "agentPushNotifEnabled": true,
-  "theme": "dark"
+  "enabledPlugins": {
+    "clangd-lsp@claude-plugins-official": true
+  }
 }
