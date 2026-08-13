@@ -16,6 +16,9 @@
   feature branch stays a cohesive unit in history.
 - for commit headers - DEFINITELY don't violate the 80 characters rule; in fact
   try to keep the first line of a commit under 50 characters
+- the commit message BODY wraps at 72, NOT the 80 used for .md prose: `git log`
+  indents the message four spaces, so 72 is what still fits an 80-column
+  terminal. Trailers (Co-Authored-By, session URLs) are never wrapped.
 
 
 # Feature branch workflow: objectives_<feature_name>.md
@@ -128,6 +131,10 @@ ones - follow what the repo already does.
 
 # Code review
 
+- Don't believe comments, intent included - question the premise. A makefile
+  here justifies a leading `-` on the boot recipe with "no device attached must
+  not fail to build", but `make boot` with no device SHOULD fail; only plain
+  `make` has to keep working, and it does not require boot.
 - Write review comments into a markdown file in the current directory, named
   `code-review-[branch name].md`. You have permission to read and write that
   file.
