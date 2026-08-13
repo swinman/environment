@@ -271,15 +271,22 @@ hi MatchParen       guibg=DarkCyan      ctermbg=36
 "		Generally: text that is displayed differently from what it
 "		really is.
 "                                                                       3}}}
-hi DiffAdd          guibg=DarkBlue      ctermbg=18
-hi DiffChange       guibg=DarkMagenta   ctermbg=90
+" The Diff* defaults built into vim carry ctermfg=Black, and :hi is additive,
+" so leaving the foreground unset here paints black on these backgrounds.
+" NONE clears it and lets the syntax colours through instead.
+hi DiffAdd          guibg=#005f00       ctermbg=22
+hi DiffAdd          guifg=NONE          ctermfg=NONE
+
+hi DiffChange       guibg=#5f5f00       ctermbg=58
+hi DiffChange       guifg=NONE          ctermfg=NONE
 
 hi DiffDelete       gui=NONE            cterm=NONE
-hi DiffDelete       guibg=DarkCyan      ctermbg=36
-hi DiffDelete       guifg=Red3          ctermfg=124
+hi DiffDelete       guibg=#5f0000       ctermbg=52
+hi DiffDelete       guifg=#d75f5f       ctermfg=167
 
 hi DiffText         gui=BOLD            cterm=BOLD
-hi DiffText         guibg=Red           ctermbg=9
+hi DiffText         guibg=#875f00       ctermbg=94
+hi DiffText         guifg=NONE          ctermfg=NONE
 
 hi NonText          gui=BOLD            cterm=BOLD
 hi NonText          guibg=Grey30        ctermbg=239
