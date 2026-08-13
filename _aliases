@@ -69,6 +69,13 @@ alias ll='ls -alFh --color=auto'
 # otherwise render on a green background.
 export LS_COLORS="di=38;5;117:ow=38;5;117:tw=38;5;117"
 
+# jq's default null is 1;30, bold black, and true/false/numbers all share the
+# default foreground.  Fields are null:false:true:numbers:strings:arrays:
+# objects:keys, in storm.vim palette indices.  jq honours the eighth only from
+# 1.7.1; 1.6 stops after the seventh, leaving object keys on its built-in
+# 34;1 - the same bold blue called out above for ls directories.
+export JQ_COLORS="0;38;5;203:0;38;5;210:0;38;5;210:0;38;5;223:0;38;5;119:1;38;5;185:1;38;5;185:0;38;5;117"
+
 # show downloads in reverse order without owner, links or permissions
 # GNU ls flags - works on mac once GNU coreutils are ahead of BSD in PATH
 alias dl="ls -gGthr --color=always ~/Downloads | sed 's/^[^ ]* *[0-9]* //'"
