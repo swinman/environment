@@ -229,14 +229,19 @@ alias dreset='dfu reset'
 if [ "$OS" = "mac" ]; then
     alias grabscreen='screencapture -v ~/Desktop/screen-recording.mov'
     alias video='open '
-elif command -v xdpyinfo >/dev/null 2>&1 && xdpyinfo -v >/dev/null 2>&1; then
-    SCREENWIDTH=$(xdpyinfo | grep -oP 'dimensions:\s+\K[0-9]*')
-    SCREENHEIGHT=$(xdpyinfo | grep -oP 'dimensions:\s+[0-9]*x\K[0-9]*\S+')
+# One real call, and the guard is that call.  `xdpyinfo -v` prints the version
+# and exits 0 without opening a display, so guarding on it tested nothing that
+# command -v had not, and the two calls below then ran unguarded - printing
+# "unable to open display" twice per shell over ssh or on a headless login.
+elif _dimensions=$(xdpyinfo 2>/dev/null | grep -oP 'dimensions:\s+\K[0-9]+x[0-9]+'); then
+    SCREENWIDTH=${_dimensions%x*}
+    SCREENHEIGHT=${_dimensions#*x}
     alias grabscreen='recordmydesktop --no-sound --fps=15 --delay=1 '
     alias grabscreen1='recordmydesktop --no-sound --fps=15 --delay=1 --width=$(($SCREENWIDTH/2))'
     alias grabscreen2='recordmydesktop --no-sound --fps=15 --delay=1 --x=$(($SCREENWIDTH/2))'
     alias video='xdg-open '
 fi
+unset _dimensions
 
 # --------------------- completion and keys --------------------- #
 # zsh only, and in its own file for the same reason as the prompt below: bash
