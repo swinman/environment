@@ -12,37 +12,74 @@ get_packages() {
     sudo apt-get install gtkterm -y
 }
 
+# SEGGER's J-Link software, the counterpart to config_mac.sh's segger-jlink
+# cask.
+#
+# SEGGER serve their downloads behind a licence form, and the field posted
+# below is that form's accept box: running this agrees to SEGGER's terms
+# exactly as clicking through the download page does.  The unversioned URL
+# always serves the current release.
+#
+# The package brings its own /etc/udev/rules.d/99-jlink.rules and symlinks
+# JLinkExe into /usr/bin, so there is no rule to place and no PATH entry to
+# add here.
+JLINK_URL="https://www.segger.com/downloads/jlink"
+
+get_jlink() {
+    [ "$OS" = "linux" ] || return 0
+
+    if command -v JLinkExe >/dev/null 2>&1; then
+        echo "JLink present: $(dpkg-query -W -f='${Version}' jlink 2>/dev/null)"
+        return 0
+    fi
+
+    case "$(uname -m)" in
+        x86_64) _gj_arch=x86_64 ;;
+        aarch64) _gj_arch=arm64 ;;
+        *)
+            echo "  WARNING: SEGGER publish no J-Link build for $(uname -m)" >&2
+            return 1
+            ;;
+    esac
+
+    command -v curl >/dev/null 2>&1 || sudo apt-get install curl -y
+
+    _gj_tmp=$(mktemp -d)
+    # apt reads a local .deb as the _apt user and warns when it cannot reach
+    # the directory holding it; mktemp -d is 0700.
+    chmod 755 "$_gj_tmp"
+    echo "Fetching J-Link (accepting SEGGER's licence, see $JLINK_URL)"
+    if ! curl -fSL --progress-bar -o "$_gj_tmp/jlink.deb" \
+            -X POST -d 'accept_license_agreement=accepted' \
+            "$JLINK_URL/JLink_Linux_$_gj_arch.deb"; then
+        echo "  WARNING: J-Link download failed" >&2
+        rm -rf "$_gj_tmp"
+        return 1
+    fi
+
+    # apt-get, not dpkg -i: the package depends on two dozen X libraries and
+    # dpkg would leave every one of them unresolved.
+    if ! sudo apt-get install -y "$_gj_tmp/jlink.deb"; then
+        echo "  WARNING: J-Link install failed" >&2
+        rm -rf "$_gj_tmp"
+        return 1
+    fi
+    rm -rf "$_gj_tmp"
+    echo "  installed J-Link $(dpkg-query -W -f='${Version}' jlink 2>/dev/null)"
+}
+
 install_tools() {
     DFLD=~/Downloads
-    echo
-    echo "Download j-link software to $DFLD"
-    echo "http://www.segger.com/jlink-software.html"
     echo
     echo "Download saleae software to $DFLD"
     echo "http://www.saleae.com/downloads"
     echo
-    read -p "[ ENTER ] when software has been downloaded." jlink_dwn
+    read -p "[ ENTER ] when software has been downloaded." saleae_dwn
     if [ "$OS" = "linux" ]; then
-        if [ -f $DFLD/JLink_Linux*.tgz ]; then
-            FOLDERNAME=$(ls $DFLD | grep JLink_Linux | sed 's/\(.*\)\.tgz/\1/')
-            echo "Extracting and moving $FOLDERNAME to $toolsdir"
-            (cd $DFLD && unp JLink_Linux* && rm $FOLDERNAME.tgz)
-            (cd $DFLD/$FOLDERNAME && sudo cp libjlinkarm.so.* /usr/lib)
-            (cd $DFLD/$FOLDERNAME && sudo cp 45-jlink.rules /etc/udev/rules.d/)
-            mv $DFLD/$FOLDERNAME $toolsdir
-            sudo ldconfig
-            if [ "$(grep $FOLDERNAME ~/.pam_environment)" = "" ]; then
-                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$FOLDERNAME \
-                    >> ~/.pam_environment
-            fi
-            echo "It will now be necessary to restart the system"
-        fi
         if [ -f $DFLD/Logic*.zip ]; then
             FOLDERNAME=$(ls $DFLD | grep Logic | sed 's/\(.*\)\.zip/\1/')
             echo "Extracting and moving $FOLDERNAME to $toolsdir"
             (cd $DFLD && unp Logic* && rm "$FOLDERNAME.zip")
-    #        (cd $DFLD/$FOLDERNAME && sudo cp libjlinkarm.so.* /usr/lib)
-    #        (cd $DFLD/$FOLDERNAME && sudo cp 45-jlink.rules /etc/udev/rules.d/)
             NEWFOLDERNAME=$(echo $FOLDERNAME | sed "s/ /_/g" | sed "s/[()]//g")
             mv $DFLD/"$FOLDERNAME" $toolsdir/$NEWFOLDERNAME
             if [ "$(grep $NEWFOLDERNAME ~/.pam_environment)" = "" ]; then
@@ -222,6 +259,7 @@ fi
 
 rc=0
 get_gcc_arm || rc=1
+get_jlink || rc=1
 
 #config_avr;
 
