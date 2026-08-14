@@ -1,6 +1,6 @@
 <!-- Symlinked to ~/.claude/CLAUDE.md by config_claude.sh, so these follow you
  to every machine.  Keep it machine-independent; per-repo rules belong in that
- repo's own CLAUDE.md. -->
+ repo's own CLAUDE.md -->
 
 # Working style
 
