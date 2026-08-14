@@ -112,12 +112,6 @@ get_avr_tools() {
 # gcc-arm-embedded cask pulls from, so mac and linux can run the same build.
 # The older developer.arm.com/-/media/Files/downloads/gnu/ paths still serve
 # releases up to 15.2 but 404 on anything current.
-#
-# The version is set here rather than tracking whatever is newest, because
-# firmware builds record `arm-none-eabi-gcc -dumpversion` in their build
-# metadata.  A toolchain that moved on its own would change build records with
-# no commit saying so.  Bump it deliberately, and bump the mac with it - the
-# brew cask autobumps, so the two drift apart otherwise.
 ARM_TOOLCHAIN_VER=${ARM_TOOLCHAIN_VER:-15.3.rel1}
 ARM_TOOLCHAIN_URL="https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain"
 
