@@ -82,7 +82,10 @@ BASE_PKGS=${BASE_PKGS:-"ipython numpy scipy matplotlib jupyterlab notebook snake
 # manages its own pinned copy, so this one is for editing rather than for the
 # hooks: _vimrc points ALE at it, and it is what `ruff check` on the command
 # line resolves to.
-UV_TOOLS=${UV_TOOLS:-"ruff"}
+#
+# pyright is called by name from other repos and from commands outside this
+# one, so it has to resolve without the dev venv being the active one.
+UV_TOOLS=${UV_TOOLS:-"ruff pyright"}
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 
