@@ -1,3 +1,8 @@
+#!/bin/bash
+#
+# bash specifically: run_step below prefixes each script with the `time`
+# keyword, which dash has no equivalent for.
+#
 # this is different from a .cmd (dosbatch) file
 # to run this dd below line (minus #) into "r, then use @r
 #! chmod 755 %; %
@@ -75,15 +80,39 @@ collect_answers() {
     echo
 }
 
-######### also for opening text files or html file defaults
-update_default_programs() {
-    if [ "$OS" = "linux" ]; then
-        sudo sed -i -E "s/^(text\/html=)[^.]*/\1chromium/" /etc/gnome/defaults.list
-        sudo sed -i -E "s/^(text\/xml=)[^.]*/\1chromium/" /etc/gnome/defaults.list
-        sudo sed -i -E "s/^(text\/plain=)[^.]*/\1gvim/" /etc/gnome/defaults.list
-        sudo sed -i -E "s/^(text\/x-java=)[^.]*/\1gvim/" /etc/gnome/defaults.list
-        sudo sed -i -E "s/^(text\/x-python=)[^.]*/\1gvim/" /etc/gnome/defaults.list
-        sudo sed -i -E "s/^(text\/x-sql=)[^.]*/\1gvim/" /etc/gnome/defaults.list
+get_build_tools() {
+    [ "$OS" = "linux" ] || return 0
+    echo "Getting host build tools"
+    sudo apt-get install build-essential -y
+    sudo apt-get install jq -y
+    sudo apt-get install unzip -y
+    sudo apt-get install unp -y
+}
+
+# A step that fails does not stop the ones after it - they are mostly
+# independent, and a run that stopped dead would leave more undone than it
+# fixed.  What must not happen is the failure scrolling past under twenty
+# minutes of apt output, which is how a run that built neither a venv nor a
+# toolchain still looked like it had worked.
+FAILED=""
+run_step() {
+    if time "./$1"; then
+        return 0
+    fi
+    echo "  WARNING: $1 failed"
+    FAILED="$FAILED $1"
+}
+
+report_steps() {
+    echo
+    echo "==================== all_config.sh: $OS ===================="
+    if [ -z "$FAILED" ]; then
+        echo "Every step completed."
+    else
+        echo "FAILED - re-run each on its own once the cause is fixed:"
+        for _rs in $FAILED; do
+            echo "    ./$_rs"
+        done
     fi
 }
 
@@ -111,46 +140,39 @@ if [ "$OS" = "mac" ]; then
     # one script at a time here as each is audited and ported, so this
     # grows into a full mac setup without ever risking a half-ported run.
     #
-    # not applicable: config_udev (linux device rules), update_default_programs
+    # not applicable: config_udev (linux device rules)
     # not wanted:     config_avr_arm (AVR is out; the ARM half config_mac.sh
     #                 already covers), config_fpga (no macOS iCEcube2 exists -
     #                 VHDL compiles remotely, see TODO.md)
     # ----------------------------------------------------------------- #
-    time ./config_mac.sh
-    time ./config_git.sh
-    time ./config_vim.sh
-    time ./config_claude.sh
-    time ./config_python.sh
+    run_step config_mac.sh
+    run_step config_git.sh
+    run_step config_vim.sh
+    run_step config_claude.sh
+    run_step config_python.sh
     if [ "$ADD_LATEX" = "y" ]; then
-        time ./config_latex.sh
+        run_step config_latex.sh
     fi
-    echo
-    echo "==================== all_config.sh: mac ===================="
-    echo "Ran: config_shell.sh, config_mac.sh, config_git.sh, config_vim.sh,"
-    echo "     config_claude.sh, config_python.sh"
-    if [ "$ADD_LATEX" = "y" ]; then
-        echo "     config_latex.sh"
-    fi
+    report_steps
     echo "Open a new terminal (or 'exec zsh') to pick up ~/.zshrc changes."
     echo "==========================================================="
     exit 0
 fi
 
-time ./config_git.sh
+run_step config_git.sh
 config_environment_directory;
-if [ "$OS" = "linux" ]; then
-    #sudo apt-get install sc -y
-    sudo apt-get install unp -y
-fi
-time ./config_vim.sh
-time ./config_python.sh
+get_build_tools;
+run_step config_vim.sh
+run_step config_python.sh
 if [ "$ADD_LATEX" = "y" ]; then
-    time ./config_latex.sh
+    run_step config_latex.sh
 fi
-time ./config_avr_arm.sh
-time ./config_fpga.sh
-time ./config_udev.sh
-update_default_programs;
+run_step config_avr_arm.sh
+run_step config_fpga.sh
+run_step config_udev.sh
+report_steps
+echo "Open a new terminal to pick up ~/.bashrc changes."
+echo "==========================================================="
 #if [ "$ADD_CHROMIUM" = "y" ]; then
 #    config_chromium;
 #fi
