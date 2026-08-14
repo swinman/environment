@@ -77,60 +77,64 @@ get_avr_tools() {
 
 
 
-get_gcc_arm() {
-    if [ "$OS" = "linux" ]; then
-        if [ ! -d $toolsdir/arm-none-eabi ]; then
-            if [ ! -f $toolsdir/arm-gnu-toolchain-*-linux.any.x86_64.tar.gz ]; then
-                aws s3 cp "s3://dev-tool-packages.lucidsci.com/arm-gnu-toolchain-6.3.1.508-linux.any.x86_64.tar.gz" $toolsdir
-#                wget -P $toolsdir "https://s3.us-east-2.amazonaws.com/files.lucidsci.com/arm-gnu-toolchain-6.3.1.508-linux.any.x86_64.tar.gz"
-#                wget -P $toolsdir "https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en603996"
-            fi
-            if [ -f $toolsdir/arm-gnu-toolchain-*-linux.any.x86_64.tar.gz ]; then
-                echo "Extracting and moving arm binaries to $toolsdir"
-                unp $toolsdir/arm-gnu-toolchain-*.x86_64.tar.gz
-                mv arm-none-eabi $toolsdir
-            fi
-        else
-            echo "arm-none-eabi tools already present"
-        fi
-        if [ -d $toolsdir/arm-none-eabi ]; then
-            FOLDERNAME=arm-none-eabi/bin
-            if [ "$(grep $FOLDERNAME ~/.pam_environment)" = "" ]; then
-                echo "adding $toolsdir/$FOLDERNAME to path"
-                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$FOLDERNAME \
-                    >> ~/.pam_environment
-            fi
-        fi
-    fi
-}
+# The Arm GNU Toolchain, from Arm's gitlab package registry.
+#
+# That registry is where Arm publishes now, and where homebrew's
+# gcc-arm-embedded cask pulls from, so mac and linux can run the same build.
+# The older developer.arm.com/-/media/Files/downloads/gnu/ paths still serve
+# releases up to 15.2 but 404 on anything current.
+#
+# The version is set here rather than tracking whatever is newest, because
+# firmware builds record `arm-none-eabi-gcc -dumpversion` in their build
+# metadata.  A toolchain that moved on its own would change build records with
+# no commit saying so.  Bump it deliberately, and bump the mac with it - the
+# brew cask autobumps, so the two drift apart otherwise.
+ARM_TOOLCHAIN_VER=${ARM_TOOLCHAIN_VER:-15.3.rel1}
+ARM_TOOLCHAIN_URL="https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain"
 
-get_gcc_arm_OLD() {
-    if [ "$OS" = "linux" ]; then
-        if [ "$(ls /etc/apt/sources.list.d/ | grep "gcc-arm-embedded")" = "" ]; then
-            if [ "$(lsb_release -r | sed "s/.*\s\+\(.*\)/\1/")" = "14.04" ]; then
-                sudo apt-get remove binutils-arm-none-eabi gcc-arm-none-eabi -y
-            fi
-            sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded
-            sudo apt-get update
-        fi
-        GCCARMNONE=gcc-arm-none-eabi
-        if [ "$(lsb_release -r | sed "s/.*\s\+\(.*\)/\1/")" = "14.04" ]; then
-            GCCARMNONE=gcc-arm-none-eabi=4.9.3.2014q4-0trusty12
-        fi
-        echo ">>>>>>>>>>> using $GCCARMNONE >>>>>>>>>>>"
-        sudo apt-get install $GCCARMNONE -y
-    else
-        echo
-        echo "Download and install arm-none-eabi-gcc"
-        echo "https://launchpad.net/gcc-arm-embedded/+download"
-        echo
-        echo "Download openocd, add bin to path, rename as openocd.exe"
-        echo "http://www.freddiechopin.info/en/download/category/4-openocd"
-        echo "You need 7z to extract: http://www.7-zip.org/"
-        echo
-        echo "Install the stm32 vlink driver"
-        echo "http://www.st.com/web/en/catalog/tools/PF258167"
+get_gcc_arm() {
+    [ "$OS" = "linux" ] || return 0
+
+    _ga_dir="$toolsdir/arm-none-eabi"
+    if [ -x "$_ga_dir/bin/arm-none-eabi-gcc" ]; then
+        echo "arm-none-eabi present: gcc $("$_ga_dir/bin/arm-none-eabi-gcc" -dumpversion)"
+        return 0
     fi
+
+    case "$(uname -m)" in
+        x86_64) _ga_arch=x86_64 ;;
+        aarch64) _ga_arch=aarch64 ;;
+        *)
+            echo "  WARNING: Arm publishes no toolchain for $(uname -m)" >&2
+            return 1
+            ;;
+    esac
+
+    command -v curl >/dev/null 2>&1 || sudo apt-get install curl -y
+    command -v xz >/dev/null 2>&1 || sudo apt-get install xz-utils -y
+
+    _ga_name="arm-gnu-toolchain-$ARM_TOOLCHAIN_VER-$_ga_arch-arm-none-eabi"
+    _ga_tmp=$(mktemp -d)
+    echo "Fetching $_ga_name"
+    if ! curl -fSL --progress-bar -o "$_ga_tmp/tc.tar.xz" \
+            "$ARM_TOOLCHAIN_URL/$ARM_TOOLCHAIN_VER/$_ga_name.tar.xz"; then
+        echo "  WARNING: download failed, no arm-none-eabi toolchain" >&2
+        rm -rf "$_ga_tmp"
+        return 1
+    fi
+
+    # --strip-components=1 drops the tarball's versioned top level, so the
+    # tools land at $toolsdir/arm-none-eabi/bin - the one path _aliases puts
+    # on PATH, whatever version is installed under it.
+    echo "Extracting to $_ga_dir"
+    mkdir -p "$_ga_dir"
+    if ! tar -xJf "$_ga_tmp/tc.tar.xz" -C "$_ga_dir" --strip-components=1; then
+        echo "  WARNING: extract failed" >&2
+        rm -rf "$_ga_tmp" "$_ga_dir"
+        return 1
+    fi
+    rm -rf "$_ga_tmp"
+    echo "  installed gcc $("$_ga_dir/bin/arm-none-eabi-gcc" -dumpversion)"
 }
 
 config_avr() {
@@ -244,7 +248,8 @@ if [ "$OS" = "linux" ]; then
     get_packages;
 fi
 
-get_gcc_arm;
+rc=0
+get_gcc_arm || rc=1
 
 #config_avr;
 
@@ -256,3 +261,4 @@ get_gcc_arm;
 #config_dfu;
 #get_openocd;
 echo "================= END: config_avr_arm.sh ==================="
+exit $rc
