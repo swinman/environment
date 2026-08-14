@@ -25,10 +25,11 @@ support, X11 assumptions that no longer hold anywhere.
 
 Two things follow from that:
 
-- **`all_config.sh` should not be trusted as a whole.** Do not run it
-  end-to-end expecting a working machine. Read the individual `config_*.sh`
-  script you actually want and run that. The mac path is deliberately built up
-  one script at a time for this reason (see "Running it" below).
+- **`setup/all_config.sh` should not be trusted as a whole.** Do not run it
+  end-to-end expecting a working machine. Read the individual
+  `setup/config_*.sh` script you actually want and run that. The mac path is
+  deliberately built up one script at a time for this reason (see "Running it"
+  below).
 - **Do not assume something written for ubuntu is still wanted on ubuntu.**
   Age is not endorsement. Several scripts here install things that are no
   longer used at all, and being linux-only is not evidence that a script is
@@ -38,6 +39,11 @@ The parts worth keeping are mostly the ones that encode hard-won detail rather
 than installation steps: see "What is load-bearing" below.
 
 ## How it is wired
+
+The setup scripts are in `setup/`. Everything they put into place - `_vimrc`,
+`_aliases`, `colorvim/`, `after_vim/`, the udev rules - stays at the repo root,
+which is what `$ENVDIR` means throughout. A script's own directory is
+`$SETUPDIR`, and `$ENVDIR` is its parent.
 
 `config_shell.sh` writes a bracketed block into the login shell's rc file
 (`~/.zshrc` on mac, `~/.bashrc` on linux), and rewrites that block in place on
@@ -80,7 +86,7 @@ every run rather than appending duplicates:
 ## Running it
 
     export OS=mac        # or linux, or let config_shell.sh detect it
-    ./all_config.sh
+    ./setup/all_config.sh
 
 On mac this runs `config_shell.sh` and `config_mac.sh` and stops. Everything
 past that point in `all_config.sh` is `apt-get` based, so mac does not fall
@@ -129,16 +135,16 @@ Ported and exercised on mac:
 
 | file | notes |
 | --- | --- |
-| `config_shell.sh` | rc block, `$OS` detection, `$ENVDIR` |
-| `config_mac.sh` | brew list, brew ahead of `/usr/bin` in `PATH`, GNU tools ahead of BSD, ARM toolchain cask, Terminal.app Home/End mapping |
-| `config_claude.sh` | installs Claude Code, symlinks `_claude_*` |
-| `config_git.sh` | git config, then `config_ssh`; the git install itself belongs to `config_mac.sh` |
-| `config_vim.sh` | native `pack/plugins/start`, no pathogen, plugins via `clone_or_pull` |
-| `config_python.sh` | one shared venv activated by the rc block, no system `pip` |
+| `setup/config_shell.sh` | rc block, `$OS` detection, `$ENVDIR` |
+| `setup/config_mac.sh` | brew list, brew ahead of `/usr/bin` in `PATH`, GNU tools ahead of BSD, ARM toolchain cask, Terminal.app Home/End mapping |
+| `setup/config_claude.sh` | installs Claude Code, symlinks `_claude_*` |
+| `setup/config_git.sh` | git config, then `config_ssh`; the git install itself belongs to `config_mac.sh` |
+| `setup/config_vim.sh` | native `pack/plugins/start`, no pathogen, plugins via `clone_or_pull` |
+| `setup/config_python.sh` | one shared venv activated by the rc block, no system `pip` |
 | `_aliases` | mac branches for `vs`, `tdmesg`, screen recording, prompt |
-| `config_latex.sh` | MacTeX without the GUI apps, and a `~/Library/texmf` link to the standalone latex checkout |
+| `setup/config_latex.sh` | MacTeX without the GUI apps, and a `~/Library/texmf` link to the standalone latex checkout |
 
-Everything in that table is called from the mac branch of `all_config.sh`.
+Everything in that table is called from the mac branch of `setup/all_config.sh`.
 `config_latex.sh` runs only when the up-front question is answered `y`, because
 the full TeX Live it installs is several GB.
 
@@ -146,16 +152,16 @@ Not ported, and not going to be:
 
 | file | why |
 | --- | --- |
-| `config_avr_arm.sh` | AVR is out. The ARM half - the `gcc-arm-embedded` cask, `openocd`, `segger-jlink` - is in `config_mac.sh`, and the rest was linux build scaffolding |
-| `config_fpga.sh` | no macOS build of iCEcube2 exists, and the CLI flow is x86 Linux ELF with node-locked licensing. VHDL compiles remotely instead; `fpga_config.sh` is already a no-op on mac. See `TODO.md` |
-| `config_udev.sh` | linux device rules, no mac equivalent |
+| `setup/config_avr_arm.sh` | AVR is out. The ARM half - the `gcc-arm-embedded` cask, `openocd`, `segger-jlink` - is in `config_mac.sh`, and the rest was linux build scaffolding |
+| `setup/config_fpga.sh` | no macOS build of iCEcube2 exists, and the CLI flow is x86 Linux ELF with node-locked licensing. VHDL compiles remotely instead; `fpga_config.sh` is already a no-op on mac. See `TODO.md` |
+| `setup/config_udev.sh` | linux device rules, no mac equivalent |
 
 Believed unused:
 
 | file | notes |
 | --- | --- |
-| `config_raspi.sh` | not used any more; near-copy of old `config_bash.sh` |
-| `config_windows.sh` | unaudited |
+| `setup/config_raspi.sh` | not used any more; near-copy of old `config_bash.sh` |
+| `setup/config_windows.sh` | unaudited |
 
 See `TODO.md` for the specific per-file porting notes, the remote VHDL build
 plan, and the `termguicolors` change that would make vim and the shell prompt

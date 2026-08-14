@@ -11,6 +11,9 @@
 # to run a line individually, do the above, but yy instead of dd
 # 0i! <Esc>"ryy@ruu
 
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+. "$SETUPDIR/config_common.sh"
+
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 check_os() {
     if [ "$OS" = "$windows" ]; then

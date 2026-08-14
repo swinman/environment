@@ -24,12 +24,13 @@
 #
 # Deliberately generic - nothing site-specific belongs in this file.
 
-ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
-. "$ENVDIR/config_common.sh"
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
+. "$SETUPDIR/config_common.sh"
 
 # Keep VENVDIR in sync with the activation that config_shell.sh writes into the
 # rc block.  Override either to build somewhere else, e.g.
-#   VENVDIR=~/.venvs/other ./config_python.sh
+#   VENVDIR=~/.venvs/other ./setup/config_python.sh
 VENVDIR=${VENVDIR:-$HOME/.venvs/dev}
 VENVPY=${VENVPY:-3.12}
 
@@ -191,7 +192,7 @@ if clean_venv && check_uv && make_venv; then
     echo "  uv pip install -e <path-to-checkout>"
     echo
     echo "Rebuild it from scratch with:"
-    echo "  $ENVDIR/config_python.sh --clean"
+    echo "  $SETUPDIR/config_python.sh --clean"
 else
     # Exits non-zero so a caller can tell that no venv was built.  Silence here
     # is what let a failed run pass for a successful one.

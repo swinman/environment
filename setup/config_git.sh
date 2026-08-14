@@ -9,8 +9,9 @@
 # config_git so it can label the key with the address just configured, and it
 # has to run before all_config.sh reaches the private clone that follows.
 
-ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
-. "$ENVDIR/config_common.sh"
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
+. "$SETUPDIR/config_common.sh"
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 get_git_packages() {

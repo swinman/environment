@@ -10,9 +10,9 @@
 # Only settings.json and CLAUDE.md (the two files meant to be shared) get
 # linked here.
 
-# Adjust if these aren't already set by all_config.sh / config_bash.sh
-: "${softwaredir:=$HOME/software}"
-ENVREPO="${ENVREPO:-$softwaredir/environment}"
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
+. "$SETUPDIR/config_common.sh"
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 
@@ -31,15 +31,10 @@ get_claude_code() {
 }
 
 link_claude_config() {
-    if [ ! -d "$ENVREPO" ]; then
-        echo "ERROR: $ENVREPO not found - clone the environment repo first"
-        return 1
-    fi
-
     mkdir -p ~/.claude
 
     _link_one() {
-        SRC="$ENVREPO/$1"
+        SRC="$ENVDIR/$1"
         DST="$HOME/.claude/$2"
         if [ ! -f "$SRC" ]; then
             echo "WARNING: $SRC missing in repo, skipping $2"

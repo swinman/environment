@@ -8,8 +8,9 @@
 # ~/.vim/bundle tree and autoload/pathogen.vim are moved into ~/.vim/unused
 # rather than deleted.
 
-ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
-. "$ENVDIR/config_common.sh"
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
+. "$SETUPDIR/config_common.sh"
 
 if [ "$OS" = "windows" ]; then
     VIMDIR=$HOME/vimfiles

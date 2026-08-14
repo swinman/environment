@@ -1,5 +1,9 @@
 #!/bin/bash
 
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
+. "$SETUPDIR/config_common.sh"
+
 #VIMDIR=$HOME/vimfiles
 VIMDIR=$HOME/.vim
 VIMRC=$HOME/.vimrc
@@ -18,7 +22,7 @@ config_vim() {
         echo "$text" >> $target
     fi
     mkdir -p $VIMDIR/colors
-    CDIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/colorvim/colors"
+    CDIR="$ENVDIR/colorvim/colors"
     for fn in $(ls $CDIR/*.vim); do
         FB=$(basename $fn)
         if [ -f $VIMDIR/colors/$FB ]; then

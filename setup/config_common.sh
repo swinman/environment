@@ -2,13 +2,15 @@
 #
 # Sourced, not executed:
 #
-#     ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
-#     . "$ENVDIR/config_common.sh"
+#     SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+#     ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
+#     . "$SETUPDIR/config_common.sh"
 #
-# $ENVDIR is normally exported by config_shell.sh.  Scripts fall back to their
-# own directory so each stays runnable on its own before config_shell.sh has
-# been run for the first time on a new machine.  That fallback replaced the
-# older habit of deriving paths from $0 or ${BASH_SOURCE[0]} at each use site.
+# $ENVDIR is the repo root, one above these scripts, and is what every path
+# passed to link_config is relative to.  It is normally exported by
+# config_shell.sh; scripts fall back to deriving it so each stays runnable on
+# its own before config_shell.sh has been run for the first time on a new
+# machine.
 
 # link_config <path-relative-to-ENVDIR> <destination>
 #
