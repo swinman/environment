@@ -27,6 +27,7 @@
 SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
 . "$SETUPDIR/config_common.sh"
+start_log "$@"
 
 # Keep VENVDIR in sync with the activation that config_shell.sh writes into the
 # rc block.  Override either to build somewhere else, e.g.

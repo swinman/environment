@@ -114,11 +114,13 @@ report_steps() {
             echo "    $SETUPDIR/$_rs"
         done
     fi
+    [ -n "$CONFIG_LOG" ] && echo "Log: $CONFIG_LOG"
 }
 
 # --------------------- SETUP SCRIPT --------------------- #
 SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 . "$SETUPDIR/config_common.sh"
+start_log "$@"
 
 # sourced, not executed: config_shell.sh's check_os exports $OS, which every
 # branch below reads.  It is safe to run first on mac now that its rc editing

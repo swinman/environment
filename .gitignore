@@ -10,3 +10,6 @@ SESSION_NOTES.md
 
 # byte-compiled python, from running miniterm_wrapper.py in place
 __pycache__/
+
+# what the last setup runs on this machine printed
+setup/log.log

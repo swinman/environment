@@ -12,6 +12,7 @@
 SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
 . "$SETUPDIR/config_common.sh"
+start_log "$@"
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 get_git_packages() {

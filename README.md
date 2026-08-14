@@ -98,6 +98,12 @@ README is warning about.
 Individual scripts can be run directly and are written to be re-runnable:
 rc-file edits are guarded or rewritten in place, and `mkdir` calls use `-p`.
 
+Every run appends to `setup/log.log` - a full run and a single script run land
+in the same file, each bracketed by a start and end line carrying the time and
+the exit status. It is untracked, and it is what to hand over when a step
+fails: the failure is usually thousands of lines of `apt-get` above the prompt
+you are looking at.
+
 ## What is load-bearing
 
 - `_vimrc` and `colorvim/colors/` - `storm` (dark) and `summer` (light),

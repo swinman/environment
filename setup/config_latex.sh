@@ -20,6 +20,7 @@
 SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
 . "$SETUPDIR/config_common.sh"
+start_log "$@"
 
 # Where the classes and styles live.  Overridable for a checkout elsewhere.
 LATEXDIR=${LATEXDIR:-$HOME/software/latex}
