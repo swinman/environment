@@ -14,6 +14,14 @@
 - Never recommend pushing a repo. Commit when asked, but leave pushing to me.
 - Never fast-forward feature branch merges: always `git merge --no-ff` so the
   feature branch stays a cohesive unit in history.
+- Whenever possible a submodule sits on its named branch, never a detached
+  HEAD. `git submodule update` and `git pull --recurse-submodules` check it out
+  AT THE RECORDED SHA, which detaches it: the local branch then stops tracking
+  its remote, and anything committed from that state belongs to no branch.
+  Update a submodule from inside it, with a plain `git fetch` and `git merge`
+  on its own branch, so local and remote stay in sync. Where that is not an
+  option, `git submodule update --merge` merges into the current branch instead
+  of detaching.
 - for commit headers - DEFINITELY don't violate the 80 characters rule; in fact
   try to keep the first line of a commit under 50 characters
 - the commit message BODY wraps at 72, NOT the 80 used for .md prose: `git log`
