@@ -65,18 +65,19 @@ config_latex_linux() {
 
 config_drawing() {
     # Figure and image tooling, kept here because these are what the documents
-    # are illustrated with.  pdftk is gone: it is unmaintained and absent from
-    # brew, and qpdf covers the splitting and merging it was used for.
+    # are illustrated with.
     if [ "$OS" = "mac" ]; then
         brew install --cask inkscape
         brew install --cask gimp
         brew install imagemagick
         brew install qpdf
+        brew install pdftk-java
     elif [ "$OS" = "linux" ]; then
         sudo apt-get install inkscape -y
         sudo apt-get install gimp -y
         sudo apt-get install imagemagick -y
         sudo apt-get install qpdf -y
+        sudo apt-get install pdftk-java -y
     fi
 }
 
