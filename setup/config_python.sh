@@ -85,7 +85,12 @@ BASE_PKGS=${BASE_PKGS:-"ipython numpy scipy matplotlib jupyterlab notebook snake
 #
 # pyright is called by name from other repos and from commands outside this
 # one, so it has to resolve without the dev venv being the active one.
-UV_TOOLS=${UV_TOOLS:-"ruff pyright"}
+#
+# basedpyright is the language server after_vim/plugin/lsp.vim registers, for
+# python semantic highlighting.  It is here rather than in config_vim.sh
+# because vim resolves it by PATH lookup, so it needs the same reach the other
+# two do.
+UV_TOOLS=${UV_TOOLS:-"ruff pyright basedpyright"}
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 
