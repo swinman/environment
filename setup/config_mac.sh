@@ -9,8 +9,10 @@
 # These are printed as instructions rather than automated, same convention
 # as the Windows/manual-download blocks in config_avr_arm.sh.
 
-ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
-. "$ENVDIR/config_common.sh"
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
+. "$SETUPDIR/config_common.sh"
+start_log "$@"
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 

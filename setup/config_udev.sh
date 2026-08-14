@@ -1,12 +1,14 @@
 #!/bin/sh
 
-# get the path of directory containing this file
-SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
+. "$SETUPDIR/config_common.sh"
+start_log "$@"
 
 config_rules() {
     echo "Config device plugdev rules"
     echo "Adding device usb ids to plugdev rules"
-    sudo cp $SCRIPTPATH/99-uCtools.rules /etc/udev/rules.d/
+    sudo cp "$ENVDIR/99-uCtools.rules" /etc/udev/rules.d/
 
     #see : https://bugs.launchpad.net/ubuntu/+source/modemmanager/+bug/1827328
     sudo sed 's/--filter-policy=strict/--filter-policy=paranoid/' -i \

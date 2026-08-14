@@ -96,7 +96,7 @@ get_build_tools() {
 # toolchain still looked like it had worked.
 FAILED=""
 run_step() {
-    if time "./$1"; then
+    if time "$SETUPDIR/$1"; then
         return 0
     fi
     echo "  WARNING: $1 failed"
@@ -111,19 +111,23 @@ report_steps() {
     else
         echo "FAILED - re-run each on its own once the cause is fixed:"
         for _rs in $FAILED; do
-            echo "    ./$_rs"
+            echo "    $SETUPDIR/$_rs"
         done
     fi
+    [ -n "$CONFIG_LOG" ] && echo "Log: $CONFIG_LOG"
 }
 
 # --------------------- SETUP SCRIPT --------------------- #
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+. "$SETUPDIR/config_common.sh"
+start_log "$@"
+
 # sourced, not executed: config_shell.sh's check_os exports $OS, which every
 # branch below reads.  It is safe to run first on mac now that its rc editing
 # no longer needs GNU sed (see the write-temp-then-replace note in there).
-. ./config_shell.sh
+. "$SETUPDIR/config_shell.sh"
 
-ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
-. "$ENVDIR/config_common.sh"
+ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
 
 # Both before the dispatch, and in this order: collect_answers asks about
 # Remote Login only when it is off, and that check needs a validated sudo to

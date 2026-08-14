@@ -2,13 +2,60 @@
 #
 # Sourced, not executed:
 #
-#     ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
-#     . "$ENVDIR/config_common.sh"
+#     SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+#     ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}
+#     . "$SETUPDIR/config_common.sh"
+#     start_log "$@"
 #
-# $ENVDIR is normally exported by config_shell.sh.  Scripts fall back to their
-# own directory so each stays runnable on its own before config_shell.sh has
-# been run for the first time on a new machine.  That fallback replaced the
-# older habit of deriving paths from $0 or ${BASH_SOURCE[0]} at each use site.
+# $ENVDIR is the repo root, one above these scripts, and is what every path
+# passed to link_config is relative to.  It is normally exported by
+# config_shell.sh; scripts fall back to deriving it so each stays runnable on
+# its own before config_shell.sh has been run for the first time on a new
+# machine.
+
+# --------------------- run log --------------------- #
+
+# start_log "$@"
+#
+# Re-exec the calling script with its output going to setup/log.log as well as
+# the terminal.  A run driven from a plain terminal - which is where the sudo
+# ones have to happen - is then recoverable in full afterwards.
+#
+# Called by the scripts that are entry points.  A script run as a step of
+# all_config.sh inherits both the pipe and $CONFIG_LOG, so there is only ever
+# one tee, and one log, per run.
+#
+# The status has to travel out of the pipe through a file: these are /bin/sh
+# scripts and there is no PIPESTATUS.  Reporting tee's status instead would
+# make every step of all_config.sh look like it had passed.
+start_log() {
+    [ -n "${CONFIG_LOG:-}" ] && return 0
+
+    _sl_log="$SETUPDIR/log.log"
+    # A log left root-owned by a `sudo ./setup/...` run is the likely reason.
+    # Not worth failing the setup over.
+    if ! ( : >> "$_sl_log" ) 2>/dev/null; then
+        echo "  WARNING: cannot write $_sl_log, running without a log" >&2
+        return 0
+    fi
+
+    CONFIG_LOG="$_sl_log"
+    export CONFIG_LOG
+    _sl_cmd="$0"
+    [ $# -gt 0 ] && _sl_cmd="$0 $*"
+    _sl_rc=$(mktemp)
+
+    printf '\n===== %s  START  %s =====\n' \
+        "$(date '+%Y-%m-%d %H:%M:%S')" "$_sl_cmd" >> "$_sl_log"
+    { "$0" "$@" 2>&1; echo $? > "$_sl_rc"; } | tee -a "$_sl_log"
+    _sl_status=$(cat "$_sl_rc")
+    rm -f "$_sl_rc"
+    printf '===== %s  END    %s (exit %s) =====\n' \
+        "$(date '+%Y-%m-%d %H:%M:%S')" "$_sl_cmd" "$_sl_status" |
+        tee -a "$_sl_log"
+
+    exit "$_sl_status"
+}
 
 # link_config <path-relative-to-ENVDIR> <destination>
 #

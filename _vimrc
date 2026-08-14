@@ -1,6 +1,6 @@
 " ======================== SETUP ================================         {{{1
 " -------------------- INSTRUCTIONS -----------------------------         {{{2
-" 1) RUN ./config_vim.sh, which clones every plugin this file expects into
+" 1) RUN ./setup/config_vim.sh, which clones every plugin this file expects into
 " ~/.vim/pack/plugins/start and symlinks the colours and after/ directory.
 " That script is the list of plugins - do not keep a second copy here.
 "

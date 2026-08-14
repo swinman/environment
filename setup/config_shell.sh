@@ -11,6 +11,13 @@
 # to run a line individually, do the above, but yy instead of dd
 # 0i! <Esc>"ryy@ruu
 
+SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+. "$SETUPDIR/config_common.sh"
+# Only when run, never when sourced: all_config.sh sources this, and there $0
+# is all_config.sh, which start_log would re-exec from the middle of itself.
+# ENVDIR is deliberately left to ensure_req_globals below.
+case "$0" in *config_shell.sh) start_log "$@" ;; esac
+
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 check_os() {
     if [ "$OS" = "$windows" ]; then
