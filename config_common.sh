@@ -133,6 +133,121 @@ end_sudo() {
     _sudo_keepalive=
 }
 
+# --------------------- ssh --------------------- #
+
+# ssh_key_path
+#
+# Echo the private key github would be offered, or nothing when there is none.
+# ed25519 is tried first so a machine carrying both is not judged by an rsa key
+# left behind by an older run of these scripts.
+ssh_key_path() {
+    for _sk in "$HOME/.ssh/id_ed25519" "$HOME/.ssh/id_rsa"; do
+        if [ -f "$_sk" ]; then
+            echo "$_sk"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# github_ssh_ok
+#
+# github answers -T with exit 1 whether or not it recognised the key, so the
+# greeting text is the only signal there is.  accept-new keeps a first-ever
+# connection from stopping on the host key question without turning the check
+# off, and the timeout keeps a machine with no route from parking here.
+github_ssh_ok() {
+    ssh -T -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 \
+        git@github.com 2>&1 | grep -q "successfully authenticated"
+}
+
+# copy_to_clipboard <file>
+#
+# Fails when there is no clipboard to copy to, which is the normal case over a
+# bare ssh session.  Callers print the file as well rather than relying on this.
+copy_to_clipboard() {
+    if [ "$OS" = "mac" ]; then
+        pbcopy < "$1"
+    elif command -v xclip >/dev/null 2>&1; then
+        # xclip stays resident to serve the selection, and it inherits stdout.
+        # Left attached, it holds the pipe open for as long as it owns the
+        # clipboard, so anything reading this script's output waits on it
+        # rather than on the script.
+        xclip -sel clip < "$1" >/dev/null 2>&1
+    else
+        return 1
+    fi
+}
+
+# config_ssh
+#
+# Get github answering over ssh, and do not return until it does.  all_config.sh
+# clones a private repo immediately after config_git.sh; that clone is the first
+# thing a new machine asks a key to do, and it fails quietly, so the wait for the
+# key to be posted belongs here where it can still be acted on.
+#
+# Nothing happens on a machine github already accepts, so re-running is silent.
+config_ssh() {
+    echo
+    echo "Checking ssh access to github"
+    if github_ssh_ok; then
+        echo "  already accepted: $(ssh_key_path)"
+        return 0
+    fi
+
+    _cs_key=$(ssh_key_path)
+    if [ -z "$_cs_key" ]; then
+        ask_once CFG_SSH_KEYGEN "No ssh key found.  Generate one? [Y/n] "
+        case "$CFG_SSH_KEYGEN" in
+            n|N)
+                echo "  skipped - clones over ssh will fail"
+                return 0
+                ;;
+        esac
+        _cs_key="$HOME/.ssh/id_ed25519"
+        _cs_label=$(git config --global user.email 2>/dev/null)
+        [ -n "$_cs_label" ] || _cs_label="$USER"
+        mkdir -p "$HOME/.ssh"
+        chmod 700 "$HOME/.ssh"
+        ssh-keygen -t ed25519 -C "$_cs_label on $(hostname)" -f "$_cs_key" ||
+            return 1
+    else
+        echo "  $_cs_key exists, but github did not accept it"
+    fi
+
+    # The public half is derivable from the private one, so a missing .pub is
+    # recoverable rather than a reason to stop.  An earlier version of this
+    # copied a .pub it had never created, and silently copied nothing.
+    [ -f "$_cs_key.pub" ] || ssh-keygen -y -f "$_cs_key" > "$_cs_key.pub"
+
+    if [ "$OS" = "mac" ]; then
+        ssh-add --apple-use-keychain "$_cs_key"
+    elif [ -n "$SSH_AUTH_SOCK" ]; then
+        ssh-add "$_cs_key"
+    else
+        echo "  no agent running, ssh-add skipped"
+    fi
+
+    if copy_to_clipboard "$_cs_key.pub"; then
+        echo "  public key copied to the clipboard"
+    fi
+    echo
+    cat "$_cs_key.pub"
+    echo
+    echo "Add it at https://github.com/settings/ssh/new"
+    while ! github_ssh_ok; do
+        printf "ENTER once the key is posted to github (s to skip): "
+        read _cs_ans
+        case "$_cs_ans" in
+            s|S)
+                echo "  skipped - clones over ssh will fail"
+                return 0
+                ;;
+        esac
+    done
+    echo "  github accepts $_cs_key"
+}
+
 # ask_once <var-name> <prompt>
 #
 # Prompt only when there is no answer yet, leaving the result in the named

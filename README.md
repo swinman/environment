@@ -132,7 +132,7 @@ Ported and exercised on mac:
 | `config_shell.sh` | rc block, `$OS` detection, `$ENVDIR` |
 | `config_mac.sh` | brew list, brew ahead of `/usr/bin` in `PATH`, GNU tools ahead of BSD, ARM toolchain cask, Terminal.app Home/End mapping |
 | `config_claude.sh` | installs Claude Code, symlinks `_claude_*` |
-| `config_git.sh` | config only; git install and ssh keys belong to `config_mac.sh` |
+| `config_git.sh` | git config, then `config_ssh`; the git install itself belongs to `config_mac.sh` |
 | `config_vim.sh` | native `pack/plugins/start`, no pathogen, plugins via `clone_or_pull` |
 | `config_python.sh` | one shared venv activated by the rc block, no system `pip` |
 | `_aliases` | mac branches for `vs`, `tdmesg`, screen recording, prompt |

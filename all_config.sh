@@ -13,8 +13,12 @@ config_environment_directory() {
         echo "Attempting to access private repo: "
         git clone git@github.com:swinman/environment.git $softwaredir/environment
         if ! [ $? = 0 ]; then
+            # https, not the git:// this used to fall back to.  github turned
+            # off the unauthenticated git protocol in 2022, so that second
+            # attempt could only ever fail as well, which turned a missing ssh
+            # key into two failures and no clone.
             echo "Access failed, attempting as public user: "
-            git clone git://github.com/swinman/environment.git $softwaredir/environment
+            git clone https://github.com/swinman/environment.git $softwaredir/environment
         fi
     else
         echo "  fetching most recent changes"
@@ -41,6 +45,14 @@ collect_answers() {
     echo
     ask_once CFG_GIT_USERNAME "Full user name for git (ENTER for no change): "
     ask_once CFG_GIT_EMAIL    "Email address for git (ENTER for no change): "
+    # Only asked when there is nothing to find.  config_ssh puts the same
+    # question, but ask_once goes quiet once the answers have been taken, so a
+    # question left out of this block is answered blank instead of being asked
+    # later.  The wait for the key to reach github is not a question and still
+    # happens down in config_ssh.
+    if ! ssh_key_path >/dev/null; then
+        ask_once CFG_SSH_KEYGEN "No ssh key found.  Generate one? [Y/n] "
+    fi
     if [ "$OS" = "mac" ]; then
         # Only worth asking when it would be acted on.  sudo is already primed
         # at this point, so -n answers without a password prompt of its own;
@@ -58,7 +70,7 @@ collect_answers() {
     if [ "$OS" = "linux" ]; then
         ask_once ADD_CHROMIUM "Add chromium as the default browser? [N/y] "
     fi
-    export CFG_GIT_USERNAME CFG_GIT_EMAIL CFG_REMOTE_LOGIN
+    export CFG_GIT_USERNAME CFG_GIT_EMAIL CFG_REMOTE_LOGIN CFG_SSH_KEYGEN
     export CONFIG_PROMPTS_DONE=1
     echo
 }

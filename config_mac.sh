@@ -368,22 +368,20 @@ config_directories() {
     echo "OUTSIDE ~/Desktop and ~/Documents so iCloud doesn't try to sync build artifacts."
 }
 
-config_ssh() {
+# Generating the key, copying it and waiting for github belong to
+# config_common.sh's config_ssh, which config_git.sh runs on both platforms.
+# What is left here is the mac-only half: config_ssh runs ssh-add with
+# --apple-use-keychain, and this stanza is what makes that survive a reboot.
+config_ssh_keychain() {
     echo
-    echo "MANUAL STEP: generate SSH keys for GitHub/Bitbucket (interactive, not scripted):"
-    echo "  ssh-keygen -t ed25519 -C \"your_email@example.com\""
-    echo
-    echo "Then add to ~/.ssh/config so Keychain remembers your passphrase across reboots:"
+    echo "MANUAL STEP: add to ~/.ssh/config so Keychain remembers the"
+    echo "passphrase across reboots:"
     echo "  Host *"
     echo "    AddKeysToAgent yes"
     echo "    UseKeychain yes"
     echo "    IdentityFile ~/.ssh/id_ed25519"
     echo
-    echo "  ssh-add --apple-use-keychain ~/.ssh/id_ed25519"
-    echo
-    echo "Copy the public key to clipboard with pbcopy (macOS's xclip equivalent):"
-    echo "  pbcopy < ~/.ssh/id_ed25519.pub"
-    echo "Then add it under GitHub > Settings > SSH keys, and Bitbucket > Personal settings > SSH keys."
+    echo "Bitbucket keys go under Personal settings > SSH keys."
 }
 
 config_remote_login() {
@@ -436,7 +434,7 @@ if [ "$OS" = "mac" ]; then
     # for its init to hook.  Function kept in case pyenv comes back.
     #config_pyenv
     config_directories
-    config_ssh
+    config_ssh_keychain
     config_remote_login
 fi
 

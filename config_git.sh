@@ -2,16 +2,12 @@
 #
 # config_git.sh - global git configuration.
 #
-# Configuration only.  Two jobs that used to live here were removed rather
-# than ported, because the platform scripts already own them and disagreed
-# with the half-ported versions in here:
+# Installing git is not done here: config_mac.sh's get_core_packages does it
+# via brew, and apt-get does it in the linux branch below.
 #
-#   installing git    - config_mac.sh's get_core_packages does it via brew,
-#                       and apt-get does it in the linux branch below.
-#   generating a key  - config_mac.sh's config_ssh covers ed25519 plus the
-#                       Keychain lines in ~/.ssh/config.  The version here
-#                       still made an rsa key and pbcopy'd an id_rsa.pub it
-#                       had not created.
+# Key setup is config_common.sh's config_ssh, called at the end.  It runs after
+# config_git so it can label the key with the address just configured, and it
+# has to run before all_config.sh reaches the private clone that follows.
 
 ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)}
 . "$ENVDIR/config_common.sh"
@@ -117,10 +113,6 @@ config_git() {
        [ -z "$(git config --global user.email 2>/dev/null)" ]; then
         echo "  WARNING: user.name or user.email is still unset - commits will fail"
     fi
-    if [ "$OS" = "mac" ]; then
-        echo
-        echo "ssh keys are not set up here - see config_ssh in config_mac.sh"
-    fi
 }
 
 
@@ -128,4 +120,7 @@ config_git() {
 echo "==================== config_git.sh  ===================="
 get_git_packages;
 config_git;
+if [ "$OS" = "linux" ] || [ "$OS" = "mac" ]; then
+    config_ssh;
+fi
 echo "================ END: config_git.sh ===================="
