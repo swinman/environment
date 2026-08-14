@@ -29,15 +29,12 @@ GH=https://github.com
 get_vim_packages() {
     if [ "$OS" = "linux" ]; then
         echo "Getting required vim packages"
-        # No apt vim: Ubuntu 22.04's package is 8.2, and yegappan/lsp is
-        # vim9script gated on v:version >= 900, so get_vim9 below builds vim
-        # from source instead.  These are its build dependencies - libxt-dev
-        # is what makes --with-x yield +clipboard in terminal vim, and
-        # python3-dev provides the embedded python UltiSnips needs.
-        sudo apt-get install build-essential -y
-        sudo apt-get install libncurses-dev -y
-        sudo apt-get install libxt-dev -y
-        sudo apt-get install python3-dev -y
+        # vim-gtk3, not vim: the plain package is vim.basic, built without the
+        # scripting interpreters and without X, so it is -python3 -clipboard.
+        # UltiSnips needs the first and "* "+ need the second.  Both packages
+        # register /usr/bin/vim through the alternatives system and gtk3 holds
+        # the higher priority, so installing it is all it takes to select it.
+        sudo apt-get install vim-gtk3 -y
         # universal-ctags replaces exuberant-ctags, which has been unmaintained
         # since 2009 and mis-parses enough modern C and python to send
         # jump-to-definition to the wrong place
@@ -45,9 +42,7 @@ get_vim_packages() {
         sudo apt-get install curl -y
         # clangd is what _vimrc points ALE at for c.  It reads a project's
         # compile_commands.json, so it lints with the real cross-compile
-        # flags rather than the host compiler's.  apt's build is 14, which
-        # get_clangd below shadows with a 15+ release build in ~/.local;
-        # this one stays as the fallback for when that fetch fails.
+        # flags rather than the host compiler's.
         sudo apt-get install clangd -y
         # ALE lints sh with this.  There is a lot of shell in this repo alone,
         # and it catches the portability class of bug that took two `sed -i`
@@ -95,34 +90,42 @@ get_vim_packages() {
     fi
 }
 
-get_vim9() {
-    # vim 9, from source, linux only.  Ubuntu 22.04's apt tops out at 8.2,
-    # which cannot load yegappan/lsp, and the jonathonf PPA's 9.0.0749
-    # predates patches the plugin checks for (up to 9.0.1629).  mac gets a
-    # current vim from brew, so only linux takes this path.
-    #
-    # Installs into ~/.local, which interactive shells put ahead of /usr/bin
-    # on PATH, so no sudo is needed and the apt vim is left alone.
+# vim and clangd used to be installed into ~/.local by this script, because
+# Ubuntu 22.04 shipped vim 8.2 - below the v:version >= 900 that yegappan/lsp
+# is gated on - and clangd 14, which drops the extracted system includes for
+# any file whose compile command is inferred rather than listed in
+# compile_commands.json.  Noble carries 9.1 and 18.1, so apt covers both.
+#
+# The local copies are removed rather than left as a fallback.  ~/.profile
+# puts ~/.local/bin ahead of /usr/bin, so they shadow apt's, and a build
+# outlives the libraries it was compiled against: the 24.04 upgrade took
+# libpython3.10 and left the vim binary behind, so vim stopped starting at all
+# while apt's working 9.1 sat behind it on PATH.  The next release upgrade
+# would do the same again.
+#
+# Deleted rather than moved aside with retire_path: apt reinstalls either one
+# in seconds, and between them they hold a quarter of a gigabyte.
+remove_local_vim() {
     [ "$OS" = "linux" ] || return 0
-    if vim --version 2>/dev/null | head -1 | grep -q 'IMproved 9'; then
-        echo "vim 9 present: $(command -v vim)"
-        return 0
-    fi
+    [ -e "$HOME/.local/bin/vim" ] || return 0
+    echo "Removing the ~/.local vim build; apt's vim takes over"
+    for _rv in ex rview rvim view vim vimdiff vimtutor xxd; do
+        rm -f "$HOME/.local/bin/$_rv"
+    done
+    rm -rf "$HOME/.local/share/vim"
+    rm -f "$HOME"/.local/share/man/man1/vim*.1 \
+        "$HOME/.local/share/man/man1/xxd.1"
+    hash -r 2>/dev/null
+}
 
-    echo "Building vim 9 into $HOME/.local"
-    _v9_src=${softwaredir:-$HOME/software}/vim
-    clone_or_pull https://github.com/vim/vim.git "$_v9_src"
-    # --with-python3-command pins the embedded interpreter to the system
-    # python.  Left to configure, the first python3 on PATH wins - an active
-    # venv, or a conda env - and the embedded python is bound at build time,
-    # so vim quietly loses +python3 or breaks outright when that environment
-    # is later removed.
-    (cd "$_v9_src" &&
-        ./configure --prefix="$HOME/.local" --with-features=huge \
-            --enable-python3interp --with-python3-command=/usr/bin/python3 \
-            --with-x &&
-        make -j"$(nproc)" && make install) >/dev/null ||
-        echo "  WARNING: vim build failed; run make in $_v9_src to see why"
+remove_local_clangd() {
+    [ "$OS" = "linux" ] || return 0
+    [ -e "$HOME/.local/bin/clangd" ] || return 0
+    echo "Removing the ~/.local clangd build; apt's clangd takes over"
+    rm -f "$HOME/.local/bin/clangd"
+    # The builtin headers clangd looks for in ../lib/clang/<version>.
+    rm -rf "$HOME/.local/lib/clang"
+    hash -r 2>/dev/null
 }
 
 get_vhdl_server() {
@@ -178,58 +181,6 @@ get_vhdl_server() {
     rm -rf "$_vl_tmp"
 }
 
-get_clangd() {
-    # clangd 15 or newer, linux only.  Ubuntu 22.04's apt clangd is 14,
-    # whose --query-driver drops the extracted system includes for any file
-    # whose compile command is inferred rather than found in
-    # compile_commands.json.  The shared firmware lib trips that
-    # constantly: a lib file compiled out of the app last built
-    # (drivers/accel.c under stpdrv) opens with "'math.h' file not found"
-    # while every neighbour in the compile db is clean.  Fixed in 15;
-    # verified against the 15.0.6 and 18.1.3 release builds.  mac's clangd
-    # ships with the Xcode tools and is already 15, so it takes no part in
-    # this.
-    #
-    # A release build from clangd/clangd, into ~/.local like vim and
-    # vhdl_ls, so it wins over /usr/bin/clangd on PATH and ALE and
-    # yegappan/lsp pick it up with no configuration change.  The layout is
-    # the part to be careful with: clangd finds its builtin headers in
-    # ../lib/clang/<version> relative to the binary, so lib/ is merged
-    # into ~/.local/lib alongside the binary in ~/.local/bin.
-    [ "$OS" = "linux" ] || return 0
-
-    _cd_major=$(clangd --version 2>/dev/null | head -1 |
-        sed 's/.*version //' | cut -d. -f1)
-    if [ -n "$_cd_major" ] && [ "$_cd_major" -ge 15 ] 2>/dev/null; then
-        echo "clangd present: $(clangd --version | head -1)"
-        return 0
-    fi
-
-    echo "Getting clangd (linux release build)"
-    _cd_url=$(curl -sL \
-        https://api.github.com/repos/clangd/clangd/releases/latest |
-        grep -o '"browser_download_url": *"[^"]*clangd-linux-[^"]*\.zip"' |
-        cut -d'"' -f4)
-    if [ -z "$_cd_url" ]; then
-        echo "  WARNING: no clangd-linux zip in the latest release, skipping"
-        return 1
-    fi
-
-    _cd_tmp=$(mktemp -d) || return 1
-    if curl -sL -o "$_cd_tmp/clangd.zip" "$_cd_url" &&
-            unzip -q "$_cd_tmp/clangd.zip" -d "$_cd_tmp"; then
-        set -- "$_cd_tmp"/clangd_*
-        mkdir -p "$HOME/.local/bin" "$HOME/.local/lib"
-        cp -R "$1/lib/." "$HOME/.local/lib/"
-        mv "$1/bin/clangd" "$HOME/.local/bin/clangd"
-        chmod +x "$HOME/.local/bin/clangd"
-        echo "  installed $("$HOME/.local/bin/clangd" --version | head -1)"
-    else
-        echo "  WARNING: could not fetch or unpack $_cd_url"
-    fi
-    rm -rf "$_cd_tmp"
-}
-
 check_vim_features() {
     echo "Checking vim build: $(command -v vim)"
     echo "  $(vim --version | head -1)"
@@ -242,9 +193,10 @@ check_vim_features() {
     done
     if ! vim --version | grep -q -- '+python3'; then
         echo "  WARNING: -python3, so the installed UltiSnips will not load."
-        echo "           On mac this usually means Apple's /usr/bin/vim is"
-        echo "           ahead of brew's on PATH; config_mac.sh's"
-        echo "           config_brew_path fixes that.  snipMate is the"
+        echo "           On linux this means the vim.basic alternative won"
+        echo "           over vim.gtk3; on mac, that Apple's /usr/bin/vim is"
+        echo "           ahead of brew's on PATH, which config_mac.sh's"
+        echo "           config_brew_path fixes.  snipMate is the"
         echo "           pure-vimscript alternative if it cannot be fixed."
     fi
     if ! vim --version | grep -q -- '+clipboard'; then
@@ -386,10 +338,10 @@ get_vim_plugins() {
 
 echo "==================== config_vim.sh  ===================="
 
+remove_local_vim
+remove_local_clangd
 get_vim_packages
-get_vim9
 get_vhdl_server
-get_clangd
 check_vim_features
 config_vim_files
 config_vim_dirs
