@@ -7,22 +7,9 @@
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 get_packages() {
-    sudo apt-get install libusb-0.1-4:i386 -y
-    # sudo apt-get install lpc21isp -y
-    sudo apt-get install unp -y
-    sudo apt-get install libtool -y
-    sudo apt-get install autoconf -y
-    sudo apt-get install automake -y
-    sudo apt-get install texinfo -y
-    sudo apt-get install libhidapi-dev -y
-    sudo apt-get install libusb-1.0-0-dev -y
-    sudo apt-get install libc6 -y
-    sudo apt-get install libncurses5 -y
+    echo "Getting embedded development packages"
+    sudo apt-get install openocd -y
     sudo apt-get install gtkterm -y
-
-    # for making BOSSA
-    sudo apt-get install libwxgtk3.0-gtk3-dev -y
-    sudo apt-get install libreadline-dev -y
 }
 
 install_tools() {
@@ -208,21 +195,6 @@ config_avr() {
     fi
 }
 
-get_openocd() {
-    if [ "$OS" = "linux" ]; then
-        # sudo apt-get install openocd -y
-        if [ -d $softwaredir/libs/openocd ]; then
-            (cd $toolsdir/libs/openocd && git pull)
-        else
-            (cd $softwaredir && git clone git://git.code.sf.net/p/openocd/code openocd)
-            (cd $softwaredir/libs/openocd && ./bootstrap)
-            (cd $softwaredir/libs/openocd && ./configure --enable-stlink --enable-jlink --enable-cmsis-dap)
-        fi
-        (cd $softwaredir/libs/openocd && make)
-        (cd $softwaredir/libs/openocd && sudo make install)
-    fi
-}
-
 config_dfu() {
     if [ "$OS" = linux ]; then
         echo "getting dfu-programmer set up"
@@ -259,6 +231,5 @@ get_gcc_arm || rc=1
 
 # get dfuprogrammer project and install dfu-programmer
 #config_dfu;
-#get_openocd;
 echo "================= END: config_avr_arm.sh ==================="
 exit $rc
