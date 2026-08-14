@@ -1,13 +1,11 @@
 #!/bin/sh
 #
 # config_mac.sh
-# macOS environment setup - mirrors the pattern of config_avr_arm.sh / config_bash.sh
-# Meant to be sourced/called from all_config.sh when $OS = "mac"
+# macOS environment setup, called from all_config.sh when $OS = "mac"
 #
 # Some steps below are one-time manual/GUI steps that can't be scripted
 # (Gatekeeper prompts, System Settings panes, interactive key generation).
-# These are printed as instructions rather than automated, same convention
-# as the Windows/manual-download blocks in config_avr_arm.sh.
+# These are printed as instructions rather than automated.
 
 SETUPDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 ENVDIR=${ENVDIR:-$(CDPATH= cd -- "$SETUPDIR/.." && pwd -P)}

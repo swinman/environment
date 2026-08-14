@@ -158,7 +158,7 @@ Not ported, and not going to be:
 
 | file | why |
 | --- | --- |
-| `setup/config_avr_arm.sh` | AVR is out. The ARM half - the `gcc-arm-embedded` cask, `openocd`, `segger-jlink` - is in `config_mac.sh`, and the rest was linux build scaffolding |
+| `setup/config_arm.sh` | the `gcc-arm-embedded` cask, `openocd` and `segger-jlink` are in `config_mac.sh` already |
 | `setup/config_fpga.sh` | no macOS build of iCEcube2 exists, and the CLI flow is x86 Linux ELF with node-locked licensing. VHDL compiles remotely instead; `fpga_config.sh` is already a no-op on mac. See `TODO.md` |
 | `setup/config_udev.sh` | linux device rules, no mac equivalent |
 

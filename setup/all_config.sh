@@ -145,9 +145,9 @@ if [ "$OS" = "mac" ]; then
     # grows into a full mac setup without ever risking a half-ported run.
     #
     # not applicable: config_udev (linux device rules)
-    # not wanted:     config_avr_arm (AVR is out; the ARM half config_mac.sh
-    #                 already covers), config_fpga (no macOS iCEcube2 exists -
-    #                 VHDL compiles remotely, see TODO.md)
+    # not wanted:     config_arm (config_mac.sh already covers it),
+    #                 config_fpga (no macOS iCEcube2 exists - VHDL compiles
+    #                 remotely, see TODO.md)
     # ----------------------------------------------------------------- #
     run_step config_mac.sh
     run_step config_git.sh
@@ -171,7 +171,7 @@ run_step config_python.sh
 if [ "$ADD_LATEX" = "y" ]; then
     run_step config_latex.sh
 fi
-run_step config_avr_arm.sh
+run_step config_arm.sh
 run_step config_fpga.sh
 run_step config_udev.sh
 report_steps

@@ -1,4 +1,6 @@
 #!/bin/sh
+#
+# config_arm.sh - the Arm bare metal toolchain, openocd and J-Link.
 
 # to run this dd below line (minus #) into "r, then use @r
 #! chmod 755 %; %
@@ -71,38 +73,6 @@ get_jlink() {
     rm -rf "$_gj_tmp"
     echo "  installed J-Link $(dpkg-query -W -f='${Version}' jlink 2>/dev/null)"
 }
-
-install_tools() {
-    DFLD=~/Downloads
-    echo
-    echo "Download saleae software to $DFLD"
-    echo "http://www.saleae.com/downloads"
-    echo
-    read -p "[ ENTER ] when software has been downloaded." saleae_dwn
-    if [ "$OS" = "linux" ]; then
-        if [ -f $DFLD/Logic*.zip ]; then
-            FOLDERNAME=$(ls $DFLD | grep Logic | sed 's/\(.*\)\.zip/\1/')
-            echo "Extracting and moving $FOLDERNAME to $toolsdir"
-            (cd $DFLD && unp Logic* && rm "$FOLDERNAME.zip")
-            NEWFOLDERNAME=$(echo $FOLDERNAME | sed "s/ /_/g" | sed "s/[()]//g")
-            mv $DFLD/"$FOLDERNAME" $toolsdir/$NEWFOLDERNAME
-            if [ "$(grep $NEWFOLDERNAME ~/.pam_environment)" = "" ]; then
-                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/$NEWFOLDERNAME \
-                    >> ~/.pam_environment
-            fi
-            sudo cp $toolsdir/$NEWFOLDERNAME/Drivers/99-SaleaeLogic.rules \
-                /etc/udev/rules.d/
-            echo "It will now be necessary to restart the system"
-        fi
-    fi
-}
-
-get_avr_tools() {
-    sudo apt-get install gdb-avr -y
-    # try avr-gdb and avr-run ... doesn't seem like there is much here..
-    sudo apt-get install gdb-doc -y
-}
-
 
 
 # The Arm GNU Toolchain, from Arm's gitlab package registry.
@@ -207,98 +177,8 @@ get_gcc_arm() {
     echo "  installed $_ga_ver, gcc $("$_ga_dir/bin/arm-none-eabi-gcc" -dumpversion)"
 }
 
-config_avr() {
-    if [ "$OS" = "windows" ]; then
-        DFLD=~/Downloads
-        echo "Download atmel software framework to $DFLD"
-        echo "http://www.atmel.com/tools/AVRSOFTWAREFRAMEWORK.aspx"
-        TOOLURL="http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORWINDOWS.aspx"
-        echo "Download 'avr8', 'avr32' and 'headers' to $DFLD:"
-        echo $TOOLURL
-        read -p "[ ENTER ] when software has been downloaded." jlink_dwn
-        echo "Unzip tools folders, move tools to $toolsdir"
-        echo "from $toolsdir add to path: avr32-tools/bin, avr8-tools/bin, av"
-        echo "      avr32-tools/bin"
-        echo "      avr8-tools/bin"
-        echo "      avr32-prog"
-        echo "Unzip asf folder, move asf-version to $softwaredir"
-        echo "Acquire the appropriate atmel cdc and dfu drivers"
-    fi
-    if [ "$OS" = "linux" ]; then
-        if [ ! -d $softwaredir/libs/xdk-asf-3.35.1 ]; then
-            wget -P /tmp/ "lucidsci.com/atmel/asf-standalone-archive-3.35.1.54.zip"
-            if [ -f /tmp/asf-standalone*.zip ]; then
-                echo "Extracting and moving asf to $softwaredir"
-                unzip -d /tmp/ /tmp/asf-standalone*
-                mkdir -p $softwaredir/libs
-                mv /tmp/xdk-asf-* $softwaredir/libs
-            fi
-        else
-            echo "ASF version 3.35 already present"
-        fi
-
-        if [ ! -d $toolsdir/avr8-tools ]; then
-            wget -P /tmp/ "lucidsci.com/atmel/avr8-gnu-toolchain-3.5.4.1709-linux.any.x86_64.tar.gz"
-            if [ -f /tmp/avr8-gnu-toolchain-3.5.4.1709-linux.any.x86_64.tar.gz ]; then
-                echo "Extracting and moving avr8-tools to $toolsdir"
-                tar -zxvf /tmp/avr8-gnu-toolchain-3.5.4.1709-linux.any.x86_64.tar.gz
-                mv avr8-gnu-toolchain* $toolsdir/avr8-tools
-                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr8-tools/bin \
-                    >> ~/.pam_environment
-            fi
-        else
-            echo "avr8 tools already present"
-        fi
-
-        if [ ! -d $toolsdir/avr32-tools ]; then
-            wget -P /tmp/ "lucidsci.com/atmel/avr32-gnu-toolchain-3.4.3.820-linux.any.x86_64.tar.gz"
-            if [ -f /tmp/avr32-gnu-toolchain-3.4.3.820-linux.any.x86_64.tar.gz ]; then
-                echo "Extracting and moving avr32-tools to $toolsdir"
-                tar -zxvf /tmp/avr32-gnu-toolchain-3.4.3.820-linux.any.x86_64.tar.gz
-                mv avr32-gnu-toolchain* $toolsdir/avr32-tools
-                echo PATH\ DEFAULT=$\{PATH}:$toolsdir/avr32-tools/bin \
-                    >> ~/.pam_environment
-            fi
-        else
-            echo "avr32 tools already present"
-        fi
-
-        if [ ! -d $toolsdir/avr32-tools/avr32/avr32/include/avr32 ]; then
-            wget -P /tmp/ "lucidsci.com/atmel/avr32-headers-6.2.0.742.zip"
-            if [ -f /tmp/avr32-headers-6.2.0.742.zip ]; then
-                echo "Extracting and moving avr32-headers to $toolsdir"
-                unzip -d /tmp/ /tmp/avr32-headers-6.2.0.742.zip
-                mv /tmp/avr32 $toolsdir/avr32-tools/avr32/include/avr32
-            else
-                echo "Failed to extract avr32-headers"
-            fi
-        else
-            echo "avr32 headers already present"
-        fi
-    fi
-}
-
-config_dfu() {
-    if [ "$OS" = linux ]; then
-        echo "getting dfu-programmer set up"
-        get_git_proj dfu-programmer;
-        echo "gathering required packages"
-        sudo apt-get install autoconf libusb-1.0-0-dev -y
-        echo "configure dfu-programmer"
-        $softwaredir/dfu-programmer/bootstrap.sh
-        $softwaredir/dfu-programmer/configure
-        echo "make and install"
-        make -C $softwaredir/dfu-programmer/src
-        sudo make -C $softwaredir/dfu-programmer/src install
-        (cd $softwaredir/dfu-programmer/src && ctags-exuberant -R)
-        (cd $softwaredir/dfu-programmer/src && cscope -R -b)
-    fi
-}
-
-
-
 # --------------------- SETUP SCRIPT --------------------- #
-echo "==================== config_avr_arm.sh ====================="
+echo "==================== config_arm.sh  ===================="
 if [ "$OS" = "linux" ]; then
     get_packages;
 fi
@@ -307,13 +187,5 @@ rc=0
 get_gcc_arm || rc=1
 get_jlink || rc=1
 
-#config_avr;
-
-#install_tools;
-#get_avr_tools
-#config_avr;
-
-# get dfuprogrammer project and install dfu-programmer
-#config_dfu;
-echo "================= END: config_avr_arm.sh ==================="
+echo "=============== END: config_arm.sh  ===================="
 exit $rc
