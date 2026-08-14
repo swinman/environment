@@ -263,4 +263,14 @@ else
     [ -f "$ENVDIR/_prompt_bash" ] && . "$ENVDIR/_prompt_bash"
 fi
 
+# --------------------- terminal ground --------------------- #
+# Repaint the terminal maroon instead of Ubuntu's aubergine.  linux only, so
+# the mac terminals keep whatever their own profile sets.  The script no-ops
+# when stdout is not a tty, which is what keeps it safe here: this file is
+# sourced for scp and rsync sessions too, and an OSC sequence on stdout
+# corrupts the transfer rather than being ignored.
+if [ "$OS" != "mac" ]; then
+    [ -f "$ENVDIR/shconf_maroon.sh" ] && . "$ENVDIR/shconf_maroon.sh"
+fi
+
 # vim:ft=sh
