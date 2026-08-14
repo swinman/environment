@@ -68,9 +68,12 @@ done
 BASE_PKGS=${BASE_PKGS:-"ipython numpy scipy matplotlib jupyterlab notebook snakeviz pyserial"}
 
 # Tools that belong on PATH rather than in the venv.  `uv tool install` gives
-# each its own isolated environment and links it into ~/.local/bin, which the
-# rc block already puts on PATH, so they resolve whatever venv is active - or
-# none at all.
+# each its own isolated environment and links it into ~/.local/bin, so they
+# resolve whatever venv is active - or none at all.
+#
+# ~/.local/bin reaches PATH via ~/.profile, which the rc block does not touch
+# and only a login shell reads.  Nothing here adds it, so a tool installed
+# below can be missing from a shell that started without it.
 #
 # ruff is what the project repos lint with: ruff.toml in mfg, ralgs and rlab,
 # and astral-sh/ruff-pre-commit in eight repos' pre-commit config.  pre-commit
@@ -81,17 +84,37 @@ UV_TOOLS=${UV_TOOLS:-"ruff"}
 
 # --------------------- DEFINE SEVERAL FUNCTIONS --------------------- #
 
+# Everything below needs uv, so it is installed rather than left to the reader.
+# Printing instructions and returning meant a run from all_config.sh built no
+# venv at all and carried on, and the rc block's activation is guarded on the
+# venv existing, so the only symptom was a shell with no (dev) in the prompt.
+#
+# No apt branch on linux: uv is not in the noble archive, so it could only ever
+# fall through to the installer below.
 check_uv() {
     if command -v uv >/dev/null 2>&1; then
         echo "uv present: $(uv --version)"
         return 0
     fi
-    echo "uv not found.  Install it, then re-run this script:"
+    echo "uv not found, installing"
     if [ "$OS" = "mac" ]; then
-        echo "  brew install uv"
+        brew install uv
     else
-        echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"
+        command -v curl >/dev/null 2>&1 || sudo apt-get install curl -y
+        curl -LsSf https://astral.sh/uv/install.sh | sh
     fi
+    # The installer links into ~/.local/bin.  ~/.profile is what puts that on
+    # PATH, and only a login shell reads it, so a shell that started without it
+    # will not find uv however the install went.
+    if ! command -v uv >/dev/null 2>&1 && [ -x "$HOME/.local/bin/uv" ]; then
+        PATH="$HOME/.local/bin:$PATH"
+        export PATH
+    fi
+    if command -v uv >/dev/null 2>&1; then
+        echo "uv installed: $(uv --version)"
+        return 0
+    fi
+    echo "  WARNING: uv install failed, venv not built" >&2
     return 1
 }
 
@@ -156,6 +179,7 @@ install_uv_tools() {
 
 echo "=================== config_python.sh ==================="
 
+rc=0
 if clean_venv && check_uv && make_venv; then
     install_base_packages
     install_uv_tools
@@ -168,6 +192,12 @@ if clean_venv && check_uv && make_venv; then
     echo
     echo "Rebuild it from scratch with:"
     echo "  $ENVDIR/config_python.sh --clean"
+else
+    # Exits non-zero so a caller can tell that no venv was built.  Silence here
+    # is what let a failed run pass for a successful one.
+    echo "  WARNING: no venv at $VENVDIR" >&2
+    rc=1
 fi
 
 echo "============== END: config_python.sh ==================="
+exit $rc
