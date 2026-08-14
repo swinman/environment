@@ -24,10 +24,10 @@
       }
     ]
   },
-  "tui": "fullscreen",
-  "theme": "dark",
-  "agentPushNotifEnabled": true,
   "enabledPlugins": {
     "clangd-lsp@claude-plugins-official": true
-  }
+  },
+  "tui": "fullscreen",
+  "theme": "auto",
+  "agentPushNotifEnabled": true
 }
