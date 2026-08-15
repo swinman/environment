@@ -11,7 +11,8 @@
   action before touching any file, repo, or checkout. This has been
   violated before (2026-07-15: launched into merging lib branches when
   asked only to read objectives_cleanup.md). Do not do it again.
-- Never recommend pushing a repo. Commit when asked, but leave pushing to me.
+- Never recommend pushing a repo. Commit when asked, but leave pushing to me..
+  The exception is any repo where the name starts with 'claude-'
 - Never fast-forward feature branch merges: always `git merge --no-ff` so the
   feature branch stays a cohesive unit in history.
 - Whenever possible a submodule sits on its named branch, never a detached

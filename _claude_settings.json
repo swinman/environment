@@ -8,7 +8,11 @@
       "Bash(arm-none-eabi-size *)",
       "Bash(arm-none-eabi-nm *)",
       "Bash(arm-none-eabi-objdump *)",
-      "Bash(lsusb)"
+      "Bash(lsusb)",
+      "Bash(git push lucidsci claude-*)",
+      "Bash(git push -u lucidsci claude-*)",
+      "Bash(git push origin claude-*)",
+      "Bash(git push -u origin claude-*)"
     ],
     "defaultMode": "auto"
   },
