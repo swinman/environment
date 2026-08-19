@@ -13,6 +13,10 @@
       "Bash(git push lucidsci claude-*)",
       "Bash(git push -u lucidsci claude-*)"
     ],
+    "deny": [
+      "Bash(aws)",
+      "Bash(aws *)"
+    ],
     "defaultMode": "auto"
   },
   "hooks": {
@@ -24,6 +28,11 @@
             "type": "command",
             "command": "~/software/luenv/claude_git_push_guard.sh",
             "statusMessage": "checking push destination"
+          },
+          {
+            "type": "command",
+            "command": "~/software/luenv/claude_aws_guard.sh",
+            "statusMessage": "checking for direct aws use"
           }
         ]
       }
