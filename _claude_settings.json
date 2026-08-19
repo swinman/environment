@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/claude-code-settings.json",
+  "$comment": "SOURCE FILE. ~/.claude/settings.json is a symlink to this; edit here, never through the link, so changes are version controlled and reach the other machines.",
   "permissions": {
     "allow": [
       "Bash(source ~/software/environment/fpga_config.sh)",
@@ -10,13 +11,23 @@
       "Bash(arm-none-eabi-objdump *)",
       "Bash(lsusb)",
       "Bash(git push lucidsci claude-*)",
-      "Bash(git push -u lucidsci claude-*)",
-      "Bash(git push origin claude-*)",
-      "Bash(git push -u origin claude-*)"
+      "Bash(git push -u lucidsci claude-*)"
     ],
     "defaultMode": "auto"
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/software/luenv/claude_git_push_guard.sh",
+            "statusMessage": "checking push destination"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
