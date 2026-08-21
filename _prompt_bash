@@ -5,9 +5,6 @@
 # shells look alike; _prompt_zsh carries the table of which storm group each one
 # comes from.  The codes are 38;5;n palette indices rather than 38;2;r;g;b,
 # because cterm is the half of that colorscheme terminal vim renders.
-# What bash cannot do is the transient form: there is no equivalent of zle's
-# line-finish hook, so accepted commands keep both lines in scrollback.
-# Everything else carries over.
 #
 # Non-printing sequences must be wrapped in \[ \] or bash miscounts the line
 # width and redraws wrongly when editing long commands.

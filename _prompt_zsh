@@ -21,11 +21,9 @@
 #
 # Layout is two lines: context above, a bare prompt character at column 0, so
 # the command being typed always starts at the left edge no matter how long the
-# context grows.  Once a command is accepted the prompt collapses to a
-# transient one-line form, so scrollback and repeated bare <enter> do not cost
-# two lines each.
+# context grows.
 
-autoload -Uz vcs_info add-zsh-hook add-zle-hook-widget
+autoload -Uz vcs_info add-zsh-hook
 
 zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:git:*' formats       ' %F{185}(%b)%f'
@@ -77,23 +75,10 @@ _prompt_set_venv() {
 # information about which shell this is.
 _prompt_char='%F{210}%#%f '
 
-PROMPT_FULL='${_prompt_venv}'"%F{$_prompt_hostcolor}%n@%m%f:$_prompt_path"'${vcs_info_msg_0_}'$'\n'"$_prompt_char"
+PROMPT='${_prompt_venv}'"%F{$_prompt_hostcolor}%n@%m%f:$_prompt_path"'${vcs_info_msg_0_}'$'\n'"$_prompt_char"
 
-# The transient form drops the host name and both parenthesised segments and
-# keeps the path, so accepted commands stay identifiable in scrollback.
-PROMPT_TRANSIENT="$_prompt_path $_prompt_char"
-
-PROMPT=$PROMPT_FULL
-
-_prompt_full() { PROMPT=$PROMPT_FULL }
-_prompt_transient() { PROMPT=$PROMPT_TRANSIENT; zle reset-prompt }
-zle -N _prompt_transient
-
-# add-zsh-hook and add-zle-hook-widget both refuse duplicates, so re-sourcing
-# this file is safe.
+# add-zsh-hook refuses duplicates, so re-sourcing this file is safe.
 add-zsh-hook precmd vcs_info
 add-zsh-hook precmd _prompt_set_venv
-add-zsh-hook precmd _prompt_full
-add-zle-hook-widget line-finish _prompt_transient
 
 # vim:ft=zsh

@@ -78,7 +78,7 @@ every run rather than appending duplicates:
 - The prompt is the exception to that: `_prompt_zsh` and `_prompt_bash` are
   separate files, sourced by `_aliases` according to the shell, because each
   needs syntax the other cannot parse. Both draw the same two-line shape and
-  the same colors; only zsh gets the transient form.
+  the same colors.
 - `_completion_zsh` is split out for the same reason and has no bash
   counterpart, since `zstyle`, `bindkey` and `${terminfo[...]}` have no
   readline equivalent worth maintaining.
@@ -114,9 +114,7 @@ you are looking at.
   ...) and git shorthands.
 - `_prompt_zsh` / `_prompt_bash` - two-line prompt showing venv, host,
   truncated path and git branch, with the command line itself starting at
-  column 0. Colors are taken from `storm.vim` so the shell and vim agree. Under
-  zsh the prompt collapses to a one-line transient form once a command is
-  accepted, so scrollback stays compact.
+  column 0. Colors are taken from `storm.vim` so the shell and vim agree.
 - `_completion_zsh` - completion behaviour (`rehash` so newly installed
   commands complete without a manual one, `special-dirs` so `..<TAB>` becomes
   `../`), Home/End bindings, and a `clear-screen` that scrolls into the
