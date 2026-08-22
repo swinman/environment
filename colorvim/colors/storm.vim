@@ -400,6 +400,13 @@ hi Type             guifg=DarkKhaki     ctermfg=143
 
 hi link StorageClass       Type
 hi link Structure          Type
+
+" volatile has its own group (after/syntax/c.vim), because reading one
+" twice is a bug and it should not look like `static`.  204 came free
+" when Namespace moved to 176: a C buffer never shows a namespace and a
+" python one never shows volatile, but sharing an index would have hidden
+" that from anyone reading the palette.
+hi Volatile         guifg=#ff5f87       ctermfg=204
 hi link Typedef            Type
 "                                                                       2}}}
 "   g. Special                                                          {{{2
@@ -574,7 +581,7 @@ hi LspSemanticClass      guifg=#ff5fff  ctermfg=207
 hi LspSemanticStruct     guifg=#ff5fff  ctermfg=207
 hi LspSemanticEnum       guifg=#878700  ctermfg=100
 hi LspSemanticEnumMember guifg=#5f87ff  ctermfg=69
-hi LspSemanticNamespace  guifg=#ff5f87  ctermfg=204
+hi LspSemanticNamespace  guifg=#d787d7  ctermfg=176
 " python only so far: basedpyright reports these, clangd has no equivalent.
 " Decorator otherwise falls back to the plugin's default of Macro, which is
 " the c preprocessor colour and reads as one.
