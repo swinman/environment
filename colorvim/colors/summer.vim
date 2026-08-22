@@ -331,11 +331,6 @@ hi Type             guifg=Blue          ctermfg=Blue
 
 hi link StorageClass       Type
 hi link Structure          Type
-
-" volatile has its own group (after/syntax/c.vim), because reading one
-" twice is a bug and it should not look like `static`.  Deep pink rather
-" than the bright one storm uses: this background is Grey89.
-hi Volatile         guifg=DeepPink3     ctermfg=DarkMagenta
 hi link Typedef            Type
 "                                                                       2}}}
 "   g. Special                                                          {{{2
